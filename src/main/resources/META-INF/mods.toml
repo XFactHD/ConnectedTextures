@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[45,)"
+license="LGPL v3"
+issueTrackerURL="https://github.com/XFactHD/ConnectedTextures"
+
+[[mods]]
+	modId="contex"
+	version="${file.jarVersion}"
+	displayName="ConnectedTextures"
+	#updateJSONURL="https://change.me.example.invalid/updates.json"
+	#displayURL="https://www.curseforge.com/minecraft/mc-mods/connectedtextures"
+	logoFile="logo.png"
+	authors="XFactHD"
+	displayTest="IGNORE_ALL_VERSION"
+	description='''
+	'''
+
+[[dependencies.contex]]
+    modId="forge"
+    mandatory=true
+    versionRange="[45,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.contex]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.19.4,1.20)"
+    ordering="NONE"
+    side="BOTH"

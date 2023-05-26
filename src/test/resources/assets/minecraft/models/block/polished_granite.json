@@ -1,0 +1,12 @@
+{
+    "loader": "contex:loader",
+    "parent": "minecraft:block/cube_all",
+    "textures": {
+        "all": "minecraft:block/polished_granite"
+    },
+    "contex_meta": {
+        "minecraft:block/polished_granite": {
+            "type": "contex:full"
+        }
+    }
+}

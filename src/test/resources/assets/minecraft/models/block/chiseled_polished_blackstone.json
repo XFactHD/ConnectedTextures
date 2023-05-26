@@ -1,0 +1,12 @@
+{
+    "loader": "contex:loader",
+    "parent": "minecraft:block/cube_all",
+    "textures": {
+        "all": "minecraft:block/chiseled_polished_blackstone"
+    },
+    "contex_meta": {
+        "minecraft:block/chiseled_polished_blackstone": {
+            "type": "contex:pillar_z"
+        }
+    }
+}
