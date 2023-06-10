@@ -1,20 +1,26 @@
 plugins {
     id 'eclipse'
+    id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
 jarJar.enable()
 
-version = '1.0'
+version = mod_version
 group = 'xfacthd.contex'
-archivesBaseName = 'ConnectedTextures'
+
+base {
+    archivesName = 'ConnectedTextures'
+}
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
-    mappings channel: 'official', version: '1.19.4'
+    mappings channel: 'official', version: '1.20'
+
+    copyIdeResources = true
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -75,6 +81,26 @@ sourceSets {
     }
 }
 
+// This block of code expands all declared replace properties in the specified resource targets.
+// A missing property will result in an error. Properties are expanded using ${} Groovy notation.
+// When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
+// See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
+def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
+def replaceProperties = [
+        minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+        forge_version: forge_version, forge_version_range: forge_version_range,
+        loader_version_range: loader_version_range, mod_version: mod_version
+]
+
+processResources {
+    inputs.properties replaceProperties
+    replaceProperties.put 'project', project
+
+    filesMatching(resourceTargets) {
+        expand replaceProperties
+    }
+}
+
 processTestResources {
     duplicatesStrategy(DuplicatesStrategy.INCLUDE)
 }
@@ -84,7 +110,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.4-45.0.63'
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     minecraftLibrary(group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1')
     jarJar(group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '[3.1.1,4.0.0)') {
@@ -93,11 +119,11 @@ dependencies {
 }
 
 tasks.jarJar.configure {
-    classifier ''
+    archiveClassifier = ''
 }
 
-jar {
-    classifier 'slim'
+tasks.named('jar', Jar).configure {
+    archiveClassifier = 'slim'
 
     manifest {
         attributes([
@@ -110,9 +136,16 @@ jar {
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
-}
 
-jar.finalizedBy('reobfJar')
+    // The settings below make sure that your build is reproducible
+    // More information at https://docs.gradle.org/current/userguide/working_with_files.html#sec:reproducible_archives
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+
+    // Example configuration to allow publishing using the maven-publish plugin
+    // This is the preferred method to reobfuscate your jar file
+    finalizedBy('reobfJar')
+}
 
 publishing {
     publications {
