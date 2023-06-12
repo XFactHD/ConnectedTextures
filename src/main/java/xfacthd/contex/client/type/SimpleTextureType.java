@@ -32,8 +32,13 @@ public sealed class SimpleTextureType extends FullTextureType permits OmniPillar
         for (ConnectionDirection dir : CARDINAL_DIRECTIONS)
         {
             BlockPos otherPos = pos.offset(dir.getOffset(side));
-            boolean mainTest = predicate.test(level, pos, otherPos, state, dir, side);
-            if (mainTest && !predicate.test(level, pos, otherPos.relative(side), state, dir, side))
+            if (!predicate.test(level, pos, otherPos, state, dir, dir, side, side))
+            {
+                continue;
+            }
+
+            BlockPos otherPosOff = otherPos.relative(side);
+            if (!predicate.test(level, pos, otherPosOff, state, dir, dir.mapToOppositeFace(side), side, side.getOpposite()))
             {
                 connections |= (1 << dir.ordinal());
             }

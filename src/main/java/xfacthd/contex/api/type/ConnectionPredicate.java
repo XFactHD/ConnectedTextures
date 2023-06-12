@@ -14,8 +14,10 @@ public interface ConnectionPredicate
      * @param pos The position the block is at
      * @param otherPos The position of the neighboring block
      * @param state The state of the block
-     * @param conDir The {@link ConnectionDirection}
+     * @param conDir The {@link ConnectionDirection} on the block
+     * @param otherConDir The {@link ConnectionDirection} on the other block
      * @param side The side of the block being checked
+     * @param otherSide The side of the neighboring block being checked
      */
     boolean test(
             BlockAndTintGetter level,
@@ -23,6 +25,8 @@ public interface ConnectionPredicate
             BlockPos otherPos,
             BlockState state,
             ConnectionDirection conDir,
-            Direction side
+            ConnectionDirection otherConDir,
+            Direction side,
+            Direction otherSide
     );
 }

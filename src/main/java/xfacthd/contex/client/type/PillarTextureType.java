@@ -56,11 +56,11 @@ public final class PillarTextureType extends DefaultTextureType
         ConnectionDirection conDirTwo = ConnectionDirection.from(side, dirTwo);
 
         byte connections = 0;
-        if (predicate.test(level, pos, pos.relative(dirOne), state, conDirOne, side))
+        if (predicate.test(level, pos, pos.relative(dirOne), state, conDirOne, conDirOne, side, side))
         {
             connections |= 1 << conDirOne.ordinal();
         }
-        if (predicate.test(level, pos, pos.relative(dirTwo), state, conDirTwo, side))
+        if (predicate.test(level, pos, pos.relative(dirTwo), state, conDirTwo, conDirTwo, side, side))
         {
             connections |= 1 << conDirTwo.ordinal();
         }

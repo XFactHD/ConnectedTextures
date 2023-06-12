@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.state.ConnectionDirection;
@@ -17,14 +18,16 @@ public class SameBlockPredicate implements ConnectionPredicate
             BlockPos otherPos,
             BlockState state,
             ConnectionDirection conDir,
-            Direction side
+            ConnectionDirection otherConDir,
+            Direction side,
+            Direction otherSide
     )
     {
         BlockState otherState = level.getBlockState(otherPos);
 
-        Block block = state.getAppearance(level, pos, side, otherState, otherPos).getBlock();
-        Block otherBlock = otherState.getAppearance(level, otherPos, side, state, pos).getBlock();
+        BlockState actualState = state.getAppearance(level, pos, side, otherState, otherPos);
+        BlockState actualOtherState = otherState.getAppearance(level, otherPos, otherSide, state, pos);
 
-        return block == otherBlock;
+        return !actualState.isAir() && actualState.getBlock() == actualOtherState.getBlock();
     }
 }

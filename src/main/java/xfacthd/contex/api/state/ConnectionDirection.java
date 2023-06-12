@@ -17,6 +17,7 @@ public enum ConnectionDirection
 
     private static final ConnectionDirection[][] DIRECTIONS = makeDirectionsTable();
     private static final ConnectionDirection[][] DIAGONALS = makeDiagonalsTable();
+    private static final ConnectionDirection[][] OPPOSITES = makeOppositesTable();
     private static final Vec3i[][] OFFSETS = makeOffsetsTable();
 
     private final int cardinalIdx;
@@ -44,6 +45,14 @@ public enum ConnectionDirection
             case LEFT -> RIGHT;
             case UP_LEFT -> DOWN_RIGHT;
         };
+    }
+
+    /**
+     * {@return the {@link ConnectionDirection} pointing in the same absolute direction for the opposite of the given face}
+     */
+    public ConnectionDirection mapToOppositeFace(Direction face)
+    {
+        return OPPOSITES[this.ordinal()][face.ordinal()];
     }
 
     public static ConnectionDirection from(Direction side, Direction dir)
@@ -108,6 +117,69 @@ public enum ConnectionDirection
         diagonals[LEFT.cardinalIdx][DOWN.cardinalIdx] = DOWN_LEFT;
         diagonals[RIGHT.cardinalIdx][DOWN.cardinalIdx] = DOWN_RIGHT;
         return diagonals;
+    }
+
+    private static ConnectionDirection[][] makeOppositesTable()
+    {
+        ConnectionDirection[][] directions = new ConnectionDirection[8][6];
+
+        directions[ConnectionDirection.UP.ordinal()][Direction.UP.ordinal()] = ConnectionDirection.DOWN;
+        directions[ConnectionDirection.UP.ordinal()][Direction.DOWN.ordinal()] = ConnectionDirection.DOWN;
+        directions[ConnectionDirection.UP.ordinal()][Direction.NORTH.ordinal()] = ConnectionDirection.UP;
+        directions[ConnectionDirection.UP.ordinal()][Direction.SOUTH.ordinal()] = ConnectionDirection.UP;
+        directions[ConnectionDirection.UP.ordinal()][Direction.EAST.ordinal()] = ConnectionDirection.UP;
+        directions[ConnectionDirection.UP.ordinal()][Direction.WEST.ordinal()] = ConnectionDirection.UP;
+
+        directions[ConnectionDirection.UP_RIGHT.ordinal()][Direction.UP.ordinal()] = ConnectionDirection.DOWN_RIGHT;
+        directions[ConnectionDirection.UP_RIGHT.ordinal()][Direction.DOWN.ordinal()] = ConnectionDirection.DOWN_RIGHT;
+        directions[ConnectionDirection.UP_RIGHT.ordinal()][Direction.NORTH.ordinal()] = ConnectionDirection.UP_LEFT;
+        directions[ConnectionDirection.UP_RIGHT.ordinal()][Direction.SOUTH.ordinal()] = ConnectionDirection.UP_LEFT;
+        directions[ConnectionDirection.UP_RIGHT.ordinal()][Direction.EAST.ordinal()] = ConnectionDirection.UP_LEFT;
+        directions[ConnectionDirection.UP_RIGHT.ordinal()][Direction.WEST.ordinal()] = ConnectionDirection.UP_LEFT;
+
+        directions[ConnectionDirection.RIGHT.ordinal()][Direction.UP.ordinal()] = ConnectionDirection.RIGHT;
+        directions[ConnectionDirection.RIGHT.ordinal()][Direction.DOWN.ordinal()] = ConnectionDirection.RIGHT;
+        directions[ConnectionDirection.RIGHT.ordinal()][Direction.NORTH.ordinal()] = ConnectionDirection.LEFT;
+        directions[ConnectionDirection.RIGHT.ordinal()][Direction.SOUTH.ordinal()] = ConnectionDirection.LEFT;
+        directions[ConnectionDirection.RIGHT.ordinal()][Direction.EAST.ordinal()] = ConnectionDirection.LEFT;
+        directions[ConnectionDirection.RIGHT.ordinal()][Direction.WEST.ordinal()] = ConnectionDirection.LEFT;
+
+        directions[ConnectionDirection.DOWN_RIGHT.ordinal()][Direction.UP.ordinal()] = ConnectionDirection.UP_RIGHT;
+        directions[ConnectionDirection.DOWN_RIGHT.ordinal()][Direction.DOWN.ordinal()] = ConnectionDirection.UP_RIGHT;
+        directions[ConnectionDirection.DOWN_RIGHT.ordinal()][Direction.NORTH.ordinal()] = ConnectionDirection.DOWN_LEFT;
+        directions[ConnectionDirection.DOWN_RIGHT.ordinal()][Direction.SOUTH.ordinal()] = ConnectionDirection.DOWN_LEFT;
+        directions[ConnectionDirection.DOWN_RIGHT.ordinal()][Direction.EAST.ordinal()] = ConnectionDirection.DOWN_LEFT;
+        directions[ConnectionDirection.DOWN_RIGHT.ordinal()][Direction.WEST.ordinal()] = ConnectionDirection.DOWN_LEFT;
+
+        directions[ConnectionDirection.DOWN.ordinal()][Direction.UP.ordinal()] = ConnectionDirection.UP;
+        directions[ConnectionDirection.DOWN.ordinal()][Direction.DOWN.ordinal()] = ConnectionDirection.UP;
+        directions[ConnectionDirection.DOWN.ordinal()][Direction.NORTH.ordinal()] = ConnectionDirection.DOWN;
+        directions[ConnectionDirection.DOWN.ordinal()][Direction.SOUTH.ordinal()] = ConnectionDirection.DOWN;
+        directions[ConnectionDirection.DOWN.ordinal()][Direction.EAST.ordinal()] = ConnectionDirection.DOWN;
+        directions[ConnectionDirection.DOWN.ordinal()][Direction.WEST.ordinal()] = ConnectionDirection.DOWN;
+
+        directions[ConnectionDirection.DOWN_LEFT.ordinal()][Direction.UP.ordinal()] = ConnectionDirection.UP_LEFT;
+        directions[ConnectionDirection.DOWN_LEFT.ordinal()][Direction.DOWN.ordinal()] = ConnectionDirection.UP_LEFT;
+        directions[ConnectionDirection.DOWN_LEFT.ordinal()][Direction.NORTH.ordinal()] = ConnectionDirection.DOWN_RIGHT;
+        directions[ConnectionDirection.DOWN_LEFT.ordinal()][Direction.SOUTH.ordinal()] = ConnectionDirection.DOWN_RIGHT;
+        directions[ConnectionDirection.DOWN_LEFT.ordinal()][Direction.EAST.ordinal()] = ConnectionDirection.DOWN_RIGHT;
+        directions[ConnectionDirection.DOWN_LEFT.ordinal()][Direction.WEST.ordinal()] = ConnectionDirection.DOWN_RIGHT;
+
+        directions[ConnectionDirection.LEFT.ordinal()][Direction.UP.ordinal()] = ConnectionDirection.LEFT;
+        directions[ConnectionDirection.LEFT.ordinal()][Direction.DOWN.ordinal()] = ConnectionDirection.LEFT;
+        directions[ConnectionDirection.LEFT.ordinal()][Direction.NORTH.ordinal()] = ConnectionDirection.RIGHT;
+        directions[ConnectionDirection.LEFT.ordinal()][Direction.SOUTH.ordinal()] = ConnectionDirection.RIGHT;
+        directions[ConnectionDirection.LEFT.ordinal()][Direction.EAST.ordinal()] = ConnectionDirection.RIGHT;
+        directions[ConnectionDirection.LEFT.ordinal()][Direction.WEST.ordinal()] = ConnectionDirection.RIGHT;
+
+        directions[ConnectionDirection.UP_LEFT.ordinal()][Direction.UP.ordinal()] = ConnectionDirection.DOWN_LEFT;
+        directions[ConnectionDirection.UP_LEFT.ordinal()][Direction.DOWN.ordinal()] = ConnectionDirection.DOWN_LEFT;
+        directions[ConnectionDirection.UP_LEFT.ordinal()][Direction.NORTH.ordinal()] = ConnectionDirection.UP_RIGHT;
+        directions[ConnectionDirection.UP_LEFT.ordinal()][Direction.SOUTH.ordinal()] = ConnectionDirection.UP_RIGHT;
+        directions[ConnectionDirection.UP_LEFT.ordinal()][Direction.EAST.ordinal()] = ConnectionDirection.UP_RIGHT;
+        directions[ConnectionDirection.UP_LEFT.ordinal()][Direction.WEST.ordinal()] = ConnectionDirection.UP_RIGHT;
+
+        return directions;
     }
 
     private static Vec3i[][] makeOffsetsTable()

@@ -16,14 +16,16 @@ public class SameStatePredicate implements ConnectionPredicate
             BlockPos otherPos,
             BlockState state,
             ConnectionDirection conDir,
-            Direction side
+            ConnectionDirection otherConDir,
+            Direction side,
+            Direction otherSide
     )
     {
         BlockState otherState = level.getBlockState(otherPos);
 
         BlockState actualState = state.getAppearance(level, pos, side, otherState, otherPos);
-        BlockState actualOtherState = otherState.getAppearance(level, otherPos, side, state, pos);
+        BlockState actualOtherState = otherState.getAppearance(level, otherPos, otherSide, state, pos);
 
-        return actualState == actualOtherState;
+        return !actualState.isAir() && actualState == actualOtherState;
     }
 }
