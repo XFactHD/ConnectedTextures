@@ -40,7 +40,7 @@ public sealed class SimpleTextureType extends FullTextureType permits OmniPillar
             BlockPos otherPosOff = otherPos.relative(side);
             if (!predicate.test(level, pos, otherPosOff, state, dir, dir.mapToOppositeFace(side), side, side.getOpposite()))
             {
-                connections |= (1 << dir.ordinal());
+                connections |= (byte) (1 << dir.ordinal());
             }
         }
 
@@ -58,22 +58,22 @@ public sealed class SimpleTextureType extends FullTextureType permits OmniPillar
 
             if (isSet(connections, ConnectionDirection.UP) && isSet(connections, ConnectionDirection.LEFT))
             {
-                connections |= (1 << ConnectionDirection.UP_LEFT.ordinal());
+                connections |= (byte) (1 << ConnectionDirection.UP_LEFT.ordinal());
                 changed = true;
             }
             if (isSet(connections, ConnectionDirection.DOWN) && isSet(connections, ConnectionDirection.LEFT))
             {
-                connections |= (1 << ConnectionDirection.DOWN_LEFT.ordinal());
+                connections |= (byte) (1 << ConnectionDirection.DOWN_LEFT.ordinal());
                 changed = true;
             }
             if (isSet(connections, ConnectionDirection.UP) && isSet(connections, ConnectionDirection.RIGHT))
             {
-                connections |= (1 << ConnectionDirection.UP_RIGHT.ordinal());
+                connections |= (byte) (1 << ConnectionDirection.UP_RIGHT.ordinal());
                 changed = true;
             }
             if (isSet(connections, ConnectionDirection.DOWN) && isSet(connections, ConnectionDirection.RIGHT))
             {
-                connections |= (1 << ConnectionDirection.DOWN_RIGHT.ordinal());
+                connections |= (byte) (1 << ConnectionDirection.DOWN_RIGHT.ordinal());
                 changed = true;
             }
 

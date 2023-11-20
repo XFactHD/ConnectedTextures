@@ -3,7 +3,10 @@
     "description": {
       "text": "contex resources"
     },
-    "forge:server_data_pack_format": 12,
-    "pack_format": 13
+    "pack_format": ${pack_format},
+    "neoforge": {
+        "assets": ${resource_pack_format},
+		"data": ${data_pack_format}
+    }
   }
 }

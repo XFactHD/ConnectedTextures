@@ -6,6 +6,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 
 import java.util.Arrays;
 
+// TODO: update to improved version from FramedBlocks
 public final class QuadModifier
 {
     private static final QuadModifier FAILED = new QuadModifier(null, true);

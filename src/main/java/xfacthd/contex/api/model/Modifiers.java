@@ -138,10 +138,10 @@ public final class Modifiers
     /**
      * Map a different texture onto this quad with the given min and max UV coordinates being in relation to a full block face
      * @param targetSprite The texture to apply to the quad, must be stitched to the block atlas
-     * @param minU The min U coordinate
-     * @param minV The min V coordinate
-     * @param maxU The max U coordinate
-     * @param maxV The max V coordinate
+     * @param minU The min U coordinate in the range 0-1
+     * @param minV The min V coordinate in the range 0-1
+     * @param maxU The max U coordinate in the range 0-1
+     * @param maxV The max V coordinate in the range 0-1
      */
     public static QuadModifier.Modifier remapTexture(TextureAtlasSprite targetSprite, float minU, float minV, float maxU, float maxV)
     {
@@ -169,8 +169,8 @@ public final class Modifiers
             for (int i = 0; i < 4; i++)
             {
                 float[] uv = data.uv()[i];
-                uv[0] = targetSprite.getU(uRel[i] * .999 + uRel[(i + 2) % 4] * .001);
-                uv[1] = targetSprite.getV(vRel[i] * .999 + vRel[(i + 2) % 4] * .001);
+                uv[0] = targetSprite.getU(uRel[i]);
+                uv[1] = targetSprite.getV(vRel[i]);
             }
 
             data.sprite().setValue(targetSprite);

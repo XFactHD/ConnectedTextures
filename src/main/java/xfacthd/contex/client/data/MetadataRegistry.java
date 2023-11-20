@@ -71,4 +71,8 @@ public final class MetadataRegistry
     {
         Preconditions.checkState(!locked, "Metadata registry is locked!");
     }
+
+
+
+    private MetadataRegistry() { }
 }

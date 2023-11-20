@@ -1,13 +1,14 @@
 package xfacthd.contex;
 
 import com.mojang.logging.LogUtils;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 import xfacthd.contex.api.utils.Constants;
 
 @Mod(Constants.MOD_ID)
-public class ConnectedTextures
+@SuppressWarnings("UtilityClassWithPublicConstructor")
+public final class ConnectedTextures
 {
     public static final Logger LOGGER = LogUtils.getLogger();
 

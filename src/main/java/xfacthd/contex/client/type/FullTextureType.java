@@ -11,11 +11,11 @@ import xfacthd.contex.api.type.*;
 public sealed class FullTextureType extends DefaultTextureType permits SimpleTextureType
 {
     private static final ConnectionDirection[] DIRECTIONS = ConnectionDirection.values();
-    private static final UV UV_NONE = new UV(0, 0, 16, 16);
-    private static final UV UV_FULL = new UV(0, 0, 8, 8);
-    private static final UV UV_CARDINAL = new UV(8, 8, 16, 16);
-    private static final UV UV_X_ONLY = new UV(0, 8, 8, 16);
-    private static final UV UV_Y_ONLY = new UV(8, 0, 16, 8);
+    private static final UV UV_NONE = new UV(0F, 0F, 1F, 1F);
+    private static final UV UV_FULL = new UV(0F, 0F, .5F, .5F);
+    private static final UV UV_CARDINAL = new UV(.5F, .5F, 1F, 1F);
+    private static final UV UV_X_ONLY = new UV(0F, .5F, .5F, 1F);
+    private static final UV UV_Y_ONLY = new UV(.5F, 0F, 1F, .5F);
 
     @Override
     public ConnectionState getConnectionState(
@@ -39,7 +39,7 @@ public sealed class FullTextureType extends DefaultTextureType permits SimpleTex
             BlockPos otherPosRel = otherPos.relative(side);
             if (!predicate.test(level, pos, otherPosRel, state, dir, dir.mapToOppositeFace(side), side, side.getOpposite()))
             {
-                connections |= (1 << dir.ordinal());
+                connections |= (byte) (1 << dir.ordinal());
             }
         }
         return new ConnectionState(this, texture, connections);

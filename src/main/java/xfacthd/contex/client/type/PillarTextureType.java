@@ -14,9 +14,9 @@ import java.util.EnumSet;
 
 public final class PillarTextureType extends DefaultTextureType
 {
-    public static final UV UV_XY = new UV(0, 0, 16, 16);
-    public static final UV UV_Z_TOPBOTTOM = new UV(0, 0, 16, 8);
-    public static final UV UV_Z_SIDE = new UV(0, 8, 16, 16);
+    public static final UV UV_XY = new UV(0F, 0F, 1F, 1F);
+    public static final UV UV_Z_TOPBOTTOM = new UV(0F, 0F, 1F, .5F);
+    public static final UV UV_Z_SIDE = new UV(0F, .5F, 1F, 1F);
 
     private final Direction.Axis axis;
     private final Direction dirOne;
@@ -58,11 +58,11 @@ public final class PillarTextureType extends DefaultTextureType
         byte connections = 0;
         if (predicate.test(level, pos, pos.relative(dirOne), state, conDirOne, conDirOne, side, side))
         {
-            connections |= 1 << conDirOne.ordinal();
+            connections |= (byte) (1 << conDirOne.ordinal());
         }
         if (predicate.test(level, pos, pos.relative(dirTwo), state, conDirTwo, conDirTwo, side, side))
         {
-            connections |= 1 << conDirTwo.ordinal();
+            connections |= (byte) (1 << conDirTwo.ordinal());
         }
         return new ConnectionState(this, texture, connections);
     }

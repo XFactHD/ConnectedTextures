@@ -1,6 +1,9 @@
 package xfacthd.contex.api.type;
 
-public record UV(int minU, int minV, int maxU, int maxV)
+/**
+ * Relative UVs to be used to remap the textures in the range 0-1
+ */
+public record UV(float minU, float minV, float maxU, float maxV)
 {
 
 }

@@ -7,18 +7,16 @@ issueTrackerURL="https://github.com/XFactHD/ConnectedTextures"
 	modId="contex"
 	version="${mod_version}"
 	displayName="ConnectedTextures"
-	#updateJSONURL="https://change.me.example.invalid/updates.json"
 	#displayURL="https://www.curseforge.com/minecraft/mc-mods/connectedtextures"
 	logoFile="logo.png"
 	authors="XFactHD"
 	displayTest="IGNORE_ALL_VERSION"
-	description='''
-	'''
+	description=''''''
 
 [[dependencies.contex]]
-    modId="forge"
+    modId="neoforge"
     mandatory=true
-    versionRange="${forge_version_range}"
+    versionRange="${neoforge_version_range}"
     ordering="NONE"
     side="BOTH"
 

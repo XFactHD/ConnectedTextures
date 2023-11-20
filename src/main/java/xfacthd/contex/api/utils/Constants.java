@@ -2,7 +2,7 @@ package xfacthd.contex.api.utils;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.data.ModelProperty;
+import net.neoforged.neoforge.client.model.data.ModelProperty;
 import xfacthd.contex.client.data.ConnectionStateContainer;
 
 import java.util.EnumSet;
