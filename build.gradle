@@ -36,17 +36,14 @@ runs {
     data {
         workingDirectory project.file('run')
 
-        programArguments.addAll '--mod', 'framedblocks', '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        programArguments.addAll '--mod', 'contex', '--all', '--output', file('src/test_generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
     }
 }
 
 sourceSets {
-    main.resources {
-        srcDir 'src/generated/resources'
-    }
-
     test.resources {
         srcDir "src/test/resources"
+        srcDir "src/test_generated/resources"
     }
 }
 
@@ -76,7 +73,6 @@ tasks.withType(ProcessResources).configureEach {
             mod_version: mod_version
     ]
     inputs.properties replaceProperties
-    replaceProperties.put 'project', project
 
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]

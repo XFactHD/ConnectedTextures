@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
 import xfacthd.contex.api.type.ConnectionPredicate;
-import xfacthd.contex.api.utils.Constants;
+import xfacthd.contex.api.utils.Builtin;
 import xfacthd.contex.api.utils.Utils;
 import xfacthd.contex.client.data.*;
 import xfacthd.contex.api.type.TextureType;
@@ -30,12 +30,12 @@ public final class ConTexLoader implements IGeometryLoader<ConTexGeometry>
 
             ResourceLocation typeName = Utils.getAsLocation(entry, "type");
             TextureType type = MetadataRegistry.getType(
-                    typeName, () -> new JsonSyntaxException("Unknown CT type: " + typeName)
+                    typeName, name -> new JsonSyntaxException("Unknown CT type: " + name)
             );
 
-            ResourceLocation predName = Utils.getAsLocation(entry, "predicate", Constants.DEFAULT_PREDICATE);
+            ResourceLocation predName = Utils.getAsLocation(entry, "predicate", Builtin.Predicates.SAME_BLOCK);
             ConnectionPredicate predicate = MetadataRegistry.getPredicate(
-                    predName, () -> new JsonSyntaxException("Unknown predicate: " + predName)
+                    predName, name -> new JsonSyntaxException("Unknown predicate: " + name)
             );
 
             ResourceLocation baseTex = new ResourceLocation(tex);

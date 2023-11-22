@@ -7,8 +7,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.Mod;
 import xfacthd.contex.api.type.RegisterTextureMetaEvent;
+import xfacthd.contex.api.utils.Builtin;
 import xfacthd.contex.api.utils.Constants;
-import xfacthd.contex.api.utils.Utils;
 import xfacthd.contex.client.data.MetadataRegistry;
 import xfacthd.contex.client.loader.ConTexLoader;
 import xfacthd.contex.client.predicate.SameBlockPredicate;
@@ -32,15 +32,15 @@ public final class CTClient
     @SubscribeEvent
     public static void onRegisterMetadata(final RegisterTextureMetaEvent event)
     {
-        event.registerType(Utils.rl("simple"), new SimpleTextureType());
-        event.registerType(Utils.rl("full"), new FullTextureType());
-        event.registerType(Utils.rl("pillar_x"), new PillarTextureType(Direction.Axis.X));
-        event.registerType(Utils.rl("pillar_y"), new PillarTextureType(Direction.Axis.Y));
-        event.registerType(Utils.rl("pillar_z"), new PillarTextureType(Direction.Axis.Z));
-        event.registerType(Utils.rl("pillar_omni"), new OmniPillarTextureType());
+        event.registerType(Builtin.Types.SIMPLE, new SimpleTextureType());
+        event.registerType(Builtin.Types.FULL, new FullTextureType());
+        event.registerType(Builtin.Types.PILLAR_X, new PillarTextureType(Direction.Axis.X));
+        event.registerType(Builtin.Types.PILLAR_Y, new PillarTextureType(Direction.Axis.Y));
+        event.registerType(Builtin.Types.PILLAR_Z, new PillarTextureType(Direction.Axis.Z));
+        event.registerType(Builtin.Types.PILLAR_OMNI, new OmniPillarTextureType());
 
-        event.registerPredicate(Constants.DEFAULT_PREDICATE, new SameBlockPredicate());
-        event.registerPredicate(Utils.rl("same_state"), new SameStatePredicate());
+        event.registerPredicate(Builtin.Predicates.SAME_BLOCK, new SameBlockPredicate());
+        event.registerPredicate(Builtin.Predicates.SAME_STATE, new SameStatePredicate());
     }
 
 

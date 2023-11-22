@@ -17,6 +17,8 @@ import java.util.*;
 
 public interface TextureType
 {
+    String ADDITIONAL_TEXTURE_KEY = "ct_texture";
+
     /**
      * {@return true if this type needs additional textures}
      */
@@ -30,9 +32,9 @@ public interface TextureType
      */
     default ResourceLocation loadAdditionalTexture(JsonObject entry)
     {
-        if (entry.has("ct_texture"))
+        if (entry.has(ADDITIONAL_TEXTURE_KEY))
         {
-            return Utils.getAsLocation(entry, "ct_texture");
+            return Utils.getAsLocation(entry, ADDITIONAL_TEXTURE_KEY);
         }
         return null;
     }

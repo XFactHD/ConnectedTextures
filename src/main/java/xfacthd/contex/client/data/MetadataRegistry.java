@@ -7,7 +7,7 @@ import xfacthd.contex.api.type.ConnectionPredicate;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public final class MetadataRegistry
 {
@@ -35,22 +35,22 @@ public final class MetadataRegistry
         }
     }
 
-    public static TextureType getType(ResourceLocation name, Supplier<RuntimeException> excSup)
+    public static TextureType getType(ResourceLocation name, Function<ResourceLocation, RuntimeException> excSup)
     {
         TextureType type = TYPES.get(name);
         if (type == null)
         {
-            throw excSup.get();
+            throw excSup.apply(name);
         }
         return type;
     }
 
-    public static ConnectionPredicate getPredicate(ResourceLocation name, Supplier<RuntimeException> excSup)
+    public static ConnectionPredicate getPredicate(ResourceLocation name, Function<ResourceLocation, RuntimeException> excSup)
     {
         ConnectionPredicate predicate = PREDICATES.get(name);
         if (predicate == null)
         {
-            throw excSup.get();
+            throw excSup.apply(name);
         }
         return predicate;
     }
