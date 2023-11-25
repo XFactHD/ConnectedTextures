@@ -2,6 +2,8 @@ package xfacthd.contex.client;
 
 import net.minecraft.core.Direction;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.InterModComms;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoader;
@@ -41,6 +43,12 @@ public final class CTClient
 
         event.registerPredicate(Builtin.Predicates.SAME_BLOCK, new SameBlockPredicate());
         event.registerPredicate(Builtin.Predicates.SAME_STATE, new SameStatePredicate());
+    }
+
+    @SubscribeEvent
+    public static void onEnqueueIMC(final InterModEnqueueEvent event)
+    {
+        InterModComms.sendTo(Constants.MOD_ID, "framedblocks", "add_ct_property", () -> Constants.CT_STATE_PROPERTY);
     }
 
 
