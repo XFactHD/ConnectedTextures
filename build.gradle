@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.45'
+    id 'net.neoforged.gradle.userdev' version '7.0.48'
 }
 
 version = mod_version
@@ -17,10 +17,19 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 jarJar.enable()
 
+configurations {
+    nonModLibrary {}
+    implementation.extendsFrom(nonModLibrary)
+}
+
 runs {
     configureEach {
         //systemProperty 'forge.logging.markers', 'REGISTRIES'
         systemProperty 'forge.logging.console.level', 'debug'
+
+        dependencies {
+            runtime configuration(project.configurations.nonModLibrary)
+        }
 
         modSources.addAll project.sourceSets.main, project.sourceSets.test
     }
@@ -54,7 +63,7 @@ repositories {
 dependencies {
     implementation("net.neoforged:neoforge:${neoforge_version}")
 
-    //minecraftLibrary(group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1')
+    nonModLibrary(group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1')
     jarJar(group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '[3.1.1,4.0.0)') {
         transitive(false)
     }
