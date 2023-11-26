@@ -30,27 +30,26 @@ public final class Modifiers
             int idxR = xAxis ? (positive ? 2 : 1) : ((up == positive) ? 1 : 0);
             int idxL = xAxis ? (positive ? 3 : 0) : ((up == positive) ? 2 : 3);
 
-            float[][] pos = data.pos();
             float target = positive ? length : 1F - length;
 
             int vertIdxR = xAxis ? (positive ? 1 : 3) : (up ? (positive ? 0 : 2) : (positive ? 1 : 3));
             int vertIdxL = xAxis ? (positive ? 0 : 2) : (up ? (positive ? 3 : 1) : (positive ? 2 : 0));
             int coordIdx = xAxis ? 0 : 2;
 
-            if (positive && (Utils.isHigher(pos[vertIdxR][coordIdx], target) || Utils.isHigher(pos[vertIdxL][coordIdx], target)))
+            if (positive && (Utils.isHigher(data.pos(vertIdxR, coordIdx), target) || Utils.isHigher(data.pos(vertIdxL, coordIdx), target)))
             {
                 return false;
             }
-            if (!positive && (Utils.isLower(pos[vertIdxR][coordIdx], target) || Utils.isLower(pos[vertIdxL][coordIdx], target)))
+            if (!positive && (Utils.isLower(data.pos(vertIdxR, coordIdx), target) || Utils.isLower(data.pos(vertIdxL, coordIdx), target)))
             {
                 return false;
             }
 
-            float xz1 = pos[idxR][coordIdx];
-            float xz2 = pos[idxL][coordIdx];
+            float xz1 = data.pos(idxR, coordIdx);
+            float xz2 = data.pos(idxL, coordIdx);
 
-            pos[idxR][coordIdx] = positive ? Math.min(xz1, target) : Math.max(xz1, target);
-            pos[idxL][coordIdx] = positive ? Math.min(xz2, target) : Math.max(xz2, target);
+            data.pos(idxR, coordIdx, positive ? Math.min(xz1, target) : Math.max(xz1, target));
+            data.pos(idxL, coordIdx, positive ? Math.min(xz2, target) : Math.max(xz2, target));
 
             return true;
         };
@@ -68,14 +67,13 @@ public final class Modifiers
             Direction quadDir = data.quad().getDirection();
             Preconditions.checkState(!Utils.isY(quadDir), "Quad direction must be horizontal");
 
-            float[][] pos = data.pos();
             float target = downwards ? 1F - length : length;
 
-            if (downwards && (Utils.isLower(pos[0][1], target) || Utils.isLower(pos[3][1], target)))
+            if (downwards && (Utils.isLower(data.pos(0, 1), target) || Utils.isLower(data.pos(3, 1), target)))
             {
                 return false;
             }
-            if (!downwards && (Utils.isHigher(pos[1][1], target) || Utils.isHigher(pos[2][1], target)))
+            if (!downwards && (Utils.isHigher(data.pos(1, 1), target) || Utils.isHigher(data.pos(2, 1), target)))
             {
                 return false;
             }
@@ -83,11 +81,11 @@ public final class Modifiers
             int idx1 = downwards ? 1 : 0;
             int idx2 = downwards ? 2 : 3;
 
-            float y1 = pos[idx1][1];
-            float y2 = pos[idx2][1];
+            float y1 = data.pos(idx1, 1);
+            float y2 = data.pos(idx2, 1);
 
-            pos[idx1][1] = downwards ? Math.max(y1, target) : Math.min(y1, target);
-            pos[idx2][1] = downwards ? Math.max(y2, target) : Math.min(y2, target);
+            data.pos(idx1, 1, downwards ? Math.max(y1, target) : Math.min(y1, target));
+            data.pos(idx2, 1, downwards ? Math.max(y2, target) : Math.min(y2, target));
 
             return true;
         };
@@ -110,14 +108,13 @@ public final class Modifiers
             int vertIdxTop = towardsRight ? 3 : 0;
             int vertIdxBot = towardsRight ? 2 : 1;
 
-            float[][] pos = data.pos();
             float target = positive ? 1F - length : length;
 
-            if (positive && (Utils.isLower(pos[vertIdxTop][coordIdx], target) || Utils.isLower(pos[vertIdxBot][coordIdx], target)))
+            if (positive && (Utils.isLower(data.pos(vertIdxTop, coordIdx), target) || Utils.isLower(data.pos(vertIdxBot, coordIdx), target)))
             {
                 return false;
             }
-            if (!positive && (Utils.isHigher(pos[vertIdxTop][coordIdx], target) || Utils.isHigher(pos[vertIdxBot][coordIdx], target)))
+            if (!positive && (Utils.isHigher(data.pos(vertIdxTop, coordIdx), target) || Utils.isHigher(data.pos(vertIdxBot, coordIdx), target)))
             {
                 return false;
             }
@@ -125,11 +122,11 @@ public final class Modifiers
             int idx1 = towardsRight ? 0 : 3;
             int idx2 = towardsRight ? 1 : 2;
 
-            float xz1 = pos[idx1][coordIdx];
-            float xz2 = pos[idx2][coordIdx];
+            float xz1 = data.pos(idx1, coordIdx);
+            float xz2 = data.pos(idx2, coordIdx);
 
-            pos[idx1][coordIdx] = positive ? Math.max(xz1, target) : Math.min(xz1, target);
-            pos[idx2][coordIdx] = positive ? Math.max(xz2, target) : Math.min(xz2, target);
+            data.pos(idx1, coordIdx, positive ? Math.max(xz1, target) : Math.min(xz1, target));
+            data.pos(idx2, coordIdx, positive ? Math.max(xz2, target) : Math.min(xz2, target));
 
             return true;
         };
@@ -155,25 +152,18 @@ public final class Modifiers
             float uCenter = (minU + minU + maxU + maxU) / 4F;
             float vCenter = (minV + minV + maxV + maxV) / 4F;
 
-            float[] uRel = new float[4];
-            float[] vRel = new float[4];
             for (int i = 0; i < 4; i++)
             {
-                float[] pos = data.pos()[i];
-                float uAbs = uvInfo.uInv() ? (1F - pos[uvInfo.uIdx()]) : pos[uvInfo.uIdx()];
-                float vAbs = uvInfo.vInv() ? (1F - pos[uvInfo.vIdx()]) : pos[uvInfo.vIdx()];
-                uRel[i] = Mth.lerp(shrinkRatio, (uAbs * uSize) + minU, uCenter);
-                vRel[i] = Mth.lerp(shrinkRatio, (vAbs * vSize) + minV, vCenter);
+                float uAbs = uvInfo.uInv() ? (1F - data.pos(i, uvInfo.uIdx())) : data.pos(i, uvInfo.uIdx());
+                float vAbs = uvInfo.vInv() ? (1F - data.pos(i, uvInfo.vIdx())) : data.pos(i, uvInfo.vIdx());
+                data.uv(
+                        i,
+                        targetSprite.getU(Mth.lerp(shrinkRatio, (uAbs * uSize) + minU, uCenter)),
+                        targetSprite.getV(Mth.lerp(shrinkRatio, (vAbs * vSize) + minV, vCenter))
+                );
             }
 
-            for (int i = 0; i < 4; i++)
-            {
-                float[] uv = data.uv()[i];
-                uv[0] = targetSprite.getU(uRel[i]);
-                uv[1] = targetSprite.getV(vRel[i]);
-            }
-
-            data.sprite().setValue(targetSprite);
+            data.sprite(targetSprite);
 
             return true;
         };

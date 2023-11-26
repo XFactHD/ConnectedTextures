@@ -1,17 +1,13 @@
 package xfacthd.contex.api.model;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import org.apache.commons.lang3.mutable.MutableObject;
 
-import java.util.Arrays;
-
-// TODO: update to improved version from FramedBlocks
 public final class QuadModifier
 {
-    private static final QuadModifier FAILED = new QuadModifier(null, true);
+    private static final QuadModifier FAILED = new QuadModifier(null, false, true);
 
-    private final Data data;
+    private final QuadData data;
+    private boolean modified;
     private boolean failed;
 
     /**
@@ -19,22 +15,13 @@ public final class QuadModifier
      */
     public static QuadModifier of(BakedQuad quad)
     {
-        float[][] pos = new float[4][3];
-        float[][] uv = new float[4][2];
-
-        int[] vertexData = quad.getVertices();
-        for (int i = 0; i < 4; i++)
-        {
-            ModelUtils.unpackPosition(vertexData, pos[i], i);
-            ModelUtils.unpackUV(vertexData, uv[i], i);
-        }
-
-        return new QuadModifier(new Data(quad, pos, uv), false);
+        return new QuadModifier(new QuadData(quad), false, false);
     }
 
-    private QuadModifier(Data data, boolean failed)
+    private QuadModifier(QuadData data, boolean modified, boolean failed)
     {
         this.data = data;
+        this.modified = modified;
         this.failed = failed;
     }
 
@@ -47,6 +34,7 @@ public final class QuadModifier
         if (!failed)
         {
             failed = !modifier.accept(data);
+            modified = true;
         }
         return this;
     }
@@ -62,27 +50,19 @@ public final class QuadModifier
             return null;
         }
 
-        int[] vertexData = data.quad.getVertices();
-        vertexData = Arrays.copyOf(vertexData, vertexData.length);
-        packVertexData(vertexData);
+        if (!modified)
+        {
+            return data.quad;
+        }
 
         return new BakedQuad(
-                vertexData,
+                data.vertexData,
                 data.quad.getTintIndex(),
                 data.quad.getDirection(),
-                data.sprite.getValue(),
+                data.sprite,
                 data.quad.isShade(),
                 data.quad.hasAmbientOcclusion()
         );
-    }
-
-    private void packVertexData(int[] vertexData)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            ModelUtils.packPosition(data.pos[i], vertexData, i);
-            ModelUtils.packUV(data.uv[i], vertexData, i);
-        }
     }
 
     /**
@@ -97,7 +77,7 @@ public final class QuadModifier
         {
             return FAILED;
         }
-        return new QuadModifier(new Data(data), false);
+        return new QuadModifier(new QuadData(data), modified, false);
     }
 
     public boolean hasFailed()
@@ -107,38 +87,9 @@ public final class QuadModifier
 
 
 
-    public record Data(BakedQuad quad, float[][] pos, float[][] uv, MutableObject<TextureAtlasSprite> sprite)
-    {
-        public Data(BakedQuad quad, float[][] pos, float[][] uv)
-        {
-            this(quad, pos, uv, new MutableObject<>(quad.getSprite()));
-        }
-
-        @SuppressWarnings("CopyConstructorMissesField")
-        public Data(Data data)
-        {
-            this(
-                    data.quad,
-                    deepCopy(data.pos),
-                    deepCopy(data.uv),
-                    new MutableObject<>(data.sprite.getValue())
-            );
-        }
-
-        private static float[][] deepCopy(float[][] arr)
-        {
-            float[][] newArr = new float[arr.length][];
-            for (int i = 0; i < arr.length; i++)
-            {
-                newArr[i] = Arrays.copyOf(arr[i], arr[i].length);
-            }
-            return newArr;
-        }
-    }
-
     @FunctionalInterface
     public interface Modifier
     {
-        boolean accept(Data data);
+        boolean accept(QuadData data);
     }
 }
