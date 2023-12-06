@@ -9,8 +9,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.Mod;
 import xfacthd.contex.api.type.RegisterTextureMetaEvent;
-import xfacthd.contex.api.utils.Builtin;
-import xfacthd.contex.api.utils.Constants;
+import xfacthd.contex.api.utils.*;
 import xfacthd.contex.client.data.MetadataRegistry;
 import xfacthd.contex.client.loader.ConTexLoader;
 import xfacthd.contex.client.predicate.SameBlockPredicate;
@@ -28,7 +27,7 @@ public final class CTClient
         ModLoader.get().postEvent(new RegisterTextureMetaEvent(MetadataRegistry::registerType, MetadataRegistry::registerPredicate));
         MetadataRegistry.setLocked(true);
 
-        event.register("loader", new ConTexLoader());
+        event.register(Utils.rl("loader"), new ConTexLoader());
     }
 
     @SubscribeEvent
