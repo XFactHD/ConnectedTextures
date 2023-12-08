@@ -25,7 +25,7 @@ import java.util.*;
 
 public sealed class ConTexModel extends BakedModelWrapper<BakedModel> permits SingleConTexModel
 {
-    private static final boolean ENABLE_CACHE = false;
+    private static final boolean ENABLE_CACHE = true;
     private static final Duration DEFAULT_CACHE_DURATION = Duration.ofMinutes(10);
 
     private final Metadata metadata;
