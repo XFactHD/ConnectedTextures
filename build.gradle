@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.48'
+    id 'net.neoforged.gradle.userdev' version '7.0.66'
 }
 
 version = mod_version
@@ -76,9 +76,6 @@ tasks.withType(ProcessResources).configureEach {
             neoforge_version: neoforge_version,
             neoforge_version_range: neoforge_version_range,
             loader_version_range: loader_version_range,
-            pack_format: pack_format,
-            resource_pack_format: resource_pack_format,
-            data_pack_format: data_pack_format,
             mod_version: mod_version
     ]
     inputs.properties replaceProperties

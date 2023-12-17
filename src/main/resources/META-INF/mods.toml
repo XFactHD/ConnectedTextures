@@ -15,14 +15,14 @@ issueTrackerURL="https://github.com/XFactHD/ConnectedTextures"
 
 [[dependencies.contex]]
     modId="neoforge"
-    mandatory=true
+    type="required"
     versionRange="${neoforge_version_range}"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.contex]]
     modId="minecraft"
-    mandatory=true
+    type="required"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
