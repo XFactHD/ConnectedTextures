@@ -1,9 +1,0 @@
-{
-  "pack": {
-    "description": {
-      "text": "contex resources"
-    },
-    "pack_format": 1,
-    "supported_formats": [ 0, 2147483647 ]
-  }
-}
