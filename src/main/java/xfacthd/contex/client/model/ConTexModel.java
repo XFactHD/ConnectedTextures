@@ -1,8 +1,5 @@
 package xfacthd.contex.client.model;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
@@ -20,19 +17,15 @@ import xfacthd.contex.api.type.TextureType;
 import xfacthd.contex.client.data.*;
 import xfacthd.contex.api.utils.Constants;
 
-import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public sealed class ConTexModel extends BakedModelWrapper<BakedModel> permits SingleConTexModel
 {
     private static final boolean ENABLE_CACHE = true;
-    private static final Duration DEFAULT_CACHE_DURATION = Duration.ofMinutes(10);
 
     private final Metadata metadata;
-    private final Cache<QuadCacheKey, List<BakedQuad>> quadCache = Caffeine.newBuilder()
-            .expireAfterAccess(DEFAULT_CACHE_DURATION)
-            .executor(Util.backgroundExecutor())
-            .build();
+    private final Map<QuadCacheKey, List<BakedQuad>> quadCache = new ConcurrentHashMap<>();
 
     public ConTexModel(BakedModel baseModel, Metadata metadata)
     {
@@ -63,12 +56,14 @@ public sealed class ConTexModel extends BakedModelWrapper<BakedModel> permits Si
 
         if (ENABLE_CACHE)
         {
-            return quadCache.get(
-                    new QuadCacheKey(side, renderType, ctStates),
-                    key -> generateConnectionQuads(
-                            key.ctStates, super.getQuads(state, key.side, rand, extraData, key.renderType), key.side
-                    )
-            );
+            QuadCacheKey key = new QuadCacheKey(side, renderType, ctStates);
+            List<BakedQuad> quads = quadCache.get(key);
+            if (quads == null)
+            {
+                quads = generateConnectionQuads(ctStates, super.getQuads(state, side, rand, extraData, renderType), side);
+                quadCache.put(key, quads);
+            }
+            return quads;
         }
         return generateConnectionQuads(ctStates, super.getQuads(state, side, rand, extraData, renderType), side);
     }

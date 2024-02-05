@@ -17,19 +17,10 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 jarJar.enable()
 
-configurations {
-    nonModLibrary {}
-    implementation.extendsFrom(nonModLibrary)
-}
-
 runs {
     configureEach {
         //systemProperty 'forge.logging.markers', 'REGISTRIES'
         systemProperty 'forge.logging.console.level', 'debug'
-
-        dependencies {
-            runtime configuration(project.configurations.nonModLibrary)
-        }
 
         modSources.addAll project.sourceSets.main, project.sourceSets.test
     }
@@ -56,17 +47,8 @@ sourceSets {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation("net.neoforged:neoforge:${neoforge_version}")
-
-    nonModLibrary(group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1')
-    jarJar(group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '[3.1.1,4.0.0)') {
-        transitive(false)
-    }
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -87,14 +69,6 @@ tasks.withType(ProcessResources).configureEach {
 
 processTestResources {
     duplicatesStrategy(DuplicatesStrategy.INCLUDE)
-}
-
-tasks.jarJar.configure {
-    archiveClassifier = ''
-}
-
-tasks.named('jar', Jar).configure {
-    archiveClassifier = 'slim'
 }
 
 publishing {
