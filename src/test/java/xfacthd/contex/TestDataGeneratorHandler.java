@@ -8,13 +8,16 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import xfacthd.contex.api.model.ConTexLoaderBuilder;
+import xfacthd.contex.api.model.builder.ConTexLoaderBuilder;
+import xfacthd.contex.api.type.OcclusionMode;
 import xfacthd.contex.api.utils.Builtin;
 import xfacthd.contex.api.utils.Constants;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class TestDataGeneratorHandler
 {
+    private TestDataGeneratorHandler() { }
+
     @SubscribeEvent
     public static void onGatherData(final GatherDataEvent event)
     {
@@ -49,38 +52,54 @@ public final class TestDataGeneratorHandler
         {
             cubeAll(TEX_DEEPSLATE.toString(), TEX_DEEPSLATE)
                     .customLoader(ConTexLoaderBuilder::new)
-                    .connectedTexture(TEX_DEEPSLATE, Builtin.Types.PILLAR_X)
+                    .addCtEntry(Builtin.Types.PILLAR_X, TEX_DEEPSLATE)
                     .optional();
 
             cubeAll(TEX_BLACKSTONE.toString(), TEX_BLACKSTONE)
                     .customLoader(ConTexLoaderBuilder::new)
-                    .connectedTexture(TEX_BLACKSTONE, Builtin.Types.PILLAR_Z)
+                    .addCtEntry(Builtin.Types.PILLAR_Z, TEX_BLACKSTONE)
                     .optional();
 
             cubeAll(TEX_STONEBRICKS.toString(), TEX_STONEBRICKS)
                     .customLoader(ConTexLoaderBuilder::new)
-                    .connectedTexture(TEX_STONEBRICKS, Builtin.Types.PILLAR_Y)
+                    .addCtEntry(Builtin.Types.PILLAR_Y, TEX_STONEBRICKS)
                     .optional();
 
             cubeAll(TEX_GLASS.toString(), TEX_GLASS)
                     .customLoader(ConTexLoaderBuilder::new)
-                    .connectedTexture(TEX_GLASS, Builtin.Types.FULL)
+                    .addCtEntry(Builtin.Types.FULL, e -> e.addTexture(TEX_GLASS).occlusionMode(OcclusionMode.SOLID_OR_SELF))
                     .optional();
 
             cubeAll(TEX_DIORITE.toString(), TEX_DIORITE)
                     .customLoader(ConTexLoaderBuilder::new)
-                    .connectedTexture(TEX_DIORITE, Builtin.Types.FULL)
+                    .addCtEntry(Builtin.Types.FULL, TEX_DIORITE)
                     .optional();
 
             cubeAll(TEX_GRANITE.toString(), TEX_GRANITE)
                     .customLoader(ConTexLoaderBuilder::new)
-                    .connectedTexture(TEX_GRANITE, Builtin.Types.FULL)
+                    .addCtEntry(Builtin.Types.FULL, TEX_GRANITE)
                     .optional();
 
             cubeAll(TEX_REDSTONE.toString(), TEX_REDSTONE)
                     .customLoader(ConTexLoaderBuilder::new)
-                    .connectedTexture(TEX_REDSTONE, Builtin.Types.PILLAR_OMNI)
+                    .addCtEntry(Builtin.Types.PILLAR_OMNI, TEX_REDSTONE)
                     .optional();
+
+            withExistingParent("minecraft:block/oak_planks", "block/block")
+                    .customLoader(ConTexLoaderBuilder::new)
+                        .addCtEntry(Builtin.Types.FULL, TEX_GLASS)
+                        .optional()
+                        .end()
+                    .element()
+                        .allFaces((dir, face) -> face.texture("#redstone").cullface(dir).emissivity(15, 15))
+                        .end()
+                    .element()
+                        .allFaces((dir, face) -> face.texture("#glass").cullface(dir))
+                        .end()
+                    .texture("redstone", TEX_REDSTONE)
+                    .texture("glass", TEX_GLASS)
+                    .texture("particle", TEX_REDSTONE)
+                    .renderType("cutout");
         }
     }
 }

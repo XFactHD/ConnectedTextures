@@ -1,10 +1,13 @@
 {
   "parent": "minecraft:block/cube_all",
-  "contex_meta": {
-    "minecraft:block/polished_granite": {
-      "type": "contex:full"
+  "contex_meta": [
+    {
+      "type": "contex:full",
+      "textures": [
+        "minecraft:block/polished_granite"
+      ]
     }
-  },
+  ],
   "loader": {
     "id": "contex:loader",
     "optional": true

@@ -1,6 +1,7 @@
 package xfacthd.contex.api.model;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import org.jetbrains.annotations.Nullable;
 
 public final class QuadModifier
 {
@@ -43,6 +44,7 @@ public final class QuadModifier
      * Re-assemble a copy of the quad and export it to the given quad consumer. If any of the modifiers failed,
      * the quad will not be exported
      */
+    @Nullable
     public BakedQuad export()
     {
         if (failed)

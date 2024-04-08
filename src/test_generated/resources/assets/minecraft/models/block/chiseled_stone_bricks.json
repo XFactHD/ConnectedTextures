@@ -1,10 +1,13 @@
 {
   "parent": "minecraft:block/cube_all",
-  "contex_meta": {
-    "minecraft:block/chiseled_stone_bricks": {
-      "type": "contex:pillar_y"
+  "contex_meta": [
+    {
+      "type": "contex:pillar_y",
+      "textures": [
+        "minecraft:block/chiseled_stone_bricks"
+      ]
     }
-  },
+  ],
   "loader": {
     "id": "contex:loader",
     "optional": true

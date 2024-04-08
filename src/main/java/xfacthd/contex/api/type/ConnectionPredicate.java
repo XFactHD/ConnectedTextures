@@ -4,19 +4,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import xfacthd.contex.api.state.ConnectionDirection;
 
 public interface ConnectionPredicate
 {
     /**
      * Test whether the block at the given position matches the neighboring block at the given neighbor position.
-     * @param level The level the block is in
-     * @param pos The position the block is at
-     * @param otherPos The position of the neighboring block
-     * @param state The state of the block
-     * @param conDir The {@link ConnectionDirection} on the block
-     * @param otherConDir The {@link ConnectionDirection} on the other block
-     * @param side The side of the block being checked
+     *
+     * @param level     The level the block is in
+     * @param pos       The position the block is at
+     * @param otherPos  The position of the neighboring block
+     * @param state     The state of the block
+     * @param side      The side of the block being checked
      * @param otherSide The side of the neighboring block being checked
      */
     boolean test(
@@ -24,8 +22,6 @@ public interface ConnectionPredicate
             BlockPos pos,
             BlockPos otherPos,
             BlockState state,
-            ConnectionDirection conDir,
-            ConnectionDirection otherConDir,
             Direction side,
             Direction otherSide
     );

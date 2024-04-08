@@ -1,0 +1,123 @@
+{
+  "parent": "minecraft:block/block",
+  "contex_meta": [
+    {
+      "type": "contex:full",
+      "textures": [
+        "minecraft:block/glass"
+      ]
+    }
+  ],
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "texture": "#redstone"
+        },
+        "east": {
+          "cullface": "east",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "texture": "#redstone"
+        },
+        "north": {
+          "cullface": "north",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "texture": "#redstone"
+        },
+        "south": {
+          "cullface": "south",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "texture": "#redstone"
+        },
+        "up": {
+          "cullface": "up",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "texture": "#redstone"
+        },
+        "west": {
+          "cullface": "west",
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "texture": "#redstone"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#glass"
+        },
+        "east": {
+          "cullface": "east",
+          "texture": "#glass"
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#glass"
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#glass"
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#glass"
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#glass"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    }
+  ],
+  "loader": {
+    "id": "contex:loader",
+    "optional": true
+  },
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "glass": "minecraft:block/glass",
+    "particle": "minecraft:block/redstone_block",
+    "redstone": "minecraft:block/redstone_block"
+  }
+}

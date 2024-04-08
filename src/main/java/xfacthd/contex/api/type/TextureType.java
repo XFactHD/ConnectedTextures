@@ -1,102 +1,120 @@
 package xfacthd.contex.api.type;
 
-import com.google.gson.JsonObject;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
-import xfacthd.contex.api.state.ConnectionState;
+import xfacthd.contex.api.state.ConnectionDirection;
 import xfacthd.contex.api.utils.Constants;
-import xfacthd.contex.api.utils.Utils;
 
 import java.util.*;
 
-public interface TextureType
+public abstract class TextureType
 {
-    String ADDITIONAL_TEXTURE_KEY = "ct_texture";
+    public static final String BASE_TEXTURE_KEY = "main_texture";
+    public static final String ADDITIONAL_TEXTURE_KEY = "ct_texture";
 
     /**
      * {@return true if this type needs additional textures}
      */
-    default boolean hasAdditionalTexture()
+    public boolean hasAdditionalTexture()
     {
         return true;
     }
 
     /**
-     * {@return the {@link ResourceLocation} of an additional texture used for non-default connection states}
-     */
-    default ResourceLocation loadAdditionalTexture(JsonObject entry)
-    {
-        if (entry.has(ADDITIONAL_TEXTURE_KEY))
-        {
-            return Utils.getAsLocation(entry, ADDITIONAL_TEXTURE_KEY);
-        }
-        return null;
-    }
-
-    /**
      * {@return an {@link EnumSet} containing all directions this type operates on}
      */
-    default EnumSet<Direction> getAffectedFaces()
+    public EnumSet<Direction> getAffectedFaces()
     {
         return Constants.DIRECTIONS;
     }
 
     /**
-     * Build a {@link ConnectionState} for the given {@linkplain Direction side} with the given {@link ConnectionPredicate}.<br>
+     * Build a connection state for the given {@linkplain Direction side} with the given {@link ConnectionPredicate}.<br>
      * Must only be called for sides contained in the set returned by {@link TextureType#getAffectedFaces()}
-     * @param level The {@linkplain BlockAndTintGetter level} the block to be rendered is in
-     * @param pos The {@link BlockPos} of the block to be rendered
-     * @param state The {@link BlockState} of the block to be rendered
-     * @param side The side of the block being asked for its quads
-     * @param predicate The predicate used to check whether the block connects to its neighbors
-     * @param texture The base texture from the CT entry this query originates from
+     *
+     * @param level         The {@linkplain BlockAndTintGetter level} the block to be rendered is in
+     * @param pos           The {@link BlockPos} of the block to be rendered
+     * @param state         The {@link BlockState} of the block to be rendered
+     * @param side          The side of the block being asked for its quads
+     * @param predicate     The predicate used to check whether the block connects to its neighbors
+     * @param occlusionMode The occlusion mode to use for connection occlusion
      */
-    ConnectionState getConnectionState(
+    public abstract byte getConnectionState(
             BlockAndTintGetter level,
             BlockPos pos,
             BlockState state,
             Direction side,
             ConnectionPredicate predicate,
-            ResourceLocation texture
+            OcclusionMode occlusionMode
     );
 
     /**
      * Post-process
      */
-    default void postProcessConnections(Map<Direction, ConnectionState> stateMap) { }
+    public void postProcessConnections(byte[] stateMap) { }
 
     /**
-     * Create the {@link BakedQuad}s making up the given {@linkplain Direction side} of the block with the given {@link ConnectionState}.<br>
+     * Create the {@link BakedQuad}s making up the given {@linkplain Direction side} of the block with the given connection state.<br>
      * Must only be called for sides contained in the set returned by {@link TextureType#getAffectedFaces()}
-     * @param srcQuad The original quad on the given side
-     * @param side The side of the block
-     * @param state The calculated connection state
+     *
+     * @param srcQuad   The original quad on the given side
+     * @param side      The side of the block
+     * @param state     The calculated connection state
      * @param ctTexture The additional texture to use for connections
      */
-    List<BakedQuad> makeConnectionQuads(BakedQuad srcQuad, Direction side, ConnectionState state, ResourceLocation ctTexture);
+    public abstract List<BakedQuad> makeConnectionQuads(BakedQuad srcQuad, Direction side, byte state, ResourceLocation ctTexture);
 
-
-
-    @ApiStatus.Internal
-    static ResourceLocation loadAdditionalTexture(TextureType type, JsonObject entry, @Nullable ResourceLocation baseTexture)
+    /**
+     * Check whether the connection on the given side of the block being connected to is visible
+     *
+     * @param level         The level the block is in
+     * @param conPos        The position of the block being connected to
+     * @param side          The side of the block being connected to
+     * @param predicate     The connection predicate being used to test for the occluding state matching the potentially occluded state
+     * @param occlusionMode The occlusion mode to use for checking occlusion
+     */
+    protected static boolean isConnectionVisible(
+            BlockAndTintGetter level,
+            BlockPos conPos,
+            Direction side,
+            ConnectionPredicate predicate,
+            OcclusionMode occlusionMode
+    )
     {
-        if (!type.hasAdditionalTexture())
+        if (occlusionMode != OcclusionMode.NONE)
         {
-            return null;
+            BlockPos occludePos = conPos.relative(side);
+            BlockState state = level.getBlockState(conPos);
+            if (occlusionMode.isOccludedBySelf() && predicate.test(level, conPos, occludePos, state, side, side.getOpposite()))
+            {
+                return false;
+            }
+            else if (occlusionMode.isOccludedBySolid())
+            {
+                return Block.shouldRenderFace(state, level, conPos, side, occludePos);
+            }
         }
+        return true;
+    }
 
-        ResourceLocation ctTexture = type.loadAdditionalTexture(entry);
-        if (ctTexture != null)
-        {
-            return ctTexture;
-        }
+    /**
+     * Check whether the given {@link ConnectionDirection} is set on the given connection state
+     */
+    protected static boolean isSet(byte connections, ConnectionDirection dir)
+    {
+        return (connections & (1 << dir.ordinal())) != 0;
+    }
 
-        return baseTexture != null ? baseTexture.withSuffix("_ctm") : null;
+    /**
+     * Set the given {@link ConnectionDirection} on the given connection state
+     */
+    protected static byte set(byte connections, ConnectionDirection dir)
+    {
+        return (byte) (connections | (byte) (1 << dir.ordinal()));
     }
 }

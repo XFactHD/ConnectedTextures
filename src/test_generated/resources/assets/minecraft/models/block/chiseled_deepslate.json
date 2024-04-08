@@ -1,10 +1,13 @@
 {
   "parent": "minecraft:block/cube_all",
-  "contex_meta": {
-    "minecraft:block/chiseled_deepslate": {
-      "type": "contex:pillar_x"
+  "contex_meta": [
+    {
+      "type": "contex:pillar_x",
+      "textures": [
+        "minecraft:block/chiseled_deepslate"
+      ]
     }
-  },
+  ],
   "loader": {
     "id": "contex:loader",
     "optional": true

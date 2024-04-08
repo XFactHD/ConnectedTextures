@@ -1,34 +1,38 @@
 package xfacthd.contex.client.data;
 
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import xfacthd.contex.api.state.ConnectionState;
 
 import java.util.*;
 
-public final class ConnectionStateContainer // TODO: check hashing performance
+public final class ConnectionStateContainer
 {
-    private final StateMap[] states = new StateMap[6];
+    private final byte[][] states = new byte[6][];
+    private final int metaCount;
 
-    public StateMap get(Direction side)
+    public ConnectionStateContainer(int metaCount)
+    {
+        this.metaCount = metaCount;
+    }
+
+    public byte[] get(Direction side)
     {
         return states[side.ordinal()];
     }
 
-    public StateMap getOrCreate(Direction side)
+    public void put(Direction side, int idx, byte conState)
     {
-        StateMap map = states[side.ordinal()];
-        if (map == null)
+        byte[] sideStates = states[side.ordinal()];
+        if (sideStates == null)
         {
-            states[side.ordinal()] = map = new StateMap();
+            sideStates = states[side.ordinal()] = new byte[metaCount];
         }
-        return map;
+        sideStates[idx] = conState;
     }
 
     @Override
     public int hashCode()
     {
-        return Arrays.hashCode(states);
+        return Arrays.deepHashCode(states);
     }
 
     @Override
@@ -36,39 +40,6 @@ public final class ConnectionStateContainer // TODO: check hashing performance
     {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
-        return Arrays.equals(states, ((ConnectionStateContainer) o).states);
-    }
-
-
-
-    public static final class StateMap
-    {
-        private final Map<ResourceLocation, ConnectionState> stateMap = new HashMap<>();
-        private final List<ConnectionState> states = new ArrayList<>();
-
-        public void put(ResourceLocation tex, ConnectionState state)
-        {
-            stateMap.put(tex, state);
-            states.add(state);
-        }
-
-        public ConnectionState get(ResourceLocation tex)
-        {
-            return stateMap.get(tex);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return states.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (this == o) { return true; }
-            if (o == null || getClass() != o.getClass()) { return false; }
-            return Objects.equals(states, ((StateMap) o).states);
-        }
+        return Arrays.deepEquals(states, ((ConnectionStateContainer) o).states);
     }
 }

@@ -1,5 +1,6 @@
 package xfacthd.contex.api.utils;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +26,11 @@ public final class Utils
     public static ResourceLocation getAsLocation(JsonObject object, String key)
     {
         return new ResourceLocation(GsonHelper.getAsString(object, key));
+    }
+
+    public static ResourceLocation convertToLocation(JsonElement elem, String key)
+    {
+        return new ResourceLocation(GsonHelper.convertToString(elem, key));
     }
 
     /**

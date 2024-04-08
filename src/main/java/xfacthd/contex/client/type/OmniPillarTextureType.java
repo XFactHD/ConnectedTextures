@@ -4,8 +4,6 @@ import net.minecraft.core.Direction;
 import xfacthd.contex.api.state.*;
 import xfacthd.contex.api.type.UV;
 
-import java.util.Map;
-
 public final class OmniPillarTextureType extends SimpleTextureType
 {
     private static final Direction[] DIR_AXIS_Y = new Direction[] { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
@@ -18,12 +16,12 @@ public final class OmniPillarTextureType extends SimpleTextureType
     };
 
     @Override
-    public void postProcessConnections(Map<Direction, ConnectionState> stateMap)
+    public void postProcessConnections(byte[] stateMap)
     {
         for (Direction side : DIR_AXIS_Y)
         {
-            ConnectionState state = stateMap.get(side);
-            if (state.isSet(ConnectionDirection.UP) || state.isSet(ConnectionDirection.DOWN))
+            byte state = stateMap[side.ordinal()];
+            if (isSet(state, ConnectionDirection.UP) || isSet(state, ConnectionDirection.DOWN))
             {
                 cleanConnections(stateMap, DIR_AXIS_Y, Direction.UP, Direction.DOWN, CONDIR_AXIS_Y);
                 return;
@@ -31,8 +29,8 @@ public final class OmniPillarTextureType extends SimpleTextureType
         }
         for (Direction side : DIR_AXIS_X)
         {
-            ConnectionState state = stateMap.get(side);
-            if (state.isSet(ConnectionDirection.LEFT) || state.isSet(ConnectionDirection.RIGHT))
+            byte state = stateMap[side.ordinal()];
+            if (isSet(state, ConnectionDirection.LEFT) || isSet(state, ConnectionDirection.RIGHT))
             {
                 cleanConnections(stateMap, DIR_AXIS_X, Direction.EAST, Direction.WEST, CONDIR_AXIS_X);
                 return;
@@ -42,23 +40,15 @@ public final class OmniPillarTextureType extends SimpleTextureType
     }
 
     private static void cleanConnections(
-            Map<Direction, ConnectionState> stateMap,
+            byte[] stateMap,
             Direction[] allowedDirs,
             Direction remOne,
             Direction remTwo,
             ConnectionDirection[] allowedConDirs
     )
     {
-        ConnectionState state = stateMap.get(remOne);
-        if (state.connections() != 0)
-        {
-            stateMap.put(remOne, new ConnectionState(state.type(), state.texture(), (byte) 0));
-        }
-        state = stateMap.get(remTwo);
-        if (state.connections() != 0)
-        {
-            stateMap.put(remTwo, new ConnectionState(state.type(), state.texture(), (byte) 0));
-        }
+        stateMap[remOne.ordinal()] = 0;
+        stateMap[remTwo.ordinal()] = 0;
 
         for (int i = 0; i < 4; i++)
         {
@@ -66,12 +56,8 @@ public final class OmniPillarTextureType extends SimpleTextureType
             byte connections = (byte) ((0b1 << conDir.ordinal()) | (0b1 << conDir.getOpposite().ordinal()));
 
             Direction side = allowedDirs[i];
-            state = stateMap.get(side);
-            byte masked = (byte) (state.connections() & connections);
-            if (masked != state.connections())
-            {
-                stateMap.put(side, new ConnectionState(state.type(), state.texture(), masked));
-            }
+            byte state = stateMap[side.ordinal()];
+            stateMap[side.ordinal()] = (byte) (state & connections);
         }
     }
 

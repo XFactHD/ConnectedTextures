@@ -1,10 +1,13 @@
 {
   "parent": "minecraft:block/cube_all",
-  "contex_meta": {
-    "minecraft:block/redstone_block": {
-      "type": "contex:pillar_omni"
+  "contex_meta": [
+    {
+      "type": "contex:pillar_omni",
+      "textures": [
+        "minecraft:block/redstone_block"
+      ]
     }
-  },
+  ],
   "loader": {
     "id": "contex:loader",
     "optional": true

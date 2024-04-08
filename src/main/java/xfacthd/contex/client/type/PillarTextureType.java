@@ -2,11 +2,9 @@ package xfacthd.contex.client.type;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.state.ConnectionDirection;
-import xfacthd.contex.api.state.ConnectionState;
 import xfacthd.contex.api.type.*;
 import xfacthd.contex.api.utils.Utils;
 
@@ -38,33 +36,35 @@ public final class PillarTextureType extends DefaultTextureType
     }
 
     @Override
-    public ConnectionState getConnectionState(
+    public byte getConnectionState(
             BlockAndTintGetter level,
             BlockPos pos,
             BlockState state,
             Direction side,
             ConnectionPredicate predicate,
-            ResourceLocation texture
+            OcclusionMode occlusionMode
     )
     {
         if (side.getAxis() == axis)
         {
-            return new ConnectionState(this, texture, (byte) 0);
+            return 0;
         }
 
         ConnectionDirection conDirOne = ConnectionDirection.from(side, dirOne);
         ConnectionDirection conDirTwo = ConnectionDirection.from(side, dirTwo);
+        BlockPos posOne = pos.relative(dirOne);
+        BlockPos posTwo = pos.relative(dirTwo);
 
         byte connections = 0;
-        if (predicate.test(level, pos, pos.relative(dirOne), state, conDirOne, conDirOne, side, side))
+        if (predicate.test(level, pos, posOne, state, side, side) && isConnectionVisible(level, posOne, side, predicate, occlusionMode))
         {
-            connections |= (byte) (1 << conDirOne.ordinal());
+            connections = set(connections, conDirOne);
         }
-        if (predicate.test(level, pos, pos.relative(dirTwo), state, conDirTwo, conDirTwo, side, side))
+        if (predicate.test(level, pos, posTwo, state, side, side) && isConnectionVisible(level, posTwo, side, predicate, occlusionMode))
         {
-            connections |= (byte) (1 << conDirTwo.ordinal());
+            connections = set(connections, conDirTwo);
         }
-        return new ConnectionState(this, texture, connections);
+        return connections;
     }
 
     @Override

@@ -1,10 +1,13 @@
 {
   "parent": "minecraft:block/cube_all",
-  "contex_meta": {
-    "minecraft:block/chiseled_polished_blackstone": {
-      "type": "contex:pillar_z"
+  "contex_meta": [
+    {
+      "type": "contex:pillar_z",
+      "textures": [
+        "minecraft:block/chiseled_polished_blackstone"
+      ]
     }
-  },
+  ],
   "loader": {
     "id": "contex:loader",
     "optional": true

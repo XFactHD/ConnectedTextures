@@ -6,8 +6,8 @@ import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import xfacthd.contex.api.type.RegisterTextureMetaEvent;
 import xfacthd.contex.api.utils.*;
 import xfacthd.contex.client.data.MetadataRegistry;
@@ -22,12 +22,13 @@ public final class CTClient
     @SubscribeEvent
     public static void onRegisterGeometryLoader(final ModelEvent.RegisterGeometryLoaders event)
     {
-        MetadataRegistry.setLocked(false);
-        MetadataRegistry.clear();
-        ModLoader.get().postEvent(new RegisterTextureMetaEvent(MetadataRegistry::registerType, MetadataRegistry::registerPredicate));
-        MetadataRegistry.setLocked(true);
-
         event.register(Utils.rl("loader"), new ConTexLoader());
+    }
+
+    @SubscribeEvent
+    public static void onRegisterReloadListeners(final RegisterClientReloadListenersEvent event)
+    {
+        MetadataRegistry.init();
     }
 
     @SubscribeEvent

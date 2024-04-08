@@ -6,13 +6,13 @@ import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
 import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
-import xfacthd.contex.client.data.Metadata;
+import xfacthd.contex.client.data.MetaEntry;
 import xfacthd.contex.client.model.ConTexModel;
-import xfacthd.contex.client.model.SingleConTexModel;
 
+import java.util.List;
 import java.util.function.Function;
 
-public record ConTexGeometry(UnbakedModel baseModel, Metadata metadata) implements IUnbakedGeometry<ConTexGeometry>
+public record ConTexGeometry(UnbakedModel baseModel, List<MetaEntry> metadata) implements IUnbakedGeometry<ConTexGeometry>
 {
     @Override
     public BakedModel bake(
@@ -25,12 +25,7 @@ public record ConTexGeometry(UnbakedModel baseModel, Metadata metadata) implemen
     )
     {
         BakedModel bakedBase = baseModel.bake(baker, spriteGetter, modelState, location);
-        return switch (metadata.entries().size())
-        {
-            case 0 -> bakedBase;
-            case 1 -> new SingleConTexModel(bakedBase, metadata);
-            default -> new ConTexModel(bakedBase, metadata);
-        };
+        return metadata.isEmpty() ? bakedBase : new ConTexModel(bakedBase, metadata);
     }
 
     @Override

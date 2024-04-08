@@ -1,10 +1,14 @@
 {
   "parent": "minecraft:block/cube_all",
-  "contex_meta": {
-    "minecraft:block/glass": {
-      "type": "contex:full"
+  "contex_meta": [
+    {
+      "type": "contex:full",
+      "occlusion_mode": "SOLID_OR_SELF",
+      "textures": [
+        "minecraft:block/glass"
+      ]
     }
-  },
+  ],
   "loader": {
     "id": "contex:loader",
     "optional": true

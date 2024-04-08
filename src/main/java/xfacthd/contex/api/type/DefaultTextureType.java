@@ -4,9 +4,9 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 import xfacthd.contex.api.model.*;
 import xfacthd.contex.api.state.ConnectionDirection;
-import xfacthd.contex.api.state.ConnectionState;
 import xfacthd.contex.api.utils.Utils;
 
 import java.util.*;
@@ -18,7 +18,7 @@ import java.util.*;
  * relative connection UVs returned by {@link #getConnectionUVs(boolean, boolean, boolean, Direction)} are expected
  * to adhere to this convention.
  */
-public abstract class DefaultTextureType implements TextureType
+public abstract class DefaultTextureType extends TextureType
 {
     @Override
     public final boolean hasAdditionalTexture()
@@ -27,13 +27,8 @@ public abstract class DefaultTextureType implements TextureType
     }
 
     @Override
-    public List<BakedQuad> makeConnectionQuads(BakedQuad srcQuad, Direction side, ConnectionState state, ResourceLocation ctTexture)
+    public List<BakedQuad> makeConnectionQuads(BakedQuad srcQuad, Direction side, byte state, ResourceLocation ctTexture)
     {
-        if (state.connections() == 0)
-        {
-            return List.of(srcQuad);
-        }
-
         List<BakedQuad> quads = new ArrayList<>(4);
 
         if (Utils.isY(side))
@@ -78,18 +73,19 @@ public abstract class DefaultTextureType implements TextureType
      * @return The resulting quad for the quadrant or null if the source quad being cut to the quadrant's size would
      *         result in an empty quad
      */
+    @Nullable
     protected final BakedQuad makeTopBottomConnectionQuad(
             BakedQuad srcQuad,
             Direction side,
-            ConnectionState state,
+            byte state,
             ConnectionDirection xDir,
             ConnectionDirection zDir,
             ResourceLocation ctTex
     )
     {
-        boolean xCon = state.isSet(xDir);
-        boolean zCon = state.isSet(zDir);
-        boolean diagCon = state.isSet(ConnectionDirection.diagonal(xDir, zDir));
+        boolean xCon = isSet(state, xDir);
+        boolean zCon = isSet(state, zDir);
+        boolean diagCon = isSet(state, ConnectionDirection.diagonal(xDir, zDir));
 
         boolean right = xDir == ConnectionDirection.RIGHT;
         boolean up = (zDir == ConnectionDirection.UP) == (side == Direction.DOWN);
@@ -117,18 +113,19 @@ public abstract class DefaultTextureType implements TextureType
      * @return The resulting quad for the quadrant or null if the source quad being cut to the quadrant's size would
      *         result in an empty quad
      */
+    @Nullable
     protected final BakedQuad makeSideConnectionQuad(
             BakedQuad srcQuad,
             Direction side,
-            ConnectionState state,
+            byte state,
             ConnectionDirection xDir,
             ConnectionDirection yDir,
             ResourceLocation ctTex
     )
     {
-        boolean xCon = state.isSet(xDir);
-        boolean yCon = state.isSet(yDir);
-        boolean diagCon = state.isSet(ConnectionDirection.diagonal(xDir, yDir));
+        boolean xCon = isSet(state, xDir);
+        boolean yCon = isSet(state, yDir);
+        boolean diagCon = isSet(state, ConnectionDirection.diagonal(xDir, yDir));
 
         boolean right = xDir == ConnectionDirection.RIGHT;
         boolean up = yDir == ConnectionDirection.UP;
