@@ -15,7 +15,7 @@ public final class MetadataRegistry
 
     public static void init()
     {
-        ModLoader.get().postEvent(new RegisterTextureMetaEvent(
+        ModLoader.postEvent(new RegisterTextureMetaEvent(
                 MetadataRegistry::registerType, MetadataRegistry::registerPredicate
         ));
     }
