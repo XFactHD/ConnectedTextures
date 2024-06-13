@@ -20,11 +20,10 @@ public record ConTexGeometry(UnbakedModel baseModel, List<MetaEntry> metadata) i
             ModelBaker baker,
             Function<Material, TextureAtlasSprite> spriteGetter,
             ModelState modelState,
-            ItemOverrides overrides,
-            ResourceLocation location
+            ItemOverrides overrides
     )
     {
-        BakedModel bakedBase = baseModel.bake(baker, spriteGetter, modelState, location);
+        BakedModel bakedBase = baseModel.bake(baker, spriteGetter, modelState);
         return metadata.isEmpty() ? bakedBase : new ConTexModel(bakedBase, metadata);
     }
 

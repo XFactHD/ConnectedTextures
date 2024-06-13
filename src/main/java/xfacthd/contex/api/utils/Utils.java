@@ -11,7 +11,7 @@ public final class Utils
 {
     public static ResourceLocation rl(String path)
     {
-        return new ResourceLocation(Constants.MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, path);
     }
 
     public static ResourceLocation getAsLocation(JsonObject object, String key, ResourceLocation fallback)
@@ -25,12 +25,12 @@ public final class Utils
 
     public static ResourceLocation getAsLocation(JsonObject object, String key)
     {
-        return new ResourceLocation(GsonHelper.getAsString(object, key));
+        return ResourceLocation.parse(GsonHelper.getAsString(object, key));
     }
 
     public static ResourceLocation convertToLocation(JsonElement elem, String key)
     {
-        return new ResourceLocation(GsonHelper.convertToString(elem, key));
+        return ResourceLocation.parse(GsonHelper.convertToString(elem, key));
     }
 
     /**
