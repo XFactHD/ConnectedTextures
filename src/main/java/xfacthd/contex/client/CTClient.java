@@ -2,11 +2,11 @@ package xfacthd.contex.client;
 
 import net.minecraft.core.Direction;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.InterModComms;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import xfacthd.contex.api.type.RegisterTextureMetaEvent;
 import xfacthd.contex.api.utils.*;
@@ -16,23 +16,28 @@ import xfacthd.contex.client.predicate.SameBlockPredicate;
 import xfacthd.contex.client.predicate.SameStatePredicate;
 import xfacthd.contex.client.type.*;
 
-@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
 public final class CTClient
 {
-    @SubscribeEvent
-    public static void onRegisterGeometryLoader(final ModelEvent.RegisterGeometryLoaders event)
+    public CTClient(IEventBus modBus)
+    {
+        modBus.addListener(CTClient::onRegisterGeometryLoader);
+        modBus.addListener(CTClient::onRegisterReloadListeners);
+        modBus.addListener(CTClient::onRegisterMetadata);
+        modBus.addListener(CTClient::onEnqueueIMC);
+    }
+
+    private static void onRegisterGeometryLoader(final ModelEvent.RegisterGeometryLoaders event)
     {
         event.register(Utils.rl("loader"), new ConTexLoader());
     }
 
-    @SubscribeEvent
-    public static void onRegisterReloadListeners(final RegisterClientReloadListenersEvent event)
+    private static void onRegisterReloadListeners(final RegisterClientReloadListenersEvent event)
     {
         MetadataRegistry.init();
     }
 
-    @SubscribeEvent
-    public static void onRegisterMetadata(final RegisterTextureMetaEvent event)
+    private static void onRegisterMetadata(final RegisterTextureMetaEvent event)
     {
         event.registerType(Builtin.Types.SIMPLE, new SimpleTextureType());
         event.registerType(Builtin.Types.FULL, new FullTextureType());
@@ -45,13 +50,8 @@ public final class CTClient
         event.registerPredicate(Builtin.Predicates.SAME_STATE, new SameStatePredicate());
     }
 
-    @SubscribeEvent
-    public static void onEnqueueIMC(final InterModEnqueueEvent event)
+    private static void onEnqueueIMC(final InterModEnqueueEvent event)
     {
         InterModComms.sendTo(Constants.MOD_ID, "framedblocks", "add_ct_property", () -> Constants.CT_STATE_PROPERTY);
     }
-
-
-
-    private CTClient() { }
 }
