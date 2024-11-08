@@ -96,7 +96,7 @@ public abstract class TextureType
             }
             else if (occlusionMode.isOccludedBySolid())
             {
-                return Block.shouldRenderFace(state, level, conPos, side, occludePos);
+                return Block.shouldRenderFace(level, conPos, state, level.getBlockState(occludePos), side);
             }
         }
         return true;

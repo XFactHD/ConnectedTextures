@@ -1,9 +1,8 @@
 plugins {
     id 'java-library'
-    id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.142'
+    id 'net.neoforged.moddev' version '2.0.42-beta'
 }
 
 version = mod_version
@@ -15,27 +14,55 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-runs {
-    configureEach {
-        //systemProperty 'forge.logging.markers', 'REGISTRIES'
-        systemProperty 'forge.logging.console.level', 'debug'
+neoForge {
+    version = project.neoforge_version
 
-        modSources.add(project.sourceSets.main, project.sourceSets.test)
+    parchment {
+        minecraftVersion = project.parchment_minecraft_version
+        mappingsVersion = project.parchment_mappings_version
     }
 
-    client {
-        workingDirectory project.file('run')
+    runs {
+        configureEach {
+            //systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+
+            sourceSet = project.sourceSets.test
+        }
+
+        client {
+            client()
+            gameDirectory = project.file('run')
+        }
+
+        server {
+            server()
+            gameDirectory = project.file('run_server')
+
+            programArgument '--nogui'
+        }
+
+        data {
+            data()
+            gameDirectory = project.file('run')
+
+            programArguments.addAll(
+                    '--mod', 'contex',
+                    '--all',
+                    '--output', file('src/test_generated/resources/').getAbsolutePath(),
+                    '--existing', file('src/main/resources/').getAbsolutePath()
+            )
+        }
     }
 
-    server {
-        workingDirectory project.file('run_server')
+    mods {
+        contex {
+            sourceSet(project.sourceSets.main)
+            sourceSet(project.sourceSets.test)
+        }
     }
 
-    data {
-        workingDirectory project.file('run')
-
-        programArguments.addAll '--mod', 'contex', '--all', '--output', file('src/test_generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-    }
+    addModdingDependenciesTo(project.sourceSets.test)
 }
 
 sourceSets {
@@ -46,7 +73,6 @@ sourceSets {
 }
 
 dependencies {
-    implementation("net.neoforged:neoforge:${neoforge_version}")
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -55,13 +81,12 @@ tasks.withType(ProcessResources).configureEach {
             minecraft_version_range: minecraft_version_range,
             neoforge_version: neoforge_version,
             neoforge_version_range: neoforge_version_range,
-            loader_version_range: loader_version_range,
             mod_version: mod_version
     ]
     inputs.properties replaceProperties
 
     filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
-        expand replaceProperties + [project: project]
+        expand replaceProperties
     }
 }
 
@@ -84,4 +109,5 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xmaxerrs" << "10000"
 }

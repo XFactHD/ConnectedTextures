@@ -63,6 +63,7 @@ public final class QuadModifier
                 data.quad.getDirection(),
                 data.sprite,
                 data.quad.isShade(),
+                data.quad.getLightEmission(),
                 data.quad.hasAmbientOcclusion()
         );
     }

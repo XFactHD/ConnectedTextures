@@ -212,18 +212,18 @@ public enum ConnectionDirection
                     {
                         case DOWN -> new Vec3i(1, 0, -1);
                         case UP -> new Vec3i(1, 0, 1);
-                        case NORTH, SOUTH, WEST, EAST -> side.getClockWise().getNormal().above();
+                        case NORTH, SOUTH, WEST, EAST -> side.getClockWise().getUnitVec3i().above();
                     };
                     case RIGHT -> switch (side)
                     {
                         case DOWN, UP -> new Vec3i(1, 0, 0);
-                        case NORTH, SOUTH, WEST, EAST -> side.getClockWise().getNormal();
+                        case NORTH, SOUTH, WEST, EAST -> side.getClockWise().getUnitVec3i();
                     };
                     case DOWN_RIGHT -> switch (side)
                     {
                         case DOWN -> new Vec3i(1, 0, 1);
                         case UP -> new Vec3i(1, 0, -1);
-                        case NORTH, SOUTH, WEST, EAST -> side.getClockWise().getNormal().below();
+                        case NORTH, SOUTH, WEST, EAST -> side.getClockWise().getUnitVec3i().below();
                     };
                     case DOWN -> switch (side)
                     {
@@ -235,18 +235,18 @@ public enum ConnectionDirection
                     {
                         case DOWN -> new Vec3i(-1, 0, 1);
                         case UP -> new Vec3i(-1, 0, -1);
-                        case NORTH, SOUTH, WEST, EAST -> side.getCounterClockWise().getNormal().below();
+                        case NORTH, SOUTH, WEST, EAST -> side.getCounterClockWise().getUnitVec3i().below();
                     };
                     case LEFT -> switch (side)
                     {
                         case DOWN, UP -> new Vec3i(-1, 0, 0);
-                        case NORTH, SOUTH, WEST, EAST -> side.getCounterClockWise().getNormal();
+                        case NORTH, SOUTH, WEST, EAST -> side.getCounterClockWise().getUnitVec3i();
                     };
                     case UP_LEFT -> switch (side)
                     {
                         case DOWN -> new Vec3i(-1, 0, -1);
                         case UP -> new Vec3i(-1, 0, 1);
-                        case NORTH, SOUTH, WEST, EAST -> side.getCounterClockWise().getNormal().above();
+                        case NORTH, SOUTH, WEST, EAST -> side.getCounterClockWise().getUnitVec3i().above();
                     };
                 };
             }
