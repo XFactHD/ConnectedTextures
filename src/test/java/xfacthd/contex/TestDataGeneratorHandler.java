@@ -19,10 +19,10 @@ public final class TestDataGeneratorHandler
     private TestDataGeneratorHandler() { }
 
     @SubscribeEvent
-    public static void onGatherData(final GatherDataEvent event)
+    public static void onGatherData(final GatherDataEvent.Client event)
     {
         event.getGenerator().addProvider(
-                event.includeClient(),
+                true,
                 new TestBlockModelProvider(
                         event.getGenerator().getPackOutput(),
                         event.getExistingFileHelper()

@@ -1,22 +1,34 @@
 package xfacthd.contex.client.loader;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
-import xfacthd.contex.api.type.*;
+import net.neoforged.neoforge.client.model.UnbakedModelLoader;
+import xfacthd.contex.api.type.ConnectionPredicate;
+import xfacthd.contex.api.type.OcclusionMode;
+import xfacthd.contex.api.type.TextureType;
 import xfacthd.contex.api.utils.Builtin;
 import xfacthd.contex.api.utils.Utils;
-import xfacthd.contex.client.data.*;
+import xfacthd.contex.client.data.MetaEntry;
+import xfacthd.contex.client.data.MetadataRegistry;
+import xfacthd.contex.client.data.TextureEntry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public final class ConTexLoader implements IGeometryLoader<ConTexGeometry>
+public final class ConTexLoader implements UnbakedModelLoader<UnbakedConTexModel>
 {
     @Override
-    public ConTexGeometry read(JsonObject json, JsonDeserializationContext ctx) throws JsonParseException
+    public UnbakedConTexModel read(JsonObject json, JsonDeserializationContext ctx) throws JsonParseException
     {
         json.remove("loader");
         UnbakedModel baseModel = ctx.deserialize(json, BlockModel.class);
@@ -106,6 +118,6 @@ public final class ConTexLoader implements IGeometryLoader<ConTexGeometry>
             }
         }
 
-        return new ConTexGeometry(baseModel, ctEntries);
+        return new UnbakedConTexModel(baseModel, ctEntries);
     }
 }

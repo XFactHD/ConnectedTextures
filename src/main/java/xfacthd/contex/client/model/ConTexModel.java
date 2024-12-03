@@ -3,25 +3,28 @@ package xfacthd.contex.client.model;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.DelegateBakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.BakedModelWrapper;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.contex.api.model.Modifiers;
 import xfacthd.contex.api.model.QuadModifier;
 import xfacthd.contex.api.type.TextureType;
 import xfacthd.contex.api.utils.Utils;
-import xfacthd.contex.client.data.*;
 import xfacthd.contex.api.utils.Constants;
+import xfacthd.contex.client.data.ConnectionStateContainer;
+import xfacthd.contex.client.data.MetaEntry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class ConTexModel extends BakedModelWrapper<BakedModel>
+public final class ConTexModel extends DelegateBakedModel
 {
     private static final Direction[] DIRECTIONS = Direction.values();
 
@@ -117,12 +120,12 @@ public final class ConTexModel extends BakedModelWrapper<BakedModel>
     {
         QuadTable srcQuads = new QuadTable();
         RandomSource random = RandomSource.create(42);
-        for (RenderType renderType : originalModel.getRenderTypes(state, random, ModelData.EMPTY))
+        for (RenderType renderType : parent.getRenderTypes(state, random, ModelData.EMPTY))
         {
             for (Direction side : DIRECTIONS)
             {
                 random.setSeed(42);
-                List<BakedQuad> quads = originalModel.getQuads(state, side, random, ModelData.EMPTY, renderType);
+                List<BakedQuad> quads = parent.getQuads(state, side, random, ModelData.EMPTY, renderType);
                 ArrayList<QuadTable.Entry> decompQuads = new ArrayList<>(quads.size());
                 for (BakedQuad quad : quads)
                 {

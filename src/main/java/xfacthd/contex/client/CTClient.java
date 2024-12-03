@@ -27,7 +27,7 @@ public final class CTClient
         modBus.addListener(CTClient::onEnqueueIMC);
     }
 
-    private static void onRegisterGeometryLoader(final ModelEvent.RegisterGeometryLoaders event)
+    private static void onRegisterGeometryLoader(final ModelEvent.RegisterLoaders event)
     {
         event.register(Utils.rl("loader"), new ConTexLoader());
     }
