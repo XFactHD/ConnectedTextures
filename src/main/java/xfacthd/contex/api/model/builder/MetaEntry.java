@@ -3,28 +3,26 @@ package xfacthd.contex.api.model.builder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.client.model.generators.ModelProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.contex.api.type.OcclusionMode;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @SuppressWarnings({ "unused", "UnusedReturnValue" })
 public final class MetaEntry
 {
     private final ResourceLocation type;
-    private final ExistingFileHelper existingFileHelper;
     private final Map<ResourceLocation, TextureEntry> textures = new LinkedHashMap<>();
     @Nullable
     private ResourceLocation predicate;
     @Nullable
     private OcclusionMode occlusionMode;
 
-    MetaEntry(ResourceLocation type, ExistingFileHelper existingFileHelper)
+    MetaEntry(ResourceLocation type)
     {
         this.type = type;
-        this.existingFileHelper = existingFileHelper;
     }
 
     /**
@@ -70,18 +68,19 @@ public final class MetaEntry
 
     private void validateTexture(ResourceLocation baseTexture, @Nullable ResourceLocation ctTexture)
     {
-        if (!existingFileHelper.exists(baseTexture, ModelProvider.TEXTURE))
-        {
-            throw new IllegalArgumentException("Base texture '" + baseTexture + "' does not exist in any known resource pack");
-        }
-        if (ctTexture != null && !existingFileHelper.exists(ctTexture, ModelProvider.TEXTURE))
-        {
-            throw new IllegalArgumentException("CT texture '" + ctTexture + "' does not exist in any known resource pack");
-        }
         if (textures.containsKey(baseTexture))
         {
             throw new IllegalStateException("Duplicate registration of texture: " + baseTexture);
         }
+    }
+
+    MetaEntry copy()
+    {
+        MetaEntry metaEntry = new MetaEntry(type);
+        metaEntry.textures.putAll(textures);
+        metaEntry.predicate = predicate;
+        metaEntry.occlusionMode = occlusionMode;
+        return metaEntry;
     }
 
     JsonObject toJson()

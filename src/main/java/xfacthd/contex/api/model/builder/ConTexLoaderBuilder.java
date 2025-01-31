@@ -3,24 +3,24 @@ package xfacthd.contex.api.model.builder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.client.model.generators.*;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.client.model.generators.template.CustomLoaderBuilder;
 import xfacthd.contex.api.utils.Builtin;
 import xfacthd.contex.api.utils.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public final class ConTexLoaderBuilder<T extends ModelBuilder<T>> extends CustomLoaderBuilder<T>
+public final class ConTexLoaderBuilder extends CustomLoaderBuilder
 {
     private static final ResourceLocation ID = Utils.rl("loader");
 
     private final List<MetaEntry> metaEntries = new ArrayList<>();
 
-    public ConTexLoaderBuilder(T parent, ExistingFileHelper fileHelper)
+    public ConTexLoaderBuilder()
     {
-        super(ID, parent, fileHelper, true);
+        super(ID, true);
     }
 
     /**
@@ -28,7 +28,7 @@ public final class ConTexLoaderBuilder<T extends ModelBuilder<T>> extends Custom
      * @param type    The CT type to use ({@link Builtin.Types} for builtin CT types)
      * @param texture The target texture
      */
-    public ConTexLoaderBuilder<T> addCtEntry(ResourceLocation type, ResourceLocation texture)
+    public ConTexLoaderBuilder addCtEntry(ResourceLocation type, ResourceLocation texture)
     {
         return addCtEntry(type, e -> e.addTexture(texture));
     }
@@ -39,7 +39,7 @@ public final class ConTexLoaderBuilder<T extends ModelBuilder<T>> extends Custom
      * @param texture   The target texture
      * @param predicate The predicate to use for connection checks ({@link Builtin.Predicates} for builtin predicates)
      */
-    public ConTexLoaderBuilder<T> addCtEntry(ResourceLocation type, ResourceLocation texture, ResourceLocation predicate)
+    public ConTexLoaderBuilder addCtEntry(ResourceLocation type, ResourceLocation texture, ResourceLocation predicate)
     {
         return addCtEntry(type, e -> e.addTexture(texture).predicate(predicate));
     }
@@ -49,13 +49,21 @@ public final class ConTexLoaderBuilder<T extends ModelBuilder<T>> extends Custom
      * @param type The CT type to use ({@link Builtin.Types} for builtin CT types)
      * @param configurator A configurator for the added entry for further configuration
      */
-    public ConTexLoaderBuilder<T> addCtEntry(ResourceLocation type, Consumer<MetaEntry> configurator)
+    public ConTexLoaderBuilder addCtEntry(ResourceLocation type, Consumer<MetaEntry> configurator)
     {
-        MetaEntry entry = new MetaEntry(type, existingFileHelper);
+        MetaEntry entry = new MetaEntry(type);
         configurator.accept(entry);
         metaEntries.add(entry);
 
         return this;
+    }
+
+    @Override
+    protected CustomLoaderBuilder copyInternal()
+    {
+        ConTexLoaderBuilder builder = new ConTexLoaderBuilder();
+        metaEntries.forEach(entry -> builder.metaEntries.add(entry.copy()));
+        return builder;
     }
 
     @Override
