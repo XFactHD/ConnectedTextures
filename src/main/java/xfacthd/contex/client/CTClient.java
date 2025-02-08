@@ -6,8 +6,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import xfacthd.contex.api.type.RegisterTextureMetaEvent;
 import xfacthd.contex.api.utils.*;
 import xfacthd.contex.client.data.MetadataRegistry;
@@ -32,7 +32,7 @@ public final class CTClient
         event.register(Utils.rl("loader"), new ConTexLoader());
     }
 
-    private static void onRegisterReloadListeners(final RegisterClientReloadListenersEvent event)
+    private static void onRegisterReloadListeners(final AddClientReloadListenersEvent event)
     {
         MetadataRegistry.init();
     }
