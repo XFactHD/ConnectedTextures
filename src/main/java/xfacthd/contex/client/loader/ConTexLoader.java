@@ -81,9 +81,9 @@ public final class ConTexLoader implements UnbakedModelLoader<UnbakedConTexModel
                     baseTex = Utils.getAsLocation(texObj, TextureType.BASE_TEXTURE_KEY);
                     if (type.hasAdditionalTexture())
                     {
-                        if (entry.has(TextureType.ADDITIONAL_TEXTURE_KEY))
+                        if (texObj.has(TextureType.ADDITIONAL_TEXTURE_KEY))
                         {
-                            ctTex = Utils.getAsLocation(entry, TextureType.ADDITIONAL_TEXTURE_KEY);
+                            ctTex = Utils.getAsLocation(texObj, TextureType.ADDITIONAL_TEXTURE_KEY);
                         }
                         else
                         {
