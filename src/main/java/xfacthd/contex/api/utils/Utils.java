@@ -1,36 +1,19 @@
 package xfacthd.contex.api.utils;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public final class Utils
 {
     public static ResourceLocation rl(String path)
     {
         return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, path);
-    }
-
-    public static ResourceLocation getAsLocation(JsonObject object, String key, ResourceLocation fallback)
-    {
-        if (object.has(key))
-        {
-            return getAsLocation(object, key);
-        }
-        return fallback;
-    }
-
-    public static ResourceLocation getAsLocation(JsonObject object, String key)
-    {
-        return ResourceLocation.parse(GsonHelper.getAsString(object, key));
-    }
-
-    public static ResourceLocation convertToLocation(JsonElement elem, String key)
-    {
-        return ResourceLocation.parse(GsonHelper.convertToString(elem, key));
     }
 
     /**
@@ -83,6 +66,24 @@ public final class Utils
     public static boolean isZ(Direction dir)
     {
         return dir.getAxis() == Direction.Axis.Z;
+    }
+
+    public static void addQuads(QuadCollection.Builder builder, @Nullable Direction side, List<BakedQuad> quads)
+    {
+        if (side == null)
+        {
+            for (BakedQuad quad : quads)
+            {
+                builder.addUnculledFace(quad);
+            }
+        }
+        else
+        {
+            for (BakedQuad quad : quads)
+            {
+                builder.addCulledFace(side, quad);
+            }
+        }
     }
 
 

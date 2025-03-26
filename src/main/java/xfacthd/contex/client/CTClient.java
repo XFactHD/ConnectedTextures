@@ -1,57 +1,53 @@
 package xfacthd.contex.client;
 
-import net.minecraft.core.Direction;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
-import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.InitializeClientRegistriesEvent;
+import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
 import xfacthd.contex.api.type.RegisterTextureMetaEvent;
-import xfacthd.contex.api.utils.*;
+import xfacthd.contex.api.utils.Builtin;
+import xfacthd.contex.api.utils.Constants;
+import xfacthd.contex.api.utils.Utils;
 import xfacthd.contex.client.data.MetadataRegistry;
-import xfacthd.contex.client.loader.ConTexLoader;
+import xfacthd.contex.client.model.ConTexBlockModelDefinition;
 import xfacthd.contex.client.predicate.SameBlockPredicate;
 import xfacthd.contex.client.predicate.SameStatePredicate;
-import xfacthd.contex.client.type.*;
+import xfacthd.contex.client.type.FullTextureType;
+import xfacthd.contex.client.type.OmniPillarTextureType;
+import xfacthd.contex.client.type.PillarTextureType;
+import xfacthd.contex.client.type.SimpleTextureType;
 
 @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
 public final class CTClient
 {
     public CTClient(IEventBus modBus)
     {
-        modBus.addListener(CTClient::onRegisterGeometryLoader);
-        modBus.addListener(CTClient::onRegisterReloadListeners);
+        modBus.addListener(CTClient::onRegisterBlockStateModels);
+        modBus.addListener(CTClient::onInitClientRegistries);
         modBus.addListener(CTClient::onRegisterMetadata);
-        modBus.addListener(CTClient::onEnqueueIMC);
     }
 
-    private static void onRegisterGeometryLoader(final ModelEvent.RegisterLoaders event)
+    private static void onRegisterBlockStateModels(final RegisterBlockStateModels event)
     {
-        event.register(Utils.rl("loader"), new ConTexLoader());
+        event.registerDefinition(Utils.rl("definition"), ConTexBlockModelDefinition.CODEC);
     }
 
-    private static void onRegisterReloadListeners(final AddClientReloadListenersEvent event)
+    private static void onInitClientRegistries(final InitializeClientRegistriesEvent event)
     {
         MetadataRegistry.init();
     }
 
     private static void onRegisterMetadata(final RegisterTextureMetaEvent event)
     {
-        event.registerType(Builtin.Types.SIMPLE, new SimpleTextureType());
-        event.registerType(Builtin.Types.FULL, new FullTextureType());
-        event.registerType(Builtin.Types.PILLAR_X, new PillarTextureType(Direction.Axis.X));
-        event.registerType(Builtin.Types.PILLAR_Y, new PillarTextureType(Direction.Axis.Y));
-        event.registerType(Builtin.Types.PILLAR_Z, new PillarTextureType(Direction.Axis.Z));
-        event.registerType(Builtin.Types.PILLAR_OMNI, new OmniPillarTextureType());
+        event.registerType(Builtin.Types.SIMPLE, SimpleTextureType.INSTANCE);
+        event.registerType(Builtin.Types.FULL, FullTextureType.INSTANCE);
+        event.registerType(Builtin.Types.PILLAR_X, PillarTextureType.X);
+        event.registerType(Builtin.Types.PILLAR_Y, PillarTextureType.Y);
+        event.registerType(Builtin.Types.PILLAR_Z, PillarTextureType.Z);
+        event.registerType(Builtin.Types.PILLAR_OMNI, OmniPillarTextureType.INSTANCE);
 
-        event.registerPredicate(Builtin.Predicates.SAME_BLOCK, new SameBlockPredicate());
-        event.registerPredicate(Builtin.Predicates.SAME_STATE, new SameStatePredicate());
-    }
-
-    private static void onEnqueueIMC(final InterModEnqueueEvent event)
-    {
-        InterModComms.sendTo(Constants.MOD_ID, "framedblocks", "add_ct_property", () -> Constants.CT_STATE_PROPERTY);
+        event.registerPredicate(Builtin.Predicates.SAME_BLOCK, SameBlockPredicate.CODEC);
+        event.registerPredicate(Builtin.Predicates.SAME_STATE, SameStatePredicate.CODEC);
     }
 }

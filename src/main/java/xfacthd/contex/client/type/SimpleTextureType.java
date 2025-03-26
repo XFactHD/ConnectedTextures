@@ -14,6 +14,9 @@ public sealed class SimpleTextureType extends FullTextureType permits OmniPillar
     private static final ConnectionDirection[] CARDINAL_DIRECTIONS = new ConnectionDirection[] {
             ConnectionDirection.UP, ConnectionDirection.RIGHT, ConnectionDirection.DOWN, ConnectionDirection.LEFT
     };
+    public static final SimpleTextureType INSTANCE = new SimpleTextureType();
+
+    protected SimpleTextureType() { }
 
     @Override
     public byte getConnectionState(

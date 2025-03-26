@@ -14,6 +14,9 @@ public final class OmniPillarTextureType extends SimpleTextureType
     private static final ConnectionDirection[] CONDIR_AXIS_X = new ConnectionDirection[] {
             ConnectionDirection.LEFT, ConnectionDirection.LEFT, ConnectionDirection.LEFT, ConnectionDirection.LEFT
     };
+    public static final OmniPillarTextureType INSTANCE = new OmniPillarTextureType();
+
+    private OmniPillarTextureType() { }
 
     @Override
     public void postProcessConnections(byte[] stateMap)

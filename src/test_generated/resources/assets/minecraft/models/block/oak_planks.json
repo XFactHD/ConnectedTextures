@@ -1,13 +1,5 @@
 {
   "parent": "minecraft:block/block",
-  "contex_meta": [
-    {
-      "type": "contex:full",
-      "textures": [
-        "minecraft:block/glass"
-      ]
-    }
-  ],
   "elements": [
     {
       "faces": {
@@ -110,10 +102,6 @@
       ]
     }
   ],
-  "loader": {
-    "id": "contex:loader",
-    "optional": true
-  },
   "render_type": "minecraft:cutout",
   "textures": {
     "glass": "minecraft:block/glass",

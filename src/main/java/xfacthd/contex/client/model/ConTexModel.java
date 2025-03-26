@@ -1,103 +1,125 @@
 package xfacthd.contex.client.model;
 
-import net.minecraft.client.renderer.RenderType;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.DelegateBakedModel;
+import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
+import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.contex.api.model.Modifiers;
 import xfacthd.contex.api.model.QuadModifier;
 import xfacthd.contex.api.type.TextureType;
 import xfacthd.contex.api.utils.Utils;
-import xfacthd.contex.api.utils.Constants;
 import xfacthd.contex.client.data.ConnectionStateContainer;
 import xfacthd.contex.client.data.MetaEntry;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class ConTexModel extends DelegateBakedModel
+public final class ConTexModel extends DelegateBlockStateModel
 {
     private static final Direction[] DIRECTIONS = Direction.values();
 
-    private final Map<QuadCacheKey, List<BakedQuad>> quadCache = new ConcurrentHashMap<>();
+    private final Map<ConnectionStateContainer, List<BlockModelPart>> ctPartCache = new ConcurrentHashMap<>();
+    private final BlockState state;
     private final MetaEntry[] metadata;
-    private QuadTable srcQuads = null;
+    @Nullable
+    private List<ConnectedBlockModelPart> decomposedParts = null;
 
-    public ConTexModel(BakedModel baseModel, List<MetaEntry> metadata)
+    ConTexModel(BlockStateModel baseModel, BlockState state, List<MetaEntry> metadata)
     {
         super(baseModel);
+        this.state = state;
         this.metadata = metadata.toArray(MetaEntry[]::new);
     }
 
     @Override
-    public List<BakedQuad> getQuads(
-            @Nullable BlockState state,
-            @Nullable Direction side,
-            RandomSource rand,
-            ModelData extraData,
-            @Nullable RenderType renderType
-    )
+    public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockModelPart> parts)
     {
-        if (side == null || state == null || renderType == null || !extraData.has(Constants.CT_STATE_PROPERTY))
+        if (decomposedParts == null)
         {
-            return super.getQuads(state, side, rand, extraData, renderType);
+            decomposedParts = decomposeBaseModel(level, pos, this.state, random);
         }
 
-        //noinspection ConstantConditions
-        byte[] ctStates = extraData.get(Constants.CT_STATE_PROPERTY).get(side);
-        if (ctStates == null)
+        ConnectionStateContainer ctStates = computeConnectionState(level, pos, state);
+        List<BlockModelPart> ctParts = ctPartCache.get(ctStates);
+        if (ctParts == null)
         {
-            return super.getQuads(state, side, rand, extraData, renderType);
+            ctParts = generateConnectionQuads(ctStates, decomposedParts);
+            ctPartCache.put(ctStates, ctParts);
         }
-
-        QuadCacheKey key = new QuadCacheKey(side, renderType, ctStates);
-        List<BakedQuad> quads = quadCache.get(key);
-        if (quads == null)
-        {
-            quads = generateConnectionQuads(ctStates, state, side, renderType);
-            quadCache.put(key, quads);
-        }
-        return quads;
+        parts.addAll(ctParts);
     }
 
-    private List<BakedQuad> generateConnectionQuads(byte[] ctStates, BlockState state, Direction side, RenderType renderType)
+    private List<BlockModelPart> generateConnectionQuads(ConnectionStateContainer ctStates, List<ConnectedBlockModelPart> srcParts)
     {
-        if (srcQuads == null)
+        List<BlockModelPart> outParts = new ObjectArrayList<>();
+        for (ConnectedBlockModelPart part : srcParts)
         {
-            srcQuads = decomposeBaseModel(state);
-        }
-
-        List<BakedQuad> quads = new ArrayList<>();
-        for (QuadTable.Entry quadEntry : srcQuads.get(side, renderType))
-        {
-            int metaIdx = quadEntry.metaIdx();
-            if (metaIdx == -1)
+            if (part.metaIdx() == -1 || part.texIdx() == -1)
             {
-                quads.add(quadEntry.quad());
+                outParts.add(part);
                 continue;
             }
 
-            MetaEntry meta = metadata[metaIdx];
-            quads.addAll(meta.type().makeConnectionQuads(
-                    quadEntry.quad(), side, ctStates[metaIdx], meta.texture(quadEntry.texIdx()).ctTexture())
-            );
+            MetaEntry meta = metadata[part.metaIdx()];
+            ResourceLocation ctTexture = meta.texture(part.texIdx()).get(meta.type());
+
+            QuadCollection.Builder quadsBuilder = new QuadCollection.Builder();
+            for (Direction side : DIRECTIONS)
+            {
+                byte[] statesPerMeta = ctStates.get(side);
+                if (statesPerMeta == null)
+                {
+                    Utils.addQuads(quadsBuilder, side, part.getQuads(side));
+                    continue;
+                }
+
+                byte states = statesPerMeta[part.metaIdx()];
+                for (BakedQuad quad : part.getQuads(side))
+                {
+                    List<BakedQuad> quads = meta.type().makeConnectionQuads(quad, side, states, ctTexture);
+                    Utils.addQuads(quadsBuilder, side, quads);
+                }
+            }
+            for (BakedQuad quad : part.getQuads(null))
+            {
+                Direction side = quad.direction();
+                byte[] statesPerMeta = ctStates.get(side);
+                if (statesPerMeta == null)
+                {
+                    quadsBuilder.addUnculledFace(quad);
+                    continue;
+                }
+
+                byte states = statesPerMeta[part.metaIdx()];
+                List<BakedQuad> quads = meta.type().makeConnectionQuads(quad, side, states, ctTexture);
+                Utils.addQuads(quadsBuilder, null, quads);
+            }
+            outParts.add(new SimpleModelWrapper(quadsBuilder.build(), part.useAmbientOcclusion(), part.particleIcon(), part.renderType()));
         }
-        return quads;
+        return outParts;
     }
 
     @Override
-    public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData modelData)
+    public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random)
     {
-        ConnectionStateContainer ctState = new ConnectionStateContainer(metadata.length);
+        return computeConnectionState(level, pos, state);
+    }
+
+    private ConnectionStateContainer computeConnectionState(BlockAndTintGetter level, BlockPos pos, BlockState state)
+    {
+        ConnectionStateContainer ctState = new ConnectionStateContainer(this, metadata.length);
         for (int i = 0; i < metadata.length; i++)
         {
             MetaEntry entry = metadata[i];
@@ -113,55 +135,80 @@ public final class ConTexModel extends DelegateBakedModel
                 ctState.put(side, i, stateMap[side.ordinal()]);
             }
         }
-        return modelData.derive().with(Constants.CT_STATE_PROPERTY, ctState).build();
+        return ctState;
     }
 
-    private QuadTable decomposeBaseModel(BlockState state)
+    private List<ConnectedBlockModelPart> decomposeBaseModel(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random)
     {
-        QuadTable srcQuads = new QuadTable();
-        RandomSource random = RandomSource.create(42);
-        for (RenderType renderType : parent.getRenderTypes(state, random, ModelData.EMPTY))
+        List<ConnectedBlockModelPart> ctParts = new ObjectArrayList<>();
+        for (BlockModelPart part : delegate.collectParts(level, pos, state, random))
         {
+            Map<MetaPair, QuadCollection.Builder> ctQuads = new Object2ObjectOpenHashMap<>();
+            QuadCollection.Builder nonCtQuads = new QuadCollection.Builder();
+
             for (Direction side : DIRECTIONS)
             {
-                random.setSeed(42);
-                List<BakedQuad> quads = parent.getQuads(state, side, random, ModelData.EMPTY, renderType);
-                ArrayList<QuadTable.Entry> decompQuads = new ArrayList<>(quads.size());
-                for (BakedQuad quad : quads)
+                for (BakedQuad quad : part.getQuads(side))
                 {
-                    QuadTable.Entry ctEntry = findCtEntry(quad);
-                    if (ctEntry != null)
+                    MetaPair meta = findCtEntry(quad);
+                    if (meta != null)
                     {
-                        decompQuads.add(ctEntry);
-                        continue;
+                        ctQuads.computeIfAbsent(meta, $ -> new QuadCollection.Builder()).addCulledFace(side, quad);
                     }
-
-                    //pre-emptively break apart non-CT quads to avoid z-fighting
-                    makeNonCtQuads(decompQuads, quad, side);
+                    else
+                    {
+                        makeNonCtQuads(nonCtQuads, quad, side);
+                    }
                 }
-                srcQuads.put(side, renderType, decompQuads);
+            }
+            for (BakedQuad quad : part.getQuads(null))
+            {
+                MetaPair meta = findCtEntry(quad);
+                if (meta != null)
+                {
+                    ctQuads.computeIfAbsent(meta, $ -> new QuadCollection.Builder()).addUnculledFace(quad);
+                }
+                else
+                {
+                    makeNonCtQuads(nonCtQuads, quad, null);
+                }
+            }
+
+            for (Map.Entry<MetaPair, QuadCollection.Builder> entry : ctQuads.entrySet())
+            {
+                QuadCollection quads = entry.getValue().build();
+                if (quads.getAll().isEmpty()) continue;
+
+                MetaPair meta = entry.getKey();
+                ctParts.add(ConnectedBlockModelPart.of(part, state, quads, meta.metaIdx, meta.texIdx));
+            }
+
+            QuadCollection quads = nonCtQuads.build();
+            if (!quads.getAll().isEmpty())
+            {
+                ctParts.add(ConnectedBlockModelPart.of(part, state, quads, -1, -1));
             }
         }
-        return srcQuads;
+        return ctParts;
     }
 
     @Nullable
-    private QuadTable.Entry findCtEntry(BakedQuad quad)
+    private MetaPair findCtEntry(BakedQuad quad)
     {
         for (int i = 0; i < metadata.length; i++)
         {
-            int tex = metadata[i].findTexture(quad.getSprite().contents().name());
+            int tex = metadata[i].findTexture(quad.sprite().contents().name());
             if (tex != -1)
             {
-                return new QuadTable.Entry(quad, i, tex);
+                return new MetaPair(i, tex);
             }
         }
         return null;
     }
 
-    private static void makeNonCtQuads(ArrayList<QuadTable.Entry> decompQuads, BakedQuad quad, Direction side)
+    private static void makeNonCtQuads(QuadCollection.Builder decompQuads, BakedQuad quad, @Nullable Direction side)
     {
-        boolean y = Utils.isY(side);
+        boolean y = Utils.isY(quad.direction());
         for (int i = 0; i < 4; i++)
         {
             boolean up = (i & 0b01) != 0;
@@ -169,9 +216,21 @@ public final class ConTexModel extends DelegateBakedModel
             BakedQuad quadOut = QuadModifier.of(quad)
                     .apply(y ? Modifiers.cutTopBottom(up ? Direction.SOUTH : Direction.NORTH, .5F) : Modifiers.cutSideUpDown(up, .5F))
                     .apply(y ? Modifiers.cutTopBottom(right ? Direction.WEST : Direction.EAST, .5F) : Modifiers.cutSideLeftRight(!right, .5F))
-                    .apply(Modifiers.remapTexture(quad.getSprite(), 0F, 0F, 1F, 1F))
+                    .apply(Modifiers.remapTexture(quad.sprite(), 0F, 0F, 1F, 1F))
                     .export();
-            decompQuads.add(new QuadTable.Entry(quadOut, -1, -1));
+            if (quadOut != null)
+            {
+                if (side != null)
+                {
+                    decompQuads.addCulledFace(side, quadOut);
+                }
+                else
+                {
+                    decompQuads.addUnculledFace(quadOut);
+                }
+            }
         }
     }
+
+    private record MetaPair(int metaIdx, int texIdx) { }
 }

@@ -59,11 +59,11 @@ public final class QuadModifier
 
         return new BakedQuad(
                 data.vertexData,
-                data.quad.getTintIndex(),
-                data.quad.getDirection(),
+                data.quad.tintIndex(),
+                data.quad.direction(),
                 data.sprite,
-                data.quad.isShade(),
-                data.quad.getLightEmission(),
+                data.quad.shade(),
+                data.quad.lightEmission(),
                 data.quad.hasAmbientOcclusion()
         );
     }

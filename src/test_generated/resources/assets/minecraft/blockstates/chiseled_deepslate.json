@@ -1,0 +1,18 @@
+{
+  "neoforge:definition_type": "contex:definition",
+  "contex_meta": [
+    {
+      "type": "contex:pillar_x",
+      "textures": [
+        {
+          "main_texture": "minecraft:block/chiseled_deepslate"
+        }
+      ]
+    }
+  ],
+  "variants": {
+    "": {
+      "model": "minecraft:block/chiseled_deepslate"
+    }
+  }
+}

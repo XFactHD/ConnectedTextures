@@ -1,0 +1,27 @@
+{
+  "neoforge:definition_type": "contex:definition",
+  "contex_meta": [
+    {
+      "type": "contex:full",
+      "predicate": {
+        "type": "contex:same_state"
+      },
+      "textures": [
+        {
+          "main_texture": "minecraft:block/polished_diorite"
+        }
+      ]
+    }
+  ],
+  "variants": {
+    "type=bottom": {
+      "model": "minecraft:block/oak_slab"
+    },
+    "type=double": {
+      "model": "minecraft:block/oak_slab_double"
+    },
+    "type=top": {
+      "model": "minecraft:block/oak_slab_top"
+    }
+  }
+}

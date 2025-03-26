@@ -15,8 +15,9 @@ public final class QuadData
     public QuadData(BakedQuad quad)
     {
         this.quad = quad;
-        int[] vertexData = quad.getVertices();
+        int[] vertexData = quad.vertices();
         this.vertexData = Arrays.copyOf(vertexData, vertexData.length);
+        this.sprite = quad.sprite();
     }
 
     QuadData(QuadData data)

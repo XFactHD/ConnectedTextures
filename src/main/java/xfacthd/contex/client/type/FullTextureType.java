@@ -14,6 +14,9 @@ public sealed class FullTextureType extends DefaultTextureType permits SimpleTex
     private static final UV UV_CARDINAL = new UV(.5F, .5F, 1F, 1F);
     private static final UV UV_X_ONLY = new UV(0F, .5F, .5F, 1F);
     private static final UV UV_Y_ONLY = new UV(.5F, 0F, 1F, .5F);
+    public static final FullTextureType INSTANCE = new FullTextureType();
+
+    protected FullTextureType() { }
 
     @Override
     public byte getConnectionState(

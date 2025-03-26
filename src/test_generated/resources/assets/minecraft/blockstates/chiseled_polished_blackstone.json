@@ -1,0 +1,18 @@
+{
+  "neoforge:definition_type": "contex:definition",
+  "contex_meta": [
+    {
+      "type": "contex:pillar_z",
+      "textures": [
+        {
+          "main_texture": "minecraft:block/chiseled_polished_blackstone"
+        }
+      ]
+    }
+  ],
+  "variants": {
+    "": {
+      "model": "minecraft:block/chiseled_polished_blackstone"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 package xfacthd.contex.api.type;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -25,4 +26,6 @@ public interface ConnectionPredicate
             Direction side,
             Direction otherSide
     );
+
+    MapCodec<? extends ConnectionPredicate> codec();
 }

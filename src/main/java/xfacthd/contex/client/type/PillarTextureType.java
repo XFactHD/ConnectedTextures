@@ -15,13 +15,16 @@ public final class PillarTextureType extends DefaultTextureType
     public static final UV UV_XY = new UV(0F, 0F, 1F, 1F);
     public static final UV UV_Z_TOPBOTTOM = new UV(0F, 0F, 1F, .5F);
     public static final UV UV_Z_SIDE = new UV(0F, .5F, 1F, 1F);
+    public static final PillarTextureType X = new PillarTextureType(Direction.Axis.X);
+    public static final PillarTextureType Y = new PillarTextureType(Direction.Axis.Y);
+    public static final PillarTextureType Z = new PillarTextureType(Direction.Axis.Z);
 
     private final Direction.Axis axis;
     private final Direction dirOne;
     private final Direction dirTwo;
     private final EnumSet<Direction> affectedFaces;
 
-    public PillarTextureType(Direction.Axis axis)
+    private PillarTextureType(Direction.Axis axis)
     {
         this.axis = axis;
         this.dirOne = Direction.fromAxisAndDirection(axis, Direction.AxisDirection.NEGATIVE);

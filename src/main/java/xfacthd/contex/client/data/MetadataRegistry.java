@@ -1,64 +1,27 @@
 package xfacthd.contex.client.data;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.neoforged.fml.ModLoader;
-import xfacthd.contex.api.type.*;
+import xfacthd.contex.api.type.ConnectionPredicate;
+import xfacthd.contex.api.type.RegisterTextureMetaEvent;
+import xfacthd.contex.api.type.TextureType;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
 public final class MetadataRegistry
 {
-    private static final Map<ResourceLocation, TextureType> TYPES = new HashMap<>();
-    private static final Map<ResourceLocation, ConnectionPredicate> PREDICATES = new HashMap<>();
+    private static final ExtraCodecs.LateBoundIdMapper<ResourceLocation, TextureType> TYPES = new ExtraCodecs.LateBoundIdMapper<>();
+    private static final ExtraCodecs.LateBoundIdMapper<ResourceLocation, MapCodec<? extends ConnectionPredicate>> PREDICATES = new ExtraCodecs.LateBoundIdMapper<>();
+    public static final Codec<TextureType> TYPE_CODEC = TYPES.codec(ResourceLocation.CODEC);
+    public static final Codec<ConnectionPredicate> PREDICATE_CODEC = PREDICATES.codec(ResourceLocation.CODEC).dispatch(ConnectionPredicate::codec, Function.identity());
 
     public static void init()
     {
-        ModLoader.postEvent(new RegisterTextureMetaEvent(
-                MetadataRegistry::registerType, MetadataRegistry::registerPredicate
-        ));
+        ModLoader.postEvent(new RegisterTextureMetaEvent(TYPES::put, PREDICATES::put));
     }
-
-    private static void registerType(ResourceLocation name, TextureType type)
-    {
-        TextureType oldType = TYPES.put(name, type);
-        if (oldType != null)
-        {
-            throw new IllegalStateException("Duplicate TextureType registered: " + name);
-        }
-    }
-
-    private static void registerPredicate(ResourceLocation name, ConnectionPredicate predicate)
-    {
-        ConnectionPredicate oldPred = PREDICATES.put(name, predicate);
-        if (oldPred != null)
-        {
-            throw new IllegalStateException("Duplicate TextureType registered: " + name);
-        }
-    }
-
-    public static TextureType getType(ResourceLocation name, Function<ResourceLocation, RuntimeException> excSup)
-    {
-        TextureType type = TYPES.get(name);
-        if (type == null)
-        {
-            throw excSup.apply(name);
-        }
-        return type;
-    }
-
-    public static ConnectionPredicate getPredicate(ResourceLocation name, Function<ResourceLocation, RuntimeException> excSup)
-    {
-        ConnectionPredicate predicate = PREDICATES.get(name);
-        if (predicate == null)
-        {
-            throw excSup.apply(name);
-        }
-        return predicate;
-    }
-
-
 
     private MetadataRegistry() { }
 }

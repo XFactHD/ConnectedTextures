@@ -19,7 +19,7 @@ public final class Modifiers
     {
         return Mth.equal(length, 1F) ? NOOP_MODIFIER : data ->
         {
-            Direction quadDir = data.quad().getDirection();
+            Direction quadDir = data.quad().direction();
             Preconditions.checkState(Utils.isY(quadDir), "Quad direction must be vertical");
             Preconditions.checkState(quadDir.getAxis() != cutDir.getAxis(), "Cut direction must be prependicular to the quad direction");
 
@@ -64,7 +64,7 @@ public final class Modifiers
     {
         return Mth.equal(length, 1F) ? NOOP_MODIFIER : data ->
         {
-            Direction quadDir = data.quad().getDirection();
+            Direction quadDir = data.quad().direction();
             Preconditions.checkState(!Utils.isY(quadDir), "Quad direction must be horizontal");
 
             float target = downwards ? 1F - length : length;
@@ -100,7 +100,7 @@ public final class Modifiers
     {
         return Mth.equal(length, 1F) ? NOOP_MODIFIER : data ->
         {
-            Direction quadDir = data.quad().getDirection();
+            Direction quadDir = data.quad().direction();
             Preconditions.checkState(!Utils.isY(quadDir), "Quad direction must be horizontal");
 
             boolean positive = Utils.isPositive(towardsRight ? quadDir.getCounterClockWise() : quadDir.getClockWise());
@@ -145,7 +145,7 @@ public final class Modifiers
         return data ->
         {
             float shrinkRatio = targetSprite.uvShrinkRatio();
-            UVInfo uvInfo = ModelUtils.getUVInfo(data.quad().getDirection());
+            UVInfo uvInfo = ModelUtils.getUVInfo(data.quad().direction());
 
             float uSize = maxU - minU;
             float vSize = maxV - minV;

@@ -3,6 +3,9 @@ package xfacthd.contex;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
@@ -14,14 +17,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import xfacthd.contex.api.model.builder.ConTexLoaderBuilder;
+import xfacthd.contex.api.datagen.ConTexBlockModelDefinitionGenerator;
+import xfacthd.contex.api.datagen.MetaEntryBuilder;
 import xfacthd.contex.api.type.OcclusionMode;
-import xfacthd.contex.api.utils.Builtin;
 import xfacthd.contex.api.utils.Constants;
+import xfacthd.contex.client.predicate.SameBlockPredicate;
+import xfacthd.contex.client.predicate.SameStatePredicate;
+import xfacthd.contex.client.type.FullTextureType;
+import xfacthd.contex.client.type.OmniPillarTextureType;
+import xfacthd.contex.client.type.PillarTextureType;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -64,45 +74,47 @@ public final class TestDataGeneratorHandler
         @Override
         protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels)
         {
-            cubeAll(blockModels, Blocks.CHISELED_DEEPSLATE, TEX_DEEPSLATE, builder -> builder.addCtEntry(Builtin.Types.PILLAR_X, TEX_DEEPSLATE));
-
-            cubeAll(blockModels, Blocks.CHISELED_POLISHED_BLACKSTONE, TEX_BLACKSTONE, builder -> builder.addCtEntry(Builtin.Types.PILLAR_Z, TEX_BLACKSTONE));
-
-            cubeAll(blockModels, Blocks.CHISELED_STONE_BRICKS, TEX_STONEBRICKS, builder -> builder.addCtEntry(Builtin.Types.PILLAR_Y, TEX_STONEBRICKS));
-
-            cubeAll(blockModels, Blocks.GLASS, TEX_GLASS, builder -> builder.addCtEntry(Builtin.Types.FULL, e -> e.addTexture(TEX_GLASS).occlusionMode(OcclusionMode.SOLID_OR_SELF)));
-
-            cubeAll(blockModels, Blocks.POLISHED_DIORITE, TEX_DIORITE, builder -> builder.addCtEntry(Builtin.Types.FULL, TEX_DIORITE));
-
-            cubeAll(blockModels, Blocks.POLISHED_GRANITE, TEX_GRANITE, builder -> builder.addCtEntry(Builtin.Types.FULL, TEX_GRANITE));
-
-            cubeAll(blockModels, Blocks.REDSTONE_BLOCK, TEX_REDSTONE, builder -> builder.addCtEntry(Builtin.Types.PILLAR_OMNI, TEX_REDSTONE));
+            variant(blockModels, Blocks.CHISELED_DEEPSLATE,           builder -> builder.type(PillarTextureType.X).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DEEPSLATE));
+            variant(blockModels, Blocks.CHISELED_POLISHED_BLACKSTONE, builder -> builder.type(PillarTextureType.Z).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_BLACKSTONE));
+            variant(blockModels, Blocks.CHISELED_STONE_BRICKS,        builder -> builder.type(PillarTextureType.Y).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONEBRICKS));
+            variant(blockModels, Blocks.GLASS,                        builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.SOLID_OR_SELF).addTexture(TEX_GLASS));
+            variant(blockModels, Blocks.POLISHED_DIORITE,             builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DIORITE));
+            variant(blockModels, Blocks.POLISHED_GRANITE,             builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
+            variant(blockModels, Blocks.REDSTONE_BLOCK,               builder -> builder.type(OmniPillarTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_REDSTONE));
 
             TextureMapping mapping = new TextureMapping()
                     .put(SLOT_REDSTONE, TEX_REDSTONE)
                     .put(SLOT_GLASS, TEX_GLASS)
                     .put(TextureSlot.PARTICLE, TEX_REDSTONE);
             TEMPLATE_BLOCK.extend()
-                    .customLoader(ConTexLoaderBuilder::new, builder ->
-                            builder.addCtEntry(Builtin.Types.FULL, TEX_GLASS).optional()
-                    )
                     .element(elem -> elem.allFaces((dir, face) -> face.texture(SLOT_REDSTONE).cullface(dir).emissivity(15, 15)))
                     .element(elem -> elem.allFaces((dir, face) -> face.texture(SLOT_GLASS).cullface(dir)))
                     .renderType("cutout")
                     .build()
                     .create(Blocks.OAK_PLANKS, mapping, blockModels.modelOutput);
+            variant(blockModels, Blocks.OAK_PLANKS, builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GLASS));
+
+            ConTexBlockModelDefinitionGenerator slabGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.OAK_SLAB);
+            TextureMapping slabTextures = TextureMapping.column(TEX_DIORITE, TEX_DIORITE);
+            ResourceLocation bottomSlab = ModelTemplates.SLAB_BOTTOM.create(Blocks.OAK_SLAB, slabTextures, blockModels.modelOutput);
+            ResourceLocation topSlab = ModelTemplates.SLAB_TOP.create(Blocks.OAK_SLAB, slabTextures, blockModels.modelOutput);
+            ResourceLocation doubleSlab = ModelTemplates.CUBE_COLUMN.createWithOverride(Blocks.OAK_SLAB, "_double", slabTextures, blockModels.modelOutput);
+            slabGenerator.variant(MultiVariantGenerator.dispatch(Blocks.OAK_SLAB).with(
+                    PropertyDispatch.initial(BlockStateProperties.SLAB_TYPE)
+                            .select(SlabType.BOTTOM, BlockModelGenerators.plainVariant(bottomSlab))
+                            .select(SlabType.TOP, BlockModelGenerators.plainVariant(topSlab))
+                            .select(SlabType.DOUBLE, BlockModelGenerators.plainVariant(doubleSlab))
+            ));
+            slabGenerator.metadata(builder -> builder.type(FullTextureType.INSTANCE).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_DIORITE));
+            blockModels.blockStateOutput.accept(slabGenerator);
         }
 
-        private static void cubeAll(BlockModelGenerators blockModels, Block block, ResourceLocation texture, Consumer<ConTexLoaderBuilder> loaderBuilder)
+        private static void variant(BlockModelGenerators blockModels, Block block, Consumer<MetaEntryBuilder> metaBuilder)
         {
-            ModelTemplates.CUBE_ALL.extend()
-                    .customLoader(ConTexLoaderBuilder::new, builder ->
-                    {
-                        loaderBuilder.accept(builder);
-                        builder.optional();
-                    })
-                    .build()
-                    .create(block, TextureMapping.cube(texture), blockModels.modelOutput);
+            ConTexBlockModelDefinitionGenerator generator = new ConTexBlockModelDefinitionGenerator(block)
+                    .variant(MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(block))))
+                    .metadata(metaBuilder);
+            blockModels.blockStateOutput.accept(generator);
         }
 
         @Override

@@ -1,0 +1,18 @@
+{
+  "neoforge:definition_type": "contex:definition",
+  "contex_meta": [
+    {
+      "type": "contex:pillar_omni",
+      "textures": [
+        {
+          "main_texture": "minecraft:block/redstone_block"
+        }
+      ]
+    }
+  ],
+  "variants": {
+    "": {
+      "model": "minecraft:block/redstone_block"
+    }
+  }
+}

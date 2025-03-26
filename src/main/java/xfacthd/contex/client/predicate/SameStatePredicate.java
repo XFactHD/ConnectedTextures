@@ -1,5 +1,6 @@
 package xfacthd.contex.client.predicate;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -8,6 +9,11 @@ import xfacthd.contex.api.type.ConnectionPredicate;
 
 public class SameStatePredicate implements ConnectionPredicate
 {
+    public static final SameStatePredicate INSTANCE = new SameStatePredicate();
+    public static final MapCodec<SameStatePredicate> CODEC = MapCodec.unit(INSTANCE);
+
+    private SameStatePredicate() { }
+
     @Override
     public boolean test(
             BlockAndTintGetter level,
@@ -24,5 +30,11 @@ public class SameStatePredicate implements ConnectionPredicate
         BlockState actualOtherState = otherState.getAppearance(level, otherPos, otherSide, state, pos);
 
         return !actualState.isAir() && actualState == actualOtherState;
+    }
+
+    @Override
+    public MapCodec<SameStatePredicate> codec()
+    {
+        return CODEC;
     }
 }

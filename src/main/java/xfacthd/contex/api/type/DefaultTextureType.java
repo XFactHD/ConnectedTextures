@@ -31,20 +31,10 @@ public abstract class DefaultTextureType extends TextureType
     {
         List<BakedQuad> quads = new ArrayList<>(4);
 
-        if (Utils.isY(side))
-        {
-            quads.add(makeTopBottomConnectionQuad(srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.UP, ctTexture));
-            quads.add(makeTopBottomConnectionQuad(srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.UP, ctTexture));
-            quads.add(makeTopBottomConnectionQuad(srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.DOWN, ctTexture));
-            quads.add(makeTopBottomConnectionQuad(srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.DOWN, ctTexture));
-        }
-        else
-        {
-            quads.add(makeSideConnectionQuad(srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.UP, ctTexture));
-            quads.add(makeSideConnectionQuad(srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.UP, ctTexture));
-            quads.add(makeSideConnectionQuad(srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.DOWN, ctTexture));
-            quads.add(makeSideConnectionQuad(srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.DOWN, ctTexture));
-        }
+        quads.add(makeConnectionQuad(srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.UP, ctTexture));
+        quads.add(makeConnectionQuad(srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.UP, ctTexture));
+        quads.add(makeConnectionQuad(srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.DOWN, ctTexture));
+        quads.add(makeConnectionQuad(srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.DOWN, ctTexture));
 
         quads.removeIf(Objects::isNull);
         return quads;
@@ -60,47 +50,7 @@ public abstract class DefaultTextureType extends TextureType
     protected abstract UV getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side);
 
     /**
-     * Create a {@link BakedQuad} facing up or down for the corner represented by the two given
-     * {@link ConnectionDirection}s based on the given source quad of the given side. If the quadrant has at least an
-     * X and/or Z connection, the given CT texture is used, otherwise the texture of the incoming quad is used.
-     * Diagonal connections are ignored or neither of the axis-aligned connections are present.
-     * @param srcQuad The source quad
-     * @param side The side the quad is on
-     * @param state The connection state of the given side
-     * @param xDir The X axis direction of the corner the resulting quad will cover
-     * @param zDir The Z axis direction of the corner the resulting quad will cover
-     * @param ctTex The texture location to use if the quadrant has at least an X and/or Z connection
-     * @return The resulting quad for the quadrant or null if the source quad being cut to the quadrant's size would
-     *         result in an empty quad
-     */
-    @Nullable
-    protected final BakedQuad makeTopBottomConnectionQuad(
-            BakedQuad srcQuad,
-            Direction side,
-            byte state,
-            ConnectionDirection xDir,
-            ConnectionDirection zDir,
-            ResourceLocation ctTex
-    )
-    {
-        boolean xCon = isSet(state, xDir);
-        boolean zCon = isSet(state, zDir);
-        boolean diagCon = isSet(state, ConnectionDirection.diagonal(xDir, zDir));
-
-        boolean right = xDir == ConnectionDirection.RIGHT;
-        boolean up = (zDir == ConnectionDirection.UP) == (side == Direction.DOWN);
-
-        UV uvs = getConnectionUVs(xCon, zCon, diagCon, side);
-        TextureAtlasSprite tex = (xCon || zCon) ? ModelUtils.getSprite(ctTex) : srcQuad.getSprite();
-        return QuadModifier.of(srcQuad)
-                .apply(Modifiers.cutTopBottom(up ? Direction.SOUTH : Direction.NORTH, .5F))
-                .apply(Modifiers.cutTopBottom(right ? Direction.WEST : Direction.EAST, .5F))
-                .apply(Modifiers.remapTexture(tex, uvs.minU(), uvs.minV(), uvs.maxU(), uvs.maxV()))
-                .export();
-    }
-
-    /**
-     * Create a {@link BakedQuad} facing a cardinal direction for the corner represented by the two given
+     * Create a {@link BakedQuad} facing in the given direction for the corner represented by the two given
      * {@link ConnectionDirection}s based on the given source quad of the given side. If the quadrant has at least an
      * X and/or Y connection, the given CT texture is used, otherwise the texture of the incoming quad is used.
      * Diagonal connections are ignored or neither of the axis-aligned connections are present.
@@ -114,7 +64,7 @@ public abstract class DefaultTextureType extends TextureType
      *         result in an empty quad
      */
     @Nullable
-    protected final BakedQuad makeSideConnectionQuad(
+    protected final BakedQuad makeConnectionQuad(
             BakedQuad srcQuad,
             Direction side,
             byte state,
@@ -131,11 +81,23 @@ public abstract class DefaultTextureType extends TextureType
         boolean up = yDir == ConnectionDirection.UP;
 
         UV uvs = getConnectionUVs(xCon, yCon, diagCon, side);
-        TextureAtlasSprite tex = (xCon || yCon) ? ModelUtils.getSprite(ctTex) : srcQuad.getSprite();
-        return QuadModifier.of(srcQuad)
-                .apply(Modifiers.cutSideUpDown(up, .5F))
-                .apply(Modifiers.cutSideLeftRight(!right, .5F))
-                .apply(Modifiers.remapTexture(tex, uvs.minU(), uvs.minV(), uvs.maxU(), uvs.maxV()))
-                .export();
+        TextureAtlasSprite tex = (xCon || yCon) ? ModelUtils.getSprite(ctTex) : srcQuad.sprite();
+        if (Utils.isY(side))
+        {
+            up ^= side == Direction.UP;
+            return QuadModifier.of(srcQuad)
+                    .apply(Modifiers.cutTopBottom(up ? Direction.SOUTH : Direction.NORTH, .5F))
+                    .apply(Modifiers.cutTopBottom(right ? Direction.WEST : Direction.EAST, .5F))
+                    .apply(Modifiers.remapTexture(tex, uvs.minU(), uvs.minV(), uvs.maxU(), uvs.maxV()))
+                    .export();
+        }
+        else
+        {
+            return QuadModifier.of(srcQuad)
+                    .apply(Modifiers.cutSideUpDown(up, .5F))
+                    .apply(Modifiers.cutSideLeftRight(!right, .5F))
+                    .apply(Modifiers.remapTexture(tex, uvs.minU(), uvs.minV(), uvs.maxU(), uvs.maxV()))
+                    .export();
+        }
     }
 }

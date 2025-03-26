@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.52-beta'
+    id 'net.neoforged.moddev' version '2.0.80'
 }
 
 version = mod_version
@@ -26,6 +26,7 @@ neoForge {
         configureEach {
             //systemProperty 'forge.logging.markers', 'REGISTRIES'
             logLevel = org.slf4j.event.Level.DEBUG
+            systemProperty 'terminal.ansi', 'true'
 
             sourceSet = project.sourceSets.test
         }

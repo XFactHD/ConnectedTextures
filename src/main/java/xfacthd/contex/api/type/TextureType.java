@@ -10,13 +10,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.state.ConnectionDirection;
 import xfacthd.contex.api.utils.Constants;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
 
 public abstract class TextureType
 {
-    public static final String BASE_TEXTURE_KEY = "main_texture";
-    public static final String ADDITIONAL_TEXTURE_KEY = "ct_texture";
-
     /**
      * {@return true if this type needs additional textures}
      */
