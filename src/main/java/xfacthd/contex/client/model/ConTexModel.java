@@ -48,7 +48,7 @@ public final class ConTexModel extends DelegateBlockStateModel
     {
         if (decomposedParts == null)
         {
-            decomposedParts = decomposeBaseModel(level, pos, this.state, random);
+            decomposedParts = decomposeBaseModel(level, pos, random);
         }
 
         ConnectionStateContainer ctStates = computeConnectionState(level, pos, state);
@@ -66,26 +66,21 @@ public final class ConTexModel extends DelegateBlockStateModel
         List<BlockModelPart> outParts = new ObjectArrayList<>();
         for (ConnectedBlockModelPart part : srcParts)
         {
-            if (part.metaIdx() == -1 || part.texIdx() == -1)
+            int metaIdx = part.metaIdx();
+            int texIdx = part.texIdx();
+            if (metaIdx == -1 || texIdx == -1)
             {
                 outParts.add(part);
                 continue;
             }
 
-            MetaEntry meta = metadata[part.metaIdx()];
-            ResourceLocation ctTexture = meta.texture(part.texIdx()).get(meta.type());
+            MetaEntry meta = metadata[metaIdx];
+            ResourceLocation ctTexture = meta.texture(texIdx).get(meta.type());
 
             QuadCollection.Builder quadsBuilder = new QuadCollection.Builder();
             for (Direction side : DIRECTIONS)
             {
-                byte[] statesPerMeta = ctStates.get(side);
-                if (statesPerMeta == null)
-                {
-                    Utils.addQuads(quadsBuilder, side, part.getQuads(side));
-                    continue;
-                }
-
-                byte states = statesPerMeta[part.metaIdx()];
+                byte states = ctStates.get(side, metaIdx);
                 for (BakedQuad quad : part.getQuads(side))
                 {
                     List<BakedQuad> quads = meta.type().makeConnectionQuads(quad, side, states, ctTexture);
@@ -95,14 +90,7 @@ public final class ConTexModel extends DelegateBlockStateModel
             for (BakedQuad quad : part.getQuads(null))
             {
                 Direction side = quad.direction();
-                byte[] statesPerMeta = ctStates.get(side);
-                if (statesPerMeta == null)
-                {
-                    quadsBuilder.addUnculledFace(quad);
-                    continue;
-                }
-
-                byte states = statesPerMeta[part.metaIdx()];
+                byte states = ctStates.get(side, metaIdx);
                 List<BakedQuad> quads = meta.type().makeConnectionQuads(quad, side, states, ctTexture);
                 Utils.addQuads(quadsBuilder, null, quads);
             }
@@ -138,26 +126,31 @@ public final class ConTexModel extends DelegateBlockStateModel
         return ctState;
     }
 
-    private List<ConnectedBlockModelPart> decomposeBaseModel(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random)
+    private List<ConnectedBlockModelPart> decomposeBaseModel(BlockAndTintGetter level, BlockPos pos, RandomSource random)
     {
-        List<ConnectedBlockModelPart> ctParts = new ObjectArrayList<>();
+        List<ConnectedBlockModelPart> outParts = new ObjectArrayList<>();
         for (BlockModelPart part : delegate.collectParts(level, pos, state, random))
         {
+            QuadCollection.Builder preNonCtQuads = new QuadCollection.Builder();
             Map<MetaPair, QuadCollection.Builder> ctQuads = new Object2ObjectOpenHashMap<>();
-            QuadCollection.Builder nonCtQuads = new QuadCollection.Builder();
+            QuadCollection.Builder postNonCtQuads = new QuadCollection.Builder();
+            int ctQuadsFound = 0;
 
             for (Direction side : DIRECTIONS)
             {
+                int mask = 1 << side.ordinal();
                 for (BakedQuad quad : part.getQuads(side))
                 {
                     MetaPair meta = findCtEntry(quad);
                     if (meta != null)
                     {
+                        ctQuadsFound |= mask;
                         ctQuads.computeIfAbsent(meta, $ -> new QuadCollection.Builder()).addCulledFace(side, quad);
                     }
                     else
                     {
-                        makeNonCtQuads(nonCtQuads, quad, side);
+                        boolean foundCt = (ctQuadsFound & mask) != 0;
+                        makeNonCtQuads(foundCt ? postNonCtQuads : preNonCtQuads, quad, side);
                     }
                 }
             }
@@ -166,30 +159,36 @@ public final class ConTexModel extends DelegateBlockStateModel
                 MetaPair meta = findCtEntry(quad);
                 if (meta != null)
                 {
+                    ctQuadsFound |= 0b01000000;
                     ctQuads.computeIfAbsent(meta, $ -> new QuadCollection.Builder()).addUnculledFace(quad);
                 }
                 else
                 {
-                    makeNonCtQuads(nonCtQuads, quad, null);
+                    boolean foundCt = (ctQuadsFound & 0b01000000) != 0;
+                    makeNonCtQuads(foundCt ? postNonCtQuads : preNonCtQuads, quad, null);
                 }
             }
 
+            QuadCollection preQuads = preNonCtQuads.build();
+            if (!preQuads.getAll().isEmpty())
+            {
+                outParts.add(ConnectedBlockModelPart.of(part, state, preQuads, -1, -1));
+            }
             for (Map.Entry<MetaPair, QuadCollection.Builder> entry : ctQuads.entrySet())
             {
                 QuadCollection quads = entry.getValue().build();
                 if (quads.getAll().isEmpty()) continue;
 
                 MetaPair meta = entry.getKey();
-                ctParts.add(ConnectedBlockModelPart.of(part, state, quads, meta.metaIdx, meta.texIdx));
+                outParts.add(ConnectedBlockModelPart.of(part, state, quads, meta.metaIdx, meta.texIdx));
             }
-
-            QuadCollection quads = nonCtQuads.build();
-            if (!quads.getAll().isEmpty())
+            QuadCollection postQuads = postNonCtQuads.build();
+            if (!postQuads.getAll().isEmpty())
             {
-                ctParts.add(ConnectedBlockModelPart.of(part, state, quads, -1, -1));
+                outParts.add(ConnectedBlockModelPart.of(part, state, postQuads, -1, -1));
             }
         }
-        return ctParts;
+        return outParts;
     }
 
     @Nullable

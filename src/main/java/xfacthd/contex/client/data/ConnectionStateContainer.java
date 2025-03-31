@@ -1,49 +1,45 @@
 package xfacthd.contex.client.data;
 
 import net.minecraft.core.Direction;
-import org.jetbrains.annotations.Nullable;
 import xfacthd.contex.client.model.ConTexModel;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public final class ConnectionStateContainer
 {
     private final ConTexModel owningModel;
-    private final byte[][] states = new byte[6][];
-    private final int metaCount;
+    private final long[] states;
 
     public ConnectionStateContainer(ConTexModel owningModel, int metaCount)
     {
         this.owningModel = owningModel;
-        this.metaCount = metaCount;
+        this.states = new long[metaCount];
     }
 
-    public byte @Nullable[] get(Direction side)
+    public byte get(Direction side, int metaIdx)
     {
-        return states[side.ordinal()];
+        return (byte) (states[metaIdx] >> (side.ordinal() * 8) & 0xFF);
     }
 
-    public void put(Direction side, int idx, byte conState)
+    public void put(Direction side, int metaIdx, byte conState)
     {
-        byte[] sideStates = states[side.ordinal()];
-        if (sideStates == null)
-        {
-            sideStates = states[side.ordinal()] = new byte[metaCount];
-        }
-        sideStates[idx] = conState;
+        long mask = 0xFFL << (side.ordinal() * 8);
+        long shiftedState = Byte.toUnsignedLong(conState) << (side.ordinal() * 8);
+        long packed = states[metaIdx];
+        packed = packed & ~mask | shiftedState;
+        states[metaIdx] = packed;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(owningModel, Arrays.deepHashCode(states));
+        return owningModel.hashCode() * 31 + Arrays.hashCode(states);
     }
 
     @Override
     public boolean equals(Object o)
     {
         if (!(o instanceof ConnectionStateContainer that)) { return false; }
-        return owningModel == that.owningModel && Objects.deepEquals(states, that.states);
+        return owningModel == that.owningModel && Arrays.equals(states, that.states);
     }
 }

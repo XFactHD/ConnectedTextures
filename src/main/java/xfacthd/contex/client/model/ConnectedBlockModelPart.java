@@ -15,7 +15,7 @@ record ConnectedBlockModelPart(
         QuadCollection quads,
         boolean useAmbientOcclusion,
         TextureAtlasSprite particleIcon,
-        @Nullable RenderType renderType,
+        RenderType renderType,
         int metaIdx,
         int texIdx
 ) implements BlockModelPart
@@ -24,6 +24,12 @@ record ConnectedBlockModelPart(
     public List<BakedQuad> getQuads(@Nullable Direction side)
     {
         return quads.getQuads(side);
+    }
+
+    @Override
+    public RenderType getRenderType(BlockState state)
+    {
+        return renderType;
     }
 
     public static ConnectedBlockModelPart of(BlockModelPart srcPart, BlockState state, QuadCollection quads, int metaIdx, int texIdx)

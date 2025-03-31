@@ -37,13 +37,13 @@ public final class ConTexBlockModelDefinition implements CustomBlockModelDefinit
         Map<BlockState, BlockStateModel.UnbakedRoot> models = baseDefinition.instantiateVanilla(states, sourceSupplier);
         if (metadata.isEmpty()) return models;
 
-        Map<BlockState, BlockStateModel.UnbakedRoot> newModels = new IdentityHashMap<>();
-        Map<BlockStateModel.UnbakedRoot, BlockStateModel.UnbakedRoot> wrappedModels = new IdentityHashMap<>();
+        Map<BlockState, BlockStateModel.UnbakedRoot> newModels = new IdentityHashMap<>(models.size());
+        Map<BlockStateModel.UnbakedRoot, BlockStateModel.UnbakedRoot> wrappedModels = new IdentityHashMap<>(models.size());
         for (Map.Entry<BlockState, BlockStateModel.UnbakedRoot> entry : models.entrySet())
         {
             newModels.put(entry.getKey(), wrappedModels.computeIfAbsent(
                     entry.getValue(),
-                    model -> new UnbakedConTexModel(model, metadata)
+                    model -> new UnbakedConTexModel(entry.getKey(), model, metadata)
             ));
         }
         return newModels;
