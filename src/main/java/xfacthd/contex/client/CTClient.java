@@ -6,7 +6,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.InitializeClientRegistriesEvent;
 import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
 import xfacthd.contex.api.type.RegisterTextureMetaEvent;
-import xfacthd.contex.api.utils.Builtin;
 import xfacthd.contex.api.utils.Constants;
 import xfacthd.contex.api.utils.Utils;
 import xfacthd.contex.client.data.MetadataRegistry;
@@ -42,20 +41,20 @@ public final class CTClient
 
     private static void onRegisterMetadata(final RegisterTextureMetaEvent event)
     {
-        event.registerType(Builtin.Types.SIMPLE, SimpleTextureType.INSTANCE);
-        event.registerType(Builtin.Types.FULL, FullTextureType.INSTANCE);
-        event.registerType(Builtin.Types.PILLAR_X, PillarTextureType.X);
-        event.registerType(Builtin.Types.PILLAR_Y, PillarTextureType.Y);
-        event.registerType(Builtin.Types.PILLAR_Z, PillarTextureType.Z);
-        event.registerType(Builtin.Types.PILLAR_OMNI, OmniPillarTextureType.INSTANCE);
-        event.registerType(Builtin.Types.CARPET_SIMPLE, SimpleCarpetTextureType.Y);
-        event.registerType(Builtin.Types.CARPET_SIMPLE_X, SimpleCarpetTextureType.X);
-        event.registerType(Builtin.Types.CARPET_SIMPLE_Z, SimpleCarpetTextureType.Z);
-        event.registerType(Builtin.Types.CARPET_FULL, FullCarpetTextureType.Y);
-        event.registerType(Builtin.Types.CARPET_FULL_X, FullCarpetTextureType.X);
-        event.registerType(Builtin.Types.CARPET_FULL_Z, FullCarpetTextureType.Z);
+        event.registerType(Utils.rl("simple"), SimpleTextureType.INSTANCE);
+        event.registerType(Utils.rl("full"), FullTextureType.INSTANCE);
+        event.registerType(Utils.rl("pillar_x"), PillarTextureType.X);
+        event.registerType(Utils.rl("pillar_y"), PillarTextureType.Y);
+        event.registerType(Utils.rl("pillar_z"), PillarTextureType.Z);
+        event.registerType(Utils.rl("pillar_omni"), OmniPillarTextureType.INSTANCE);
+        event.registerType(Utils.rl("carpet_simple"), SimpleCarpetTextureType.Y);
+        event.registerType(Utils.rl("carpet_simple_x"), SimpleCarpetTextureType.X);
+        event.registerType(Utils.rl("carpet_simple_z"), SimpleCarpetTextureType.Z);
+        event.registerType(Utils.rl("carpet_full"), FullCarpetTextureType.Y);
+        event.registerType(Utils.rl("carpet_full_x"), FullCarpetTextureType.X);
+        event.registerType(Utils.rl("carpet_full_z"), FullCarpetTextureType.Z);
 
-        event.registerPredicate(Builtin.Predicates.SAME_BLOCK, SameBlockPredicate.CODEC);
-        event.registerPredicate(Builtin.Predicates.SAME_STATE, SameStatePredicate.CODEC);
+        event.registerPredicate(Utils.rl("same_block"), SameBlockPredicate.CODEC);
+        event.registerPredicate(Utils.rl("same_state"), SameStatePredicate.CODEC);
     }
 }
