@@ -1,8 +1,12 @@
 package xfacthd.contex.api.utils;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.type.TextureType;
+import xfacthd.contex.client.predicate.MatchBlockPredicate;
+import xfacthd.contex.client.predicate.MatchStatePredicate;
 import xfacthd.contex.client.predicate.SameBlockPredicate;
 import xfacthd.contex.client.predicate.SameStatePredicate;
 import xfacthd.contex.client.type.FullCarpetTextureType;
@@ -74,6 +78,16 @@ public final class Builtin
         public static ConnectionPredicate sameState()
         {
             return SameStatePredicate.INSTANCE;
+        }
+
+        public static ConnectionPredicate matchBlock(Block block)
+        {
+            return new MatchBlockPredicate(block);
+        }
+
+        public static ConnectionPredicate matchState(BlockState state)
+        {
+            return new MatchStatePredicate(state);
         }
 
         private Predicates() { }

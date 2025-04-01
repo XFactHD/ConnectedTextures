@@ -10,6 +10,8 @@ import xfacthd.contex.api.utils.Constants;
 import xfacthd.contex.api.utils.Utils;
 import xfacthd.contex.client.data.MetadataRegistry;
 import xfacthd.contex.client.model.ConTexBlockModelDefinition;
+import xfacthd.contex.client.predicate.MatchBlockPredicate;
+import xfacthd.contex.client.predicate.MatchStatePredicate;
 import xfacthd.contex.client.predicate.SameBlockPredicate;
 import xfacthd.contex.client.predicate.SameStatePredicate;
 import xfacthd.contex.client.type.FullCarpetTextureType;
@@ -56,5 +58,7 @@ public final class CTClient
 
         event.registerPredicate(Utils.rl("same_block"), SameBlockPredicate.CODEC);
         event.registerPredicate(Utils.rl("same_state"), SameStatePredicate.CODEC);
+        event.registerPredicate(Utils.rl("match_block"), MatchBlockPredicate.CODEC);
+        event.registerPredicate(Utils.rl("match_state"), MatchStatePredicate.CODEC);
     }
 }
