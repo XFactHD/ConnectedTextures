@@ -69,7 +69,7 @@ public final class OmniPillarTextureType extends SimpleTextureType
     {
         if (!xCon && !yCon)
         {
-            return PillarTextureType.UV_XY;
+            return PillarTextureType.UV_NO_CON;
         }
         return yCon ? PillarTextureType.UV_Z_TOPBOTTOM : PillarTextureType.UV_Z_SIDE;
     }

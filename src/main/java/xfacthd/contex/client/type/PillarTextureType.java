@@ -12,7 +12,9 @@ import java.util.EnumSet;
 
 public final class PillarTextureType extends DefaultTextureType
 {
-    public static final UV UV_XY = new UV(0F, 0F, 1F, 1F);
+    public static final UV UV_NO_CON = new UV(0F, 0F, 1F, 1F);
+    public static final UV UV_X = new UV(0F, .5F, 1F, 1F);
+    public static final UV UV_Y = new UV(0F, 0F, 1F, .5F);
     public static final UV UV_Z_TOPBOTTOM = new UV(0F, 0F, 1F, .5F);
     public static final UV UV_Z_SIDE = new UV(0F, .5F, 1F, 1F);
     public static final PillarTextureType X = new PillarTextureType(Direction.Axis.X);
@@ -23,6 +25,8 @@ public final class PillarTextureType extends DefaultTextureType
     private final Direction dirOne;
     private final Direction dirTwo;
     private final EnumSet<Direction> affectedFaces;
+    private final UV uvHor;
+    private final UV uvVert;
 
     private PillarTextureType(Direction.Axis axis)
     {
@@ -30,6 +34,17 @@ public final class PillarTextureType extends DefaultTextureType
         this.dirOne = Direction.fromAxisAndDirection(axis, Direction.AxisDirection.NEGATIVE);
         this.dirTwo = Direction.fromAxisAndDirection(axis, Direction.AxisDirection.POSITIVE);
         this.affectedFaces = EnumSet.complementOf(EnumSet.of(dirOne, dirTwo));
+        switch (axis)
+        {
+            case X -> uvHor = uvVert = UV_X;
+            case Y -> uvHor = uvVert = UV_Y;
+            case Z ->
+            {
+                uvHor = UV_Z_SIDE;
+                uvVert = UV_Z_TOPBOTTOM;
+            }
+            default -> throw new AssertionError();
+        }
     }
 
     @Override
@@ -73,10 +88,10 @@ public final class PillarTextureType extends DefaultTextureType
     @Override
     public UV getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
-        if ((xCon || yCon) && axis == Direction.Axis.Z)
+        if ((xCon || yCon))
         {
-            return Utils.isY(side) ? UV_Z_TOPBOTTOM : UV_Z_SIDE;
+            return Utils.isY(side) ? uvVert : uvHor;
         }
-        return UV_XY;
+        return UV_NO_CON;
     }
 }
