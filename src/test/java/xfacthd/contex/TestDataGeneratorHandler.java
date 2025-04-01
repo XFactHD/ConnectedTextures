@@ -10,6 +10,7 @@ import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.core.Holder;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -29,6 +30,7 @@ import xfacthd.contex.api.type.OcclusionMode;
 import xfacthd.contex.api.utils.Constants;
 import xfacthd.contex.client.predicate.SameBlockPredicate;
 import xfacthd.contex.client.predicate.SameStatePredicate;
+import xfacthd.contex.client.type.FullCarpetTextureType;
 import xfacthd.contex.client.type.FullTextureType;
 import xfacthd.contex.client.type.OmniPillarTextureType;
 import xfacthd.contex.client.type.PillarTextureType;
@@ -107,6 +109,9 @@ public final class TestDataGeneratorHandler
             ));
             slabGenerator.metadata(builder -> builder.type(FullTextureType.INSTANCE).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_DIORITE));
             blockModels.blockStateOutput.accept(slabGenerator);
+
+            TexturedModel.CARPET.get(Blocks.POLISHED_GRANITE).create(Blocks.RED_CARPET, blockModels.modelOutput);
+            variant(blockModels, Blocks.RED_CARPET, builder -> builder.type(FullCarpetTextureType.Y).predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.NONE).addTexture(TEX_GRANITE));
         }
 
         private static void variant(BlockModelGenerators blockModels, Block block, Consumer<MetaEntryBuilder> metaBuilder)

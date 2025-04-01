@@ -9,7 +9,7 @@ import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.type.OcclusionMode;
 import xfacthd.contex.api.utils.Constants;
 
-public sealed class SimpleTextureType extends FullTextureType permits OmniPillarTextureType
+public sealed class SimpleTextureType extends FullTextureType permits OmniPillarTextureType, SimpleCarpetTextureType
 {
     private static final ConnectionDirection[] CARDINAL_DIRECTIONS = new ConnectionDirection[] {
             ConnectionDirection.UP, ConnectionDirection.RIGHT, ConnectionDirection.DOWN, ConnectionDirection.LEFT

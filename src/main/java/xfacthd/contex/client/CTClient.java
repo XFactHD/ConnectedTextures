@@ -13,9 +13,11 @@ import xfacthd.contex.client.data.MetadataRegistry;
 import xfacthd.contex.client.model.ConTexBlockModelDefinition;
 import xfacthd.contex.client.predicate.SameBlockPredicate;
 import xfacthd.contex.client.predicate.SameStatePredicate;
+import xfacthd.contex.client.type.FullCarpetTextureType;
 import xfacthd.contex.client.type.FullTextureType;
 import xfacthd.contex.client.type.OmniPillarTextureType;
 import xfacthd.contex.client.type.PillarTextureType;
+import xfacthd.contex.client.type.SimpleCarpetTextureType;
 import xfacthd.contex.client.type.SimpleTextureType;
 
 @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
@@ -46,6 +48,12 @@ public final class CTClient
         event.registerType(Builtin.Types.PILLAR_Y, PillarTextureType.Y);
         event.registerType(Builtin.Types.PILLAR_Z, PillarTextureType.Z);
         event.registerType(Builtin.Types.PILLAR_OMNI, OmniPillarTextureType.INSTANCE);
+        event.registerType(Builtin.Types.CARPET_SIMPLE, SimpleCarpetTextureType.Y);
+        event.registerType(Builtin.Types.CARPET_SIMPLE_X, SimpleCarpetTextureType.X);
+        event.registerType(Builtin.Types.CARPET_SIMPLE_Z, SimpleCarpetTextureType.Z);
+        event.registerType(Builtin.Types.CARPET_FULL, FullCarpetTextureType.Y);
+        event.registerType(Builtin.Types.CARPET_FULL_X, FullCarpetTextureType.X);
+        event.registerType(Builtin.Types.CARPET_FULL_Z, FullCarpetTextureType.Z);
 
         event.registerPredicate(Builtin.Predicates.SAME_BLOCK, SameBlockPredicate.CODEC);
         event.registerPredicate(Builtin.Predicates.SAME_STATE, SameStatePredicate.CODEC);

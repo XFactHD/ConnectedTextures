@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.state.ConnectionDirection;
 import xfacthd.contex.api.type.*;
 
-public sealed class FullTextureType extends DefaultTextureType permits SimpleTextureType
+public sealed class FullTextureType extends DefaultTextureType permits SimpleTextureType, FullCarpetTextureType
 {
     private static final ConnectionDirection[] DIRECTIONS = ConnectionDirection.values();
     private static final UV UV_NONE = new UV(0F, 0F, 1F, 1F);

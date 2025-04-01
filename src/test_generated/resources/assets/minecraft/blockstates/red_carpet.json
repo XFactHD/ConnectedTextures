@@ -1,0 +1,19 @@
+{
+  "neoforge:definition_type": "contex:definition",
+  "contex_meta": [
+    {
+      "type": "contex:carpet_full",
+      "occlusion_mode": "none",
+      "textures": [
+        {
+          "main_texture": "minecraft:block/polished_granite"
+        }
+      ]
+    }
+  ],
+  "variants": {
+    "": {
+      "model": "minecraft:block/red_carpet"
+    }
+  }
+}
