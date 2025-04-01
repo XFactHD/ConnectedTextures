@@ -22,6 +22,7 @@ import xfacthd.contex.api.utils.Utils;
 import xfacthd.contex.client.data.ConnectionStateContainer;
 import xfacthd.contex.client.data.MetaEntry;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -108,11 +109,12 @@ public final class ConTexModel extends DelegateBlockStateModel
     private ConnectionStateContainer computeConnectionState(BlockAndTintGetter level, BlockPos pos, BlockState state)
     {
         ConnectionStateContainer ctState = new ConnectionStateContainer(this, metadata.length);
+        byte[] stateMap = new byte[6];
         for (int i = 0; i < metadata.length; i++)
         {
+            Arrays.fill(stateMap, (byte) 0);
             MetaEntry entry = metadata[i];
             TextureType type = entry.type();
-            byte[] stateMap = new byte[6];
             for (Direction side : type.getAffectedFaces())
             {
                 stateMap[side.ordinal()] = type.getConnectionState(level, pos, state, side, entry.predicate(), entry.occlusionMode());
