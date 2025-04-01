@@ -9,10 +9,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.neoforged.neoforge.client.model.block.CustomBlockModelDefinition;
 import xfacthd.contex.client.data.MetaEntry;
+import xfacthd.contex.client.data.StatePredicate;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public final class ConTexBlockModelDefinition implements CustomBlockModelDefinition
@@ -24,11 +27,13 @@ public final class ConTexBlockModelDefinition implements CustomBlockModelDefinit
 
     private final BlockModelDefinition baseDefinition;
     private final List<MetaEntry> metadata;
+    private final boolean metaNeedsFiltering;
 
     public ConTexBlockModelDefinition(BlockModelDefinition baseDefinition, List<MetaEntry> metadata)
     {
         this.baseDefinition = baseDefinition;
         this.metadata = metadata;
+        this.metaNeedsFiltering = metadata.stream().map(MetaEntry::statePredicate).anyMatch(Optional::isPresent);
     }
 
     @Override
@@ -43,10 +48,28 @@ public final class ConTexBlockModelDefinition implements CustomBlockModelDefinit
         {
             newModels.put(entry.getKey(), wrappedModels.computeIfAbsent(
                     entry.getValue(),
-                    model -> new UnbakedConTexModel(entry.getKey(), model, metadata)
+                    model -> new UnbakedConTexModel(entry.getKey(), model, getFilteredMetadata(entry.getKey()))
             ));
         }
         return newModels;
+    }
+
+    private List<MetaEntry> getFilteredMetadata(BlockState state)
+    {
+        if (metaNeedsFiltering)
+        {
+            List<MetaEntry> newMetadata = new ArrayList<>(metadata.size());
+            for (MetaEntry entry : metadata)
+            {
+                Optional<StatePredicate> predicate = entry.statePredicate();
+                if (predicate.isEmpty() || predicate.get().matches(state))
+                {
+                    newMetadata.add(entry);
+                }
+            }
+            return newMetadata;
+        }
+        return metadata;
     }
 
     @Override

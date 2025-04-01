@@ -3,6 +3,7 @@ package xfacthd.contex;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
+import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
@@ -11,6 +12,7 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -67,6 +69,7 @@ public final class TestDataGeneratorHandler
         private final ResourceLocation TEX_DIORITE = mcLocation("block/polished_diorite");
         private final ResourceLocation TEX_GRANITE = mcLocation("block/polished_granite");
         private final ResourceLocation TEX_REDSTONE = mcLocation("block/redstone_block");
+        private final ResourceLocation TEX_OAK_LOG = mcLocation("block/oak_log");
 
         public TestBlockModelProvider(PackOutput output)
         {
@@ -112,6 +115,15 @@ public final class TestDataGeneratorHandler
 
             TexturedModel.CARPET.get(Blocks.POLISHED_GRANITE).create(Blocks.RED_CARPET, blockModels.modelOutput);
             variant(blockModels, Blocks.RED_CARPET, builder -> builder.type(FullCarpetTextureType.Y).predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.NONE).addTexture(TEX_GRANITE));
+
+            ConTexBlockModelDefinitionGenerator logGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.OAK_LOG);
+            MultiVariant logVariant = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(Blocks.OAK_LOG));
+            MultiVariant logVariantHor = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(Blocks.OAK_LOG, "_horizontal"));
+            logGenerator.variant((MultiVariantGenerator) BlockModelGenerators.createRotatedPillarWithHorizontalVariant(Blocks.OAK_LOG, logVariant, logVariantHor));
+            logGenerator.metadata(builder -> builder.type(PillarTextureType.X).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.X));
+            logGenerator.metadata(builder -> builder.type(PillarTextureType.Y).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.Y));
+            logGenerator.metadata(builder -> builder.type(PillarTextureType.Z).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.Z));
+            blockModels.blockStateOutput.accept(logGenerator);
         }
 
         private static void variant(BlockModelGenerators blockModels, Block block, Consumer<MetaEntryBuilder> metaBuilder)

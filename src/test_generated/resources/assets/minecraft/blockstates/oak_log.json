@@ -1,0 +1,61 @@
+{
+  "neoforge:definition_type": "contex:definition",
+  "contex_meta": [
+    {
+      "type": "contex:pillar_x",
+      "predicate": {
+        "type": "contex:same_state"
+      },
+      "state_predicate": {
+        "axis": "x"
+      },
+      "textures": [
+        {
+          "main_texture": "minecraft:block/oak_log"
+        }
+      ]
+    },
+    {
+      "type": "contex:pillar_y",
+      "predicate": {
+        "type": "contex:same_state"
+      },
+      "state_predicate": {
+        "axis": "y"
+      },
+      "textures": [
+        {
+          "main_texture": "minecraft:block/oak_log"
+        }
+      ]
+    },
+    {
+      "type": "contex:pillar_z",
+      "predicate": {
+        "type": "contex:same_state"
+      },
+      "state_predicate": {
+        "axis": "z"
+      },
+      "textures": [
+        {
+          "main_texture": "minecraft:block/oak_log"
+        }
+      ]
+    }
+  ],
+  "variants": {
+    "axis=x": {
+      "model": "minecraft:block/oak_log_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "minecraft:block/oak_log"
+    },
+    "axis=z": {
+      "model": "minecraft:block/oak_log_horizontal",
+      "x": 90
+    }
+  }
+}
