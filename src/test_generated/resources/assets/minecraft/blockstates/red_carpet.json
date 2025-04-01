@@ -3,7 +3,6 @@
   "contex_meta": [
     {
       "type": "contex:carpet_full",
-      "occlusion_mode": "none",
       "textures": [
         {
           "main_texture": "minecraft:block/polished_granite"

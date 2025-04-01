@@ -114,7 +114,7 @@ public final class TestDataGeneratorHandler
             blockModels.blockStateOutput.accept(slabGenerator);
 
             TexturedModel.CARPET.get(Blocks.POLISHED_GRANITE).create(Blocks.RED_CARPET, blockModels.modelOutput);
-            variant(blockModels, Blocks.RED_CARPET, builder -> builder.type(FullCarpetTextureType.Y).predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.NONE).addTexture(TEX_GRANITE));
+            variant(blockModels, Blocks.RED_CARPET, builder -> builder.type(FullCarpetTextureType.Y).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
 
             ConTexBlockModelDefinitionGenerator logGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.OAK_LOG);
             MultiVariant logVariant = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(Blocks.OAK_LOG));
