@@ -82,12 +82,22 @@ public final class Builtin
 
         public static ConnectionPredicate matchBlock(Block block)
         {
-            return new MatchBlockPredicate(block);
+            return matchBlock(block, block);
+        }
+
+        public static ConnectionPredicate matchBlock(Block selfBlock, Block otherBlock)
+        {
+            return new MatchBlockPredicate(selfBlock, otherBlock);
         }
 
         public static ConnectionPredicate matchState(BlockState state)
         {
-            return new MatchStatePredicate(state);
+            return matchState(state, state);
+        }
+
+        public static ConnectionPredicate matchState(BlockState selfState, BlockState otherState)
+        {
+            return new MatchStatePredicate(selfState, otherState);
         }
 
         private Predicates() { }
