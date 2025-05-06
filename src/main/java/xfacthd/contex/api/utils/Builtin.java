@@ -58,24 +58,14 @@ public final class Builtin
             return OmniPillarTextureType.INSTANCE;
         }
 
-        public static TextureType carpetSimple(Direction.Axis axis)
+        public static TextureType carpetSimple(Direction dir)
         {
-            return switch (axis)
-            {
-                case X -> SimpleCarpetTextureType.X;
-                case Y -> SimpleCarpetTextureType.Y;
-                case Z -> SimpleCarpetTextureType.Z;
-            };
+            return SimpleCarpetTextureType.TYPES[dir.ordinal()];
         }
 
-        public static TextureType carpetFull(Direction.Axis axis)
+        public static TextureType carpetFull(Direction dir)
         {
-            return switch (axis)
-            {
-                case X -> FullCarpetTextureType.X;
-                case Y -> FullCarpetTextureType.Y;
-                case Z -> FullCarpetTextureType.Z;
-            };
+            return FullCarpetTextureType.TYPES[dir.ordinal()];
         }
 
         private Types() { }

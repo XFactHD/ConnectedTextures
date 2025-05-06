@@ -6,22 +6,25 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.type.OcclusionMode;
+import xfacthd.contex.api.utils.Utils;
 
 import java.util.EnumSet;
 
 public final class SimpleCarpetTextureType extends SimpleTextureType
 {
-    public static final SimpleCarpetTextureType Y = new SimpleCarpetTextureType(Direction.Axis.Y);
-    public static final SimpleCarpetTextureType X = new SimpleCarpetTextureType(Direction.Axis.X);
-    public static final SimpleCarpetTextureType Z = new SimpleCarpetTextureType(Direction.Axis.Z);
+    public static final SimpleCarpetTextureType[] TYPES = Utils.fillArray(
+            new SimpleCarpetTextureType[6], idx -> new SimpleCarpetTextureType(Direction.from3DDataValue(idx))
+    );
 
     private final Direction.Axis axis;
+    private final Direction dir;
     private final EnumSet<Direction> affectedFaces;
 
-    private SimpleCarpetTextureType(Direction.Axis axis)
+    private SimpleCarpetTextureType(Direction dir)
     {
-        this.axis = axis;
-        this.affectedFaces = EnumSet.of(axis.getNegative(), axis.getPositive());
+        this.axis = dir.getAxis();
+        this.dir = dir;
+        this.affectedFaces = EnumSet.of(dir, dir.getOpposite());
     }
 
     @Override
@@ -36,7 +39,8 @@ public final class SimpleCarpetTextureType extends SimpleTextureType
     {
         if (side.getAxis() == axis)
         {
-            return super.getConnectionState(level, pos, state, side, predicate, OcclusionMode.NONE);
+            OcclusionMode realOcclusionMode = side == dir ? occlusionMode : OcclusionMode.NONE;
+            return super.getConnectionState(level, pos, state, side, predicate, realOcclusionMode);
         }
         return 0;
     }

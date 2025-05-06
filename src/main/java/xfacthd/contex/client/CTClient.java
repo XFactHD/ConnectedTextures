@@ -1,5 +1,6 @@
 package xfacthd.contex.client;
 
+import net.minecraft.core.Direction;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -54,12 +55,18 @@ public final class CTClient
         event.registerType(Utils.rl("pillar_rot_y"), RotatingPillarTextureType.Y);
         event.registerType(Utils.rl("pillar_rot_z"), RotatingPillarTextureType.Z);
         event.registerType(Utils.rl("pillar_omni"), OmniPillarTextureType.INSTANCE);
-        event.registerType(Utils.rl("carpet_simple"), SimpleCarpetTextureType.Y);
-        event.registerType(Utils.rl("carpet_simple_x"), SimpleCarpetTextureType.X);
-        event.registerType(Utils.rl("carpet_simple_z"), SimpleCarpetTextureType.Z);
-        event.registerType(Utils.rl("carpet_full"), FullCarpetTextureType.Y);
-        event.registerType(Utils.rl("carpet_full_x"), FullCarpetTextureType.X);
-        event.registerType(Utils.rl("carpet_full_z"), FullCarpetTextureType.Z);
+        event.registerType(Utils.rl("carpet_simple"), SimpleCarpetTextureType.TYPES[Direction.DOWN.ordinal()]);
+        event.registerType(Utils.rl("carpet_simple_west"), SimpleCarpetTextureType.TYPES[Direction.WEST.ordinal()]);
+        event.registerType(Utils.rl("carpet_simple_east"), SimpleCarpetTextureType.TYPES[Direction.EAST.ordinal()]);
+        event.registerType(Utils.rl("carpet_simple_north"), SimpleCarpetTextureType.TYPES[Direction.NORTH.ordinal()]);
+        event.registerType(Utils.rl("carpet_simple_south"), SimpleCarpetTextureType.TYPES[Direction.SOUTH.ordinal()]);
+        event.registerType(Utils.rl("carpet_simple_up"), SimpleCarpetTextureType.TYPES[Direction.UP.ordinal()]);
+        event.registerType(Utils.rl("carpet_full"), FullCarpetTextureType.TYPES[Direction.DOWN.ordinal()]);
+        event.registerType(Utils.rl("carpet_full_west"), FullCarpetTextureType.TYPES[Direction.WEST.ordinal()]);
+        event.registerType(Utils.rl("carpet_full_east"), FullCarpetTextureType.TYPES[Direction.EAST.ordinal()]);
+        event.registerType(Utils.rl("carpet_full_north"), FullCarpetTextureType.TYPES[Direction.NORTH.ordinal()]);
+        event.registerType(Utils.rl("carpet_full_south"), FullCarpetTextureType.TYPES[Direction.SOUTH.ordinal()]);
+        event.registerType(Utils.rl("carpet_full_up"), FullCarpetTextureType.TYPES[Direction.UP.ordinal()]);
 
         event.registerPredicate(Utils.rl("same_block"), SameBlockPredicate.CODEC);
         event.registerPredicate(Utils.rl("same_state"), SameStatePredicate.CODEC);

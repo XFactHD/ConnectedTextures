@@ -7,7 +7,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntFunction;
 
 public final class Utils
 {
@@ -84,6 +86,12 @@ public final class Utils
                 builder.addCulledFace(side, quad);
             }
         }
+    }
+
+    public static <T> T[] fillArray(T[] array, IntFunction<? extends T> generator)
+    {
+        Arrays.setAll(array, generator);
+        return array;
     }
 
 

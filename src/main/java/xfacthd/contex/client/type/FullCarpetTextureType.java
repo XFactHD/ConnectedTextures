@@ -6,22 +6,25 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.type.OcclusionMode;
+import xfacthd.contex.api.utils.Utils;
 
 import java.util.EnumSet;
 
 public final class FullCarpetTextureType extends FullTextureType
 {
-    public static final FullCarpetTextureType Y = new FullCarpetTextureType(Direction.Axis.Y);
-    public static final FullCarpetTextureType X = new FullCarpetTextureType(Direction.Axis.X);
-    public static final FullCarpetTextureType Z = new FullCarpetTextureType(Direction.Axis.Z);
+    public static final FullCarpetTextureType[] TYPES = Utils.fillArray(
+            new FullCarpetTextureType[6], idx -> new FullCarpetTextureType(Direction.from3DDataValue(idx))
+    );
 
     private final Direction.Axis axis;
+    private final Direction dir;
     private final EnumSet<Direction> affectedFaces;
 
-    private FullCarpetTextureType(Direction.Axis axis)
+    private FullCarpetTextureType(Direction dir)
     {
-        this.axis = axis;
-        this.affectedFaces = EnumSet.of(axis.getNegative(), axis.getPositive());
+        this.axis = dir.getAxis();
+        this.dir = dir;
+        this.affectedFaces = EnumSet.of(dir, dir.getOpposite());
     }
 
     @Override
@@ -36,7 +39,8 @@ public final class FullCarpetTextureType extends FullTextureType
     {
         if (side.getAxis() == axis)
         {
-            return super.getConnectionState(level, pos, state, side, predicate, OcclusionMode.NONE);
+            OcclusionMode realOcclusionMode = side == dir ? occlusionMode : OcclusionMode.NONE;
+            return super.getConnectionState(level, pos, state, side, predicate, realOcclusionMode);
         }
         return 0;
     }
