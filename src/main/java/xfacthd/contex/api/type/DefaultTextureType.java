@@ -88,7 +88,7 @@ public abstract class DefaultTextureType extends TextureType
             return QuadModifier.of(srcQuad)
                     .apply(Modifiers.cutTopBottom(up ? Direction.SOUTH : Direction.NORTH, .5F))
                     .apply(Modifiers.cutTopBottom(right ? Direction.WEST : Direction.EAST, .5F))
-                    .apply(Modifiers.remapTexture(tex, uvs.minU(), uvs.minV(), uvs.maxU(), uvs.maxV()))
+                    .apply(Modifiers.remapTexture(tex, uvs))
                     .export();
         }
         else
@@ -96,7 +96,7 @@ public abstract class DefaultTextureType extends TextureType
             return QuadModifier.of(srcQuad)
                     .apply(Modifiers.cutSideUpDown(up, .5F))
                     .apply(Modifiers.cutSideLeftRight(!right, .5F))
-                    .apply(Modifiers.remapTexture(tex, uvs.minU(), uvs.minV(), uvs.maxU(), uvs.maxV()))
+                    .apply(Modifiers.remapTexture(tex, uvs))
                     .export();
         }
     }

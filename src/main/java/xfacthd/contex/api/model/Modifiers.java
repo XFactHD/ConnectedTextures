@@ -4,11 +4,14 @@ import com.google.common.base.Preconditions;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
+import xfacthd.contex.api.type.UV;
 import xfacthd.contex.api.utils.Utils;
 
 public final class Modifiers
 {
     private static final QuadModifier.Modifier NOOP_MODIFIER = data -> true;
+    // Factor 16 is required because the relative UV of a TextureAtlasSprite is not 0-16 anymore since 1.20.2
+    private static final float UV_SUBSTEP_COUNT = 16F * 8F;
 
     /**
      * Cuts the quad pointing upwards or downwards at the edge given by the given {@code cutDir}
@@ -48,8 +51,29 @@ public final class Modifiers
             float xz1 = data.pos(idxR, coordIdx);
             float xz2 = data.pos(idxL, coordIdx);
 
-            data.pos(idxR, coordIdx, positive ? Math.min(xz1, target) : Math.max(xz1, target));
-            data.pos(idxL, coordIdx, positive ? Math.min(xz2, target) : Math.max(xz2, target));
+            float toXZ1 = positive ? Math.min(xz1, target) : Math.max(xz1, target);
+            float toXZ2 = positive ? Math.min(xz2, target) : Math.max(xz2, target);
+
+            if (Mth.equal(xz1, toXZ1) && Mth.equal(xz2, toXZ2))
+            {
+                return true;
+            }
+
+            boolean rotated = data.uvRotated;
+
+            if (xAxis)
+            {
+                ModelUtils.remapUV(data, data.pos(1, coordIdx), data.pos(2, coordIdx), toXZ1, 1, 2, idxR, false, rotated);
+                ModelUtils.remapUV(data, data.pos(0, coordIdx), data.pos(3, coordIdx), toXZ2, 0, 3, idxL, false, rotated);
+            }
+            else
+            {
+                ModelUtils.remapUV(data, data.pos(1, coordIdx), data.pos(0, coordIdx), toXZ1, 0, 1, idxR, true, rotated);
+                ModelUtils.remapUV(data, data.pos(2, coordIdx), data.pos(3, coordIdx), toXZ2, 3, 2, idxL, true, rotated);
+            }
+
+            data.pos(idxR, coordIdx, toXZ1);
+            data.pos(idxL, coordIdx, toXZ2);
 
             return true;
         };
@@ -84,8 +108,21 @@ public final class Modifiers
             float y1 = data.pos(idx1, 1);
             float y2 = data.pos(idx2, 1);
 
-            data.pos(idx1, 1, downwards ? Math.max(y1, target) : Math.min(y1, target));
-            data.pos(idx2, 1, downwards ? Math.max(y2, target) : Math.min(y2, target));
+            float toY1 = downwards ? Math.max(y1, target) : Math.min(y1, target);
+            float toY2 = downwards ? Math.max(y2, target) : Math.min(y2, target);
+
+            //noinspection SuspiciousNameCombination
+            if (Mth.equal(y1, toY1) && Mth.equal(y2, toY2))
+            {
+                return true;
+            }
+
+            boolean rotated = data.uvRotated;
+            ModelUtils.remapUV(data, data.pos(1, 1), data.pos(0, 1), toY1, 0, 1, idx1, true, rotated);
+            ModelUtils.remapUV(data, data.pos(2, 1), data.pos(3, 1), toY2, 3, 2, idx2, true, rotated);
+
+            data.pos(idx1, 1, toY1);
+            data.pos(idx2, 1, toY2);
 
             return true;
         };
@@ -125,8 +162,20 @@ public final class Modifiers
             float xz1 = data.pos(idx1, coordIdx);
             float xz2 = data.pos(idx2, coordIdx);
 
-            data.pos(idx1, coordIdx, positive ? Math.max(xz1, target) : Math.min(xz1, target));
-            data.pos(idx2, coordIdx, positive ? Math.max(xz2, target) : Math.min(xz2, target));
+            float toXZ1 = positive ? Math.max(xz1, target) : Math.min(xz1, target);
+            float toXZ2 = positive ? Math.max(xz2, target) : Math.min(xz2, target);
+
+            if (Mth.equal(xz1, toXZ1) && Mth.equal(xz2, toXZ2))
+            {
+                return true;
+            }
+
+            boolean rotated = data.uvRotated;
+            ModelUtils.remapUV(data, data.pos(0, coordIdx), data.pos(3, coordIdx), toXZ1, 0, 3, idx1, false, rotated);
+            ModelUtils.remapUV(data, data.pos(1, coordIdx), data.pos(2, coordIdx), toXZ2, 1, 2, idx2, false, rotated);
+
+            data.pos(idx1, coordIdx, toXZ1);
+            data.pos(idx2, coordIdx, toXZ2);
 
             return true;
         };
@@ -135,32 +184,34 @@ public final class Modifiers
     /**
      * Map a different texture onto this quad with the given min and max UV coordinates being in relation to a full block face
      * @param targetSprite The texture to apply to the quad, must be stitched to the block atlas
-     * @param minU The min U coordinate in the range 0-1
-     * @param minV The min V coordinate in the range 0-1
-     * @param maxU The max U coordinate in the range 0-1
-     * @param maxV The max V coordinate in the range 0-1
+     * @param uv The UV coordinates in the range 0-1
      */
-    public static QuadModifier.Modifier remapTexture(TextureAtlasSprite targetSprite, float minU, float minV, float maxU, float maxV)
+    public static QuadModifier.Modifier remapTexture(TextureAtlasSprite targetSprite, UV uv)
     {
         return data ->
         {
+            TextureAtlasSprite srcSprite = data.sprite;
             float shrinkRatio = targetSprite.uvShrinkRatio();
-            UVInfo uvInfo = ModelUtils.getUVInfo(data.quad().direction());
 
-            float uSize = maxU - minU;
-            float vSize = maxV - minV;
+            float minU = uv.minU();
+            float minV = uv.minV();
+            float maxU = uv.maxU();
+            float maxV = uv.maxV();
+
             float uCenter = (minU + minU + maxU + maxU) / 4F;
             float vCenter = (minV + minV + maxV + maxV) / 4F;
 
             for (int i = 0; i < 4; i++)
             {
-                float uAbs = uvInfo.uInv() ? (1F - data.pos(i, uvInfo.uIdx())) : data.pos(i, uvInfo.uIdx());
-                float vAbs = uvInfo.vInv() ? (1F - data.pos(i, uvInfo.vIdx())) : data.pos(i, uvInfo.vIdx());
-                data.uv(
-                        i,
-                        targetSprite.getU(Mth.lerp(shrinkRatio, (uAbs * uSize) + minU, uCenter)),
-                        targetSprite.getV(Mth.lerp(shrinkRatio, (vAbs * vSize) + minV, vCenter))
-                );
+                float uAbsSrc = Math.round(srcSprite.getUOffset(data.uv(i, 0)) * UV_SUBSTEP_COUNT) / UV_SUBSTEP_COUNT;
+                float uAbs = Mth.lerp(uAbsSrc, minU, maxU);
+                float uRel = targetSprite.getU(Mth.lerp(shrinkRatio, uAbs, uCenter));
+                data.uv(i, 0, uRel);
+
+                float vAbsSrc = Math.round(srcSprite.getVOffset(data.uv(i, 1)) * UV_SUBSTEP_COUNT) / UV_SUBSTEP_COUNT;
+                float vAbs = Mth.lerp(vAbsSrc, minV, maxV);
+                float vRel = targetSprite.getV(Mth.lerp(shrinkRatio, vAbs, vCenter));
+                data.uv(i, 1, vRel);
             }
 
             data.sprite(targetSprite);

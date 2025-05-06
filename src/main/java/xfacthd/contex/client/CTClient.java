@@ -19,6 +19,7 @@ import xfacthd.contex.client.type.FullCarpetTextureType;
 import xfacthd.contex.client.type.FullTextureType;
 import xfacthd.contex.client.type.OmniPillarTextureType;
 import xfacthd.contex.client.type.PillarTextureType;
+import xfacthd.contex.client.type.RotatingPillarTextureType;
 import xfacthd.contex.client.type.SimpleCarpetTextureType;
 import xfacthd.contex.client.type.SimpleTextureType;
 
@@ -49,6 +50,9 @@ public final class CTClient
         event.registerType(Utils.rl("pillar_x"), PillarTextureType.X);
         event.registerType(Utils.rl("pillar_y"), PillarTextureType.Y);
         event.registerType(Utils.rl("pillar_z"), PillarTextureType.Z);
+        event.registerType(Utils.rl("pillar_rot_x"), RotatingPillarTextureType.X);
+        event.registerType(Utils.rl("pillar_rot_y"), RotatingPillarTextureType.Y);
+        event.registerType(Utils.rl("pillar_rot_z"), RotatingPillarTextureType.Z);
         event.registerType(Utils.rl("pillar_omni"), OmniPillarTextureType.INSTANCE);
         event.registerType(Utils.rl("carpet_simple"), SimpleCarpetTextureType.Y);
         event.registerType(Utils.rl("carpet_simple_x"), SimpleCarpetTextureType.X);

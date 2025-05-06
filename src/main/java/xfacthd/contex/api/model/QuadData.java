@@ -10,6 +10,7 @@ public final class QuadData
 {
     final BakedQuad quad;
     final int[] vertexData;
+    final boolean uvRotated;
     TextureAtlasSprite sprite;
 
     public QuadData(BakedQuad quad)
@@ -17,6 +18,7 @@ public final class QuadData
         this.quad = quad;
         int[] vertexData = quad.vertices();
         this.vertexData = Arrays.copyOf(vertexData, vertexData.length);
+        this.uvRotated = ModelUtils.isQuadRotated(this);
         this.sprite = quad.sprite();
     }
 
@@ -24,12 +26,18 @@ public final class QuadData
     {
         this.quad = data.quad;
         this.vertexData = Arrays.copyOf(data.vertexData, data.vertexData.length);
+        this.uvRotated = data.uvRotated;
         this.sprite = data.sprite;
     }
 
     public BakedQuad quad()
     {
         return quad;
+    }
+
+    public boolean isUvRotated()
+    {
+        return uvRotated;
     }
 
     public TextureAtlasSprite sprite()
@@ -60,10 +68,9 @@ public final class QuadData
         return Float.intBitsToFloat(vertexData[offset + idx]);
     }
 
-    public void uv(int vert, float u, float v)
+    public void uv(int vert, int idx, float val)
     {
         int offset = vert * IQuadTransformer.STRIDE + IQuadTransformer.UV0;
-        vertexData[offset] = Float.floatToRawIntBits(u);
-        vertexData[offset + 1] = Float.floatToRawIntBits(v);
+        vertexData[offset + idx] = Float.floatToRawIntBits(val);
     }
 }

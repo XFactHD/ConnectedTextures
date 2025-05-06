@@ -12,6 +12,7 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
+import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.data.DataGenerator;
@@ -36,6 +37,7 @@ import xfacthd.contex.client.type.FullCarpetTextureType;
 import xfacthd.contex.client.type.FullTextureType;
 import xfacthd.contex.client.type.OmniPillarTextureType;
 import xfacthd.contex.client.type.PillarTextureType;
+import xfacthd.contex.client.type.RotatingPillarTextureType;
 
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -70,6 +72,7 @@ public final class TestDataGeneratorHandler
         private final ResourceLocation TEX_GRANITE = mcLocation("block/polished_granite");
         private final ResourceLocation TEX_REDSTONE = mcLocation("block/redstone_block");
         private final ResourceLocation TEX_OAK_LOG = mcLocation("block/oak_log");
+        private final ResourceLocation TEX_STONE = mcLocation("block/stone");
 
         public TestBlockModelProvider(PackOutput output)
         {
@@ -79,9 +82,9 @@ public final class TestDataGeneratorHandler
         @Override
         protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels)
         {
-            variant(blockModels, Blocks.CHISELED_DEEPSLATE,           builder -> builder.type(PillarTextureType.X).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DEEPSLATE));
-            variant(blockModels, Blocks.CHISELED_POLISHED_BLACKSTONE, builder -> builder.type(PillarTextureType.Z).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_BLACKSTONE));
-            variant(blockModels, Blocks.CHISELED_STONE_BRICKS,        builder -> builder.type(PillarTextureType.Y).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONEBRICKS));
+            variant(blockModels, Blocks.CHISELED_DEEPSLATE,           builder -> builder.type(RotatingPillarTextureType.X).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DEEPSLATE));
+            variant(blockModels, Blocks.CHISELED_POLISHED_BLACKSTONE, builder -> builder.type(RotatingPillarTextureType.Z).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_BLACKSTONE));
+            variant(blockModels, Blocks.CHISELED_STONE_BRICKS,        builder -> builder.type(RotatingPillarTextureType.Y).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONEBRICKS));
             variant(blockModels, Blocks.GLASS,                        builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.SOLID_OR_SELF).addTexture(TEX_GLASS));
             variant(blockModels, Blocks.POLISHED_DIORITE,             builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DIORITE));
             variant(blockModels, Blocks.POLISHED_GRANITE,             builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
@@ -124,6 +127,13 @@ public final class TestDataGeneratorHandler
             logGenerator.metadata(builder -> builder.type(PillarTextureType.Y).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.Y));
             logGenerator.metadata(builder -> builder.type(PillarTextureType.Z).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.Z));
             blockModels.blockStateOutput.accept(logGenerator);
+
+            ConTexBlockModelDefinitionGenerator stoneGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.STONE);
+            Variant stoneVariant = BlockModelGenerators.plainModel(ModelLocationUtils.getModelLocation(Blocks.STONE));
+            Variant stoneMirroredVariant = BlockModelGenerators.plainModel(ModelLocationUtils.getModelLocation(Blocks.STONE, "_mirrored"));
+            stoneGenerator.variant(MultiVariantGenerator.dispatch(Blocks.STONE, BlockModelGenerators.createRotatedVariants(stoneVariant, stoneMirroredVariant)));
+            stoneGenerator.metadata(builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONE));
+            blockModels.blockStateOutput.accept(stoneGenerator);
         }
 
         private static void variant(BlockModelGenerators blockModels, Block block, Consumer<MetaEntryBuilder> metaBuilder)

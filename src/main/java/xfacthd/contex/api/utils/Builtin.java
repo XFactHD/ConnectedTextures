@@ -15,6 +15,7 @@ import xfacthd.contex.client.type.FullCarpetTextureType;
 import xfacthd.contex.client.type.FullTextureType;
 import xfacthd.contex.client.type.OmniPillarTextureType;
 import xfacthd.contex.client.type.PillarTextureType;
+import xfacthd.contex.client.type.RotatingPillarTextureType;
 import xfacthd.contex.client.type.SimpleCarpetTextureType;
 import xfacthd.contex.client.type.SimpleTextureType;
 
@@ -39,6 +40,16 @@ public final class Builtin
                 case X -> PillarTextureType.X;
                 case Y -> PillarTextureType.Y;
                 case Z -> PillarTextureType.Z;
+            };
+        }
+
+        public static TextureType pillarRotating(Direction.Axis axis)
+        {
+            return switch (axis)
+            {
+                case X -> RotatingPillarTextureType.X;
+                case Y -> RotatingPillarTextureType.Y;
+                case Z -> RotatingPillarTextureType.Z;
             };
         }
 

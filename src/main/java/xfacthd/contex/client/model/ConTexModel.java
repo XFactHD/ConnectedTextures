@@ -23,6 +23,7 @@ import xfacthd.contex.client.data.ConnectionStateContainer;
 import xfacthd.contex.client.data.MetaEntry;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,8 +35,7 @@ public final class ConTexModel extends DelegateBlockStateModel
     private final Map<ConnectionStateContainer, List<BlockModelPart>> ctPartCache = new ConcurrentHashMap<>();
     private final BlockState state;
     private final MetaEntry[] metadata;
-    @Nullable
-    private List<ConnectedBlockModelPart> decomposedParts = null;
+    private final Map<Object, List<ConnectedBlockModelPart>> decomposedPartsPerKey = new ConcurrentHashMap<>();
 
     ConTexModel(BlockStateModel baseModel, BlockState state, List<MetaEntry> metadata)
     {
@@ -47,12 +47,16 @@ public final class ConTexModel extends DelegateBlockStateModel
     @Override
     public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockModelPart> parts)
     {
+        Object key = delegate.createGeometryKey(level, pos, state, random);
+        List<ConnectedBlockModelPart> decomposedParts = decomposedPartsPerKey.get(key);
         if (decomposedParts == null)
         {
+            random.setSeed(state.getSeed(pos));
             decomposedParts = decomposeBaseModel(level, pos, random);
+            decomposedPartsPerKey.put(key, decomposedParts);
         }
 
-        ConnectionStateContainer ctStates = computeConnectionState(level, pos, state);
+        ConnectionStateContainer ctStates = computeConnectionState(key, level, pos, state);
         List<BlockModelPart> ctParts = ctPartCache.get(ctStates);
         if (ctParts == null)
         {
@@ -103,12 +107,13 @@ public final class ConTexModel extends DelegateBlockStateModel
     @Override
     public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random)
     {
-        return computeConnectionState(level, pos, state);
+        Object key = delegate.createGeometryKey(level, pos, state, random);
+        return computeConnectionState(key, level, pos, state);
     }
 
-    private ConnectionStateContainer computeConnectionState(BlockAndTintGetter level, BlockPos pos, BlockState state)
+    private ConnectionStateContainer computeConnectionState(@Nullable Object key, BlockAndTintGetter level, BlockPos pos, BlockState state)
     {
-        ConnectionStateContainer ctState = new ConnectionStateContainer(this, metadata.length);
+        ConnectionStateContainer ctState = new ConnectionStateContainer(this, metadata.length, key);
         byte[] stateMap = new byte[6];
         for (int i = 0; i < metadata.length; i++)
         {
@@ -233,7 +238,6 @@ public final class ConTexModel extends DelegateBlockStateModel
             BakedQuad quadOut = QuadModifier.of(quad)
                     .apply(y ? Modifiers.cutTopBottom(up ? Direction.SOUTH : Direction.NORTH, .5F) : Modifiers.cutSideUpDown(up, .5F))
                     .apply(y ? Modifiers.cutTopBottom(right ? Direction.WEST : Direction.EAST, .5F) : Modifiers.cutSideLeftRight(!right, .5F))
-                    .apply(Modifiers.remapTexture(quad.sprite(), 0F, 0F, 1F, 1F))
                     .export();
             if (quadOut != null)
             {
