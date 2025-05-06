@@ -130,6 +130,14 @@ public final class ConTexModel extends DelegateBlockStateModel
 
     private List<ConnectedBlockModelPart> decomposeBaseModel(BlockAndTintGetter level, BlockPos pos, RandomSource random)
     {
+        int affectedFaces = 0;
+        for (MetaEntry meta : metadata)
+        {
+            for (Direction face : meta.type().getAffectedFaces())
+            {
+                affectedFaces |= 1 << face.ordinal();
+            }
+        }
         List<ConnectedBlockModelPart> outParts = new ObjectArrayList<>();
         for (BlockModelPart part : delegate.collectParts(level, pos, state, random))
         {
@@ -144,7 +152,11 @@ public final class ConTexModel extends DelegateBlockStateModel
                 for (BakedQuad quad : part.getQuads(side))
                 {
                     MetaPair meta = findCtEntry(quad);
-                    if (meta != null)
+                    if ((affectedFaces & mask) == 0)
+                    {
+                        preNonCtQuads.addCulledFace(side, quad);
+                    }
+                    else if (meta != null && meta.affectedFaces.contains(side))
                     {
                         ctQuadsFound |= mask;
                         ctQuads.computeIfAbsent(meta, $ -> new QuadCollection.Builder()).addCulledFace(side, quad);
@@ -159,7 +171,11 @@ public final class ConTexModel extends DelegateBlockStateModel
             for (BakedQuad quad : part.getQuads(null))
             {
                 MetaPair meta = findCtEntry(quad);
-                if (meta != null)
+                if ((affectedFaces & (1 << quad.direction().ordinal())) == 0)
+                {
+                    preNonCtQuads.addUnculledFace(quad);
+                }
+                else if (meta != null && meta.affectedFaces.contains(quad.direction()))
                 {
                     ctQuadsFound |= 0b01000000;
                     ctQuads.computeIfAbsent(meta, $ -> new QuadCollection.Builder()).addUnculledFace(quad);
@@ -201,7 +217,7 @@ public final class ConTexModel extends DelegateBlockStateModel
             int tex = metadata[i].findTexture(quad.sprite().contents().name());
             if (tex != -1)
             {
-                return new MetaPair(i, tex);
+                return new MetaPair(i, tex, metadata[i].type().getAffectedFaces());
             }
         }
         return null;
@@ -233,5 +249,5 @@ public final class ConTexModel extends DelegateBlockStateModel
         }
     }
 
-    private record MetaPair(int metaIdx, int texIdx) { }
+    private record MetaPair(int metaIdx, int texIdx, EnumSet<Direction> affectedFaces) { }
 }
