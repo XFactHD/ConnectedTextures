@@ -7,6 +7,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.type.OcclusionMode;
 
+import java.util.EnumSet;
+
 public final class FullCarpetTextureType extends FullTextureType
 {
     public static final FullCarpetTextureType Y = new FullCarpetTextureType(Direction.Axis.Y);
@@ -14,10 +16,12 @@ public final class FullCarpetTextureType extends FullTextureType
     public static final FullCarpetTextureType Z = new FullCarpetTextureType(Direction.Axis.Z);
 
     private final Direction.Axis axis;
+    private final EnumSet<Direction> affectedFaces;
 
     private FullCarpetTextureType(Direction.Axis axis)
     {
         this.axis = axis;
+        this.affectedFaces = EnumSet.of(axis.getNegative(), axis.getPositive());
     }
 
     @Override
@@ -35,5 +39,11 @@ public final class FullCarpetTextureType extends FullTextureType
             return super.getConnectionState(level, pos, state, side, predicate, OcclusionMode.NONE);
         }
         return 0;
+    }
+
+    @Override
+    public EnumSet<Direction> getAffectedFaces()
+    {
+        return affectedFaces;
     }
 }
