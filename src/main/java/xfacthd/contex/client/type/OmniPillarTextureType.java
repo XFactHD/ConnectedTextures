@@ -1,8 +1,8 @@
 package xfacthd.contex.client.type;
 
+import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.core.Direction;
-import xfacthd.contex.api.state.*;
-import xfacthd.contex.api.type.UV;
+import xfacthd.contex.api.state.ConnectionDirection;
 
 public final class OmniPillarTextureType extends SimpleTextureType
 {
@@ -65,7 +65,7 @@ public final class OmniPillarTextureType extends SimpleTextureType
     }
 
     @Override
-    public UV getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
+    public BlockElementFace.UVs getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
         if (!xCon && !yCon)
         {

@@ -1,15 +1,20 @@
 package xfacthd.contex.api.type;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-import xfacthd.contex.api.model.*;
+import xfacthd.contex.api.model.ModelUtils;
+import xfacthd.contex.api.model.Modifiers;
+import xfacthd.contex.api.model.QuadModifier;
 import xfacthd.contex.api.state.ConnectionDirection;
 import xfacthd.contex.api.utils.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Default texture type implementation which splits the faces into four quadrants and generates the appropriate quad
@@ -47,7 +52,7 @@ public abstract class DefaultTextureType extends TextureType
      * @param diagCon Whether the face has a diagonal connection
      * @param side The side for which the UVs are requested
      */
-    protected abstract UV getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side);
+    protected abstract BlockElementFace.UVs getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side);
 
     /**
      * Create a {@link BakedQuad} facing in the given direction for the corner represented by the two given
@@ -80,7 +85,7 @@ public abstract class DefaultTextureType extends TextureType
         boolean right = xDir == ConnectionDirection.RIGHT;
         boolean up = yDir == ConnectionDirection.UP;
 
-        UV uvs = getConnectionUVs(xCon, yCon, diagCon, side);
+        BlockElementFace.UVs uvs = getConnectionUVs(xCon, yCon, diagCon, side);
         TextureAtlasSprite tex = (xCon || yCon) ? ModelUtils.getSprite(ctTex) : srcQuad.sprite();
         if (Utils.isY(side))
         {

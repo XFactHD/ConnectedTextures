@@ -1,5 +1,6 @@
 package xfacthd.contex.client.type;
 
+import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -8,13 +9,12 @@ import xfacthd.contex.api.state.ConnectionDirection;
 import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.type.DefaultTextureType;
 import xfacthd.contex.api.type.OcclusionMode;
-import xfacthd.contex.api.type.UV;
 
 import java.util.EnumSet;
 
 public sealed class PillarTextureType extends DefaultTextureType permits RotatingPillarTextureType
 {
-    private static final UV UV = new UV(0F, 0F, 1F, 1F);
+    private static final BlockElementFace.UVs UV = new BlockElementFace.UVs(0F, 0F, 1F, 1F);
     public static final PillarTextureType X = new PillarTextureType(Direction.Axis.X);
     public static final PillarTextureType Y = new PillarTextureType(Direction.Axis.Y);
     public static final PillarTextureType Z = new PillarTextureType(Direction.Axis.Z);
@@ -71,7 +71,7 @@ public sealed class PillarTextureType extends DefaultTextureType permits Rotatin
     }
 
     @Override
-    public UV getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
+    public BlockElementFace.UVs getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
         return UV;
     }

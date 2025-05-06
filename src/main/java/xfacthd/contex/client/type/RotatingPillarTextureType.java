@@ -1,22 +1,22 @@
 package xfacthd.contex.client.type;
 
+import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.core.Direction;
-import xfacthd.contex.api.type.UV;
 import xfacthd.contex.api.utils.Utils;
 
 public final class RotatingPillarTextureType extends PillarTextureType
 {
-    static final UV UV_NO_CON = new UV(0F, 0F, 1F, 1F);
-    static final UV UV_X = new UV(0F, .5F, 1F, 1F);
-    static final UV UV_Y = new UV(0F, 0F, 1F, .5F);
-    static final UV UV_Z_TOPBOTTOM = new UV(0F, 0F, 1F, .5F);
-    static final UV UV_Z_SIDE = new UV(0F, .5F, 1F, 1F);
+    static final BlockElementFace.UVs UV_NO_CON = new BlockElementFace.UVs(0F, 0F, 1F, 1F);
+    static final BlockElementFace.UVs UV_X = new BlockElementFace.UVs(0F, .5F, 1F, 1F);
+    static final BlockElementFace.UVs UV_Y = new BlockElementFace.UVs(0F, 0F, 1F, .5F);
+    static final BlockElementFace.UVs UV_Z_TOPBOTTOM = new BlockElementFace.UVs(0F, 0F, 1F, .5F);
+    static final BlockElementFace.UVs UV_Z_SIDE = new BlockElementFace.UVs(0F, .5F, 1F, 1F);
     public static final RotatingPillarTextureType X = new RotatingPillarTextureType(Direction.Axis.X);
     public static final RotatingPillarTextureType Y = new RotatingPillarTextureType(Direction.Axis.Y);
     public static final RotatingPillarTextureType Z = new RotatingPillarTextureType(Direction.Axis.Z);
 
-    private final UV uvHor;
-    private final UV uvVert;
+    private final BlockElementFace.UVs uvHor;
+    private final BlockElementFace.UVs uvVert;
 
     private RotatingPillarTextureType(Direction.Axis axis)
     {
@@ -35,7 +35,7 @@ public final class RotatingPillarTextureType extends PillarTextureType
     }
 
     @Override
-    public UV getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
+    public BlockElementFace.UVs getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
         if ((xCon || yCon))
         {

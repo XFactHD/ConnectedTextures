@@ -1,10 +1,10 @@
 package xfacthd.contex.api.model;
 
 import com.google.common.base.Preconditions;
+import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import xfacthd.contex.api.type.UV;
 import xfacthd.contex.api.utils.Utils;
 
 public final class Modifiers
@@ -186,7 +186,7 @@ public final class Modifiers
      * @param targetSprite The texture to apply to the quad, must be stitched to the block atlas
      * @param uv The UV coordinates in the range 0-1
      */
-    public static QuadModifier.Modifier remapTexture(TextureAtlasSprite targetSprite, UV uv)
+    public static QuadModifier.Modifier remapTexture(TextureAtlasSprite targetSprite, BlockElementFace.UVs uv)
     {
         return data ->
         {
