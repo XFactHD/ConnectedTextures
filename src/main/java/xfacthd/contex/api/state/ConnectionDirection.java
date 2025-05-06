@@ -57,6 +57,22 @@ public enum ConnectionDirection
         return OPPOSITES[this.ordinal() * DIR_COUNT + face.ordinal()];
     }
 
+    /**
+     * Check whether this {@link ConnectionDirection} is set on the given connection state
+     */
+    public boolean isSet(byte connections)
+    {
+        return (connections & (1 << ordinal())) != 0;
+    }
+
+    /**
+     * Set this {@link ConnectionDirection} on the given connection state
+     */
+    public byte set(byte connections)
+    {
+        return (byte) (connections | (byte) (1 << ordinal()));
+    }
+
     public static ConnectionDirection from(Direction side, Direction dir)
     {
         ConnectionDirection conDir = DIRECTIONS[side.ordinal() * DIR_COUNT + dir.ordinal()];

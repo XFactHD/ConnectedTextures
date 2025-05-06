@@ -78,9 +78,9 @@ public abstract class DefaultTextureType extends TextureType
             ResourceLocation ctTex
     )
     {
-        boolean xCon = isSet(state, xDir);
-        boolean yCon = isSet(state, yDir);
-        boolean diagCon = isSet(state, ConnectionDirection.diagonal(xDir, yDir));
+        boolean xCon = xDir.isSet(state);
+        boolean yCon = yDir.isSet(state);
+        boolean diagCon = ConnectionDirection.diagonal(xDir, yDir).isSet(state);
 
         boolean right = xDir == ConnectionDirection.RIGHT;
         boolean up = yDir == ConnectionDirection.UP;

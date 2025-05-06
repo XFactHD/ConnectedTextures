@@ -61,11 +61,11 @@ public sealed class PillarTextureType extends DefaultTextureType permits Rotatin
         byte connections = 0;
         if (predicate.test(level, pos, posOne, state, side, side) && isConnectionVisible(level, posOne, side, predicate, occlusionMode))
         {
-            connections = set(connections, conDirOne);
+            connections = conDirOne.set(connections);
         }
         if (predicate.test(level, pos, posTwo, state, side, side) && isConnectionVisible(level, posTwo, side, predicate, occlusionMode))
         {
-            connections = set(connections, conDirTwo);
+            connections = conDirTwo.set(connections);
         }
         return connections;
     }

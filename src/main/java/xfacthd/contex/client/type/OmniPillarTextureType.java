@@ -24,7 +24,7 @@ public final class OmniPillarTextureType extends SimpleTextureType
         for (Direction side : DIR_AXIS_Y)
         {
             byte state = stateMap[side.ordinal()];
-            if (isSet(state, ConnectionDirection.UP) || isSet(state, ConnectionDirection.DOWN))
+            if (ConnectionDirection.UP.isSet(state) || ConnectionDirection.DOWN.isSet(state))
             {
                 cleanConnections(stateMap, DIR_AXIS_Y, Direction.UP, Direction.DOWN, CONDIR_AXIS_Y);
                 return;
@@ -33,7 +33,7 @@ public final class OmniPillarTextureType extends SimpleTextureType
         for (Direction side : DIR_AXIS_X)
         {
             byte state = stateMap[side.ordinal()];
-            if (isSet(state, ConnectionDirection.LEFT) || isSet(state, ConnectionDirection.RIGHT))
+            if (ConnectionDirection.LEFT.isSet(state) || ConnectionDirection.RIGHT.isSet(state))
             {
                 cleanConnections(stateMap, DIR_AXIS_X, Direction.EAST, Direction.WEST, CONDIR_AXIS_X);
                 return;

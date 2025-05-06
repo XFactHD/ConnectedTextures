@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import xfacthd.contex.api.state.ConnectionDirection;
 import xfacthd.contex.api.utils.Constants;
 
 import java.util.EnumSet;
@@ -98,21 +97,5 @@ public abstract class TextureType
             }
         }
         return true;
-    }
-
-    /**
-     * Check whether the given {@link ConnectionDirection} is set on the given connection state
-     */
-    protected static boolean isSet(byte connections, ConnectionDirection dir)
-    {
-        return (connections & (1 << dir.ordinal())) != 0;
-    }
-
-    /**
-     * Set the given {@link ConnectionDirection} on the given connection state
-     */
-    protected static byte set(byte connections, ConnectionDirection dir)
-    {
-        return (byte) (connections | (byte) (1 << dir.ordinal()));
     }
 }

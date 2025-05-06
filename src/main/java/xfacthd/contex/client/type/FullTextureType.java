@@ -40,7 +40,7 @@ public sealed class FullTextureType extends DefaultTextureType permits SimpleTex
 
             if (isConnectionVisible(level, otherPos, side, predicate, occlusionMode))
             {
-                connections = set(connections, dir);
+                connections = dir.set(connections);
             }
         }
         return connections;

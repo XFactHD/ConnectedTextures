@@ -39,7 +39,7 @@ public sealed class SimpleTextureType extends FullTextureType permits OmniPillar
 
             if (isConnectionVisible(level, otherPos, side, predicate, occlusionMode))
             {
-                connections = set(connections, dir);
+                connections = dir.set(connections);
             }
         }
 
@@ -52,21 +52,21 @@ public sealed class SimpleTextureType extends FullTextureType permits OmniPillar
         for (Direction side : Constants.DIRECTIONS)
         {
             byte connections = stateMap[side.ordinal()];
-            if (isSet(connections, ConnectionDirection.UP) && isSet(connections, ConnectionDirection.LEFT))
+            if (ConnectionDirection.UP.isSet(connections) && ConnectionDirection.LEFT.isSet(connections))
             {
-                connections = set(connections, ConnectionDirection.UP_LEFT);
+                connections = ConnectionDirection.UP_LEFT.set(connections);
             }
-            if (isSet(connections, ConnectionDirection.DOWN) && isSet(connections, ConnectionDirection.LEFT))
+            if (ConnectionDirection.DOWN.isSet(connections) && ConnectionDirection.LEFT.isSet(connections))
             {
-                connections = set(connections, ConnectionDirection.DOWN_LEFT);
+                connections = ConnectionDirection.DOWN_LEFT.set(connections);
             }
-            if (isSet(connections, ConnectionDirection.UP) && isSet(connections, ConnectionDirection.RIGHT))
+            if (ConnectionDirection.UP.isSet(connections) && ConnectionDirection.RIGHT.isSet(connections))
             {
-                connections = set(connections, ConnectionDirection.UP_RIGHT);
+                connections = ConnectionDirection.UP_RIGHT.set(connections);
             }
-            if (isSet(connections, ConnectionDirection.DOWN) && isSet(connections, ConnectionDirection.RIGHT))
+            if (ConnectionDirection.DOWN.isSet(connections) && ConnectionDirection.RIGHT.isSet(connections))
             {
-                connections = set(connections, ConnectionDirection.DOWN_RIGHT);
+                connections = ConnectionDirection.DOWN_RIGHT.set(connections);
             }
             stateMap[side.ordinal()] = connections;
         }
