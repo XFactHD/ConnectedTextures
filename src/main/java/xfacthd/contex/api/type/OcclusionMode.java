@@ -31,6 +31,7 @@ public enum OcclusionMode implements StringRepresentable
     SOLID_OR_SELF(true, true);
 
     public static final Codec<OcclusionMode> CODEC = StringRepresentable.fromEnum(OcclusionMode::values);
+    private static final OcclusionMode[] MODES = values();
 
     private final String name = toString().toLowerCase(Locale.ROOT);
     private final boolean occludedBySelf;
@@ -50,6 +51,11 @@ public enum OcclusionMode implements StringRepresentable
     public boolean isOccludedBySolid()
     {
         return occludedBySolid;
+    }
+
+    public OcclusionMode except(OcclusionMode excluded)
+    {
+        return MODES[ordinal() & ~excluded.ordinal()];
     }
 
     @Override

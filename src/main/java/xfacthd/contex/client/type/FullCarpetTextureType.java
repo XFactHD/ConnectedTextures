@@ -39,7 +39,7 @@ public final class FullCarpetTextureType extends FullTextureType
     {
         if (side.getAxis() == axis)
         {
-            OcclusionMode realOcclusionMode = side == dir ? occlusionMode : OcclusionMode.NONE;
+            OcclusionMode realOcclusionMode = side == dir ? occlusionMode.except(OcclusionMode.SELF) : OcclusionMode.NONE;
             return super.getConnectionState(level, pos, state, side, predicate, realOcclusionMode);
         }
         return 0;
