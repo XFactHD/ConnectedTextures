@@ -1,0 +1,56 @@
+{
+  "sources": [
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 2,
+        "left": 2,
+        "right": 2,
+        "top": 2
+      },
+      "texture": "minecraft:block/polished_diorite"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 2,
+        "left": 2,
+        "right": 2,
+        "top": 2
+      },
+      "texture": "minecraft:block/polished_granite"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 2,
+        "left": 2,
+        "right": 2,
+        "top": 2
+      },
+      "texture": "minecraft:block/stone"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 2,
+        "left": 2,
+        "mirror_parallel": true,
+        "mirror_perpendicular": true,
+        "right": 2,
+        "top": 2
+      },
+      "texture": "minecraft:block/sea_lantern"
+    }
+  ]
+}

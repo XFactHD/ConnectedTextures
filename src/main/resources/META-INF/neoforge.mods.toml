@@ -25,3 +25,10 @@ issueTrackerURL="https://github.com/XFactHD/ConnectedTextures"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.framedblocks]]
+    modId="atlasviewer"
+    type="optional"
+    versionRange="[${atlasviewer_version},)"
+    ordering="NONE"
+    side="CLIENT"

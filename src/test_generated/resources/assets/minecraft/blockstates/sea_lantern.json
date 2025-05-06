@@ -1,0 +1,18 @@
+{
+  "neoforge:definition_type": "contex:definition",
+  "contex_meta": [
+    {
+      "type": "contex:full",
+      "textures": [
+        {
+          "main_texture": "minecraft:block/sea_lantern"
+        }
+      ]
+    }
+  ],
+  "variants": {
+    "": {
+      "model": "minecraft:block/sea_lantern"
+    }
+  }
+}

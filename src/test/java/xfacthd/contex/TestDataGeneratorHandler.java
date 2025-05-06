@@ -15,6 +15,7 @@ import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.data.SpriteSourceProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import xfacthd.contex.api.datagen.ConTexBlockModelDefinitionGenerator;
 import xfacthd.contex.api.datagen.MetaEntryBuilder;
@@ -33,12 +35,16 @@ import xfacthd.contex.api.type.OcclusionMode;
 import xfacthd.contex.api.utils.Constants;
 import xfacthd.contex.client.predicate.SameBlockPredicate;
 import xfacthd.contex.client.predicate.SameStatePredicate;
+import xfacthd.contex.api.texture.Border;
+import xfacthd.contex.api.texture.ConTexSpriteSource;
 import xfacthd.contex.client.type.FullCarpetTextureType;
 import xfacthd.contex.client.type.FullTextureType;
 import xfacthd.contex.client.type.OmniPillarTextureType;
 import xfacthd.contex.client.type.PillarTextureType;
 import xfacthd.contex.client.type.RotatingPillarTextureType;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -52,8 +58,10 @@ public final class TestDataGeneratorHandler
     {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         generator.addProvider(true, new TestBlockModelProvider(output));
+        generator.addProvider(true, new TestSpriteSourceProvider(output, lookupProvider));
     }
 
 
@@ -71,6 +79,7 @@ public final class TestDataGeneratorHandler
         private final ResourceLocation TEX_DIORITE = mcLocation("block/polished_diorite");
         private final ResourceLocation TEX_GRANITE = mcLocation("block/polished_granite");
         private final ResourceLocation TEX_REDSTONE = mcLocation("block/redstone_block");
+        private final ResourceLocation TEX_SEA_LANTERN = mcLocation("block/sea_lantern");
         private final ResourceLocation TEX_OAK_LOG = mcLocation("block/oak_log");
         private final ResourceLocation TEX_STONE = mcLocation("block/stone");
 
@@ -89,6 +98,7 @@ public final class TestDataGeneratorHandler
             variant(blockModels, Blocks.POLISHED_DIORITE,             builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DIORITE));
             variant(blockModels, Blocks.POLISHED_GRANITE,             builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
             variant(blockModels, Blocks.REDSTONE_BLOCK,               builder -> builder.type(OmniPillarTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_REDSTONE));
+            variant(blockModels, Blocks.SEA_LANTERN,                  builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_SEA_LANTERN));
 
             TextureMapping mapping = new TextureMapping()
                     .put(SLOT_REDSTONE, TEX_REDSTONE)
@@ -154,6 +164,45 @@ public final class TestDataGeneratorHandler
         protected Stream<? extends Holder<Item>> getKnownItems()
         {
             return Stream.empty();
+        }
+    }
+
+    private static final class TestSpriteSourceProvider extends SpriteSourceProvider
+    {
+        public TestSpriteSourceProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider)
+        {
+            super(output, lookupProvider, Constants.MOD_ID);
+        }
+
+        @Override
+        protected void gather()
+        {
+            atlas(BLOCKS_ATLAS)
+                    .addSource(new ConTexSpriteSource(
+                            ResourceLocation.withDefaultNamespace("block/glass"),
+                            new Border(1),
+                            Optional.empty()
+                    ))
+                    .addSource(new ConTexSpriteSource(
+                            ResourceLocation.withDefaultNamespace("block/polished_diorite"),
+                            new Border(2),
+                            Optional.empty()
+                    ))
+                    .addSource(new ConTexSpriteSource(
+                            ResourceLocation.withDefaultNamespace("block/polished_granite"),
+                            new Border(2),
+                            Optional.empty()
+                    ))
+                    .addSource(new ConTexSpriteSource(
+                            ResourceLocation.withDefaultNamespace("block/stone"),
+                            new Border(2),
+                            Optional.empty()
+                    ))
+                    .addSource(new ConTexSpriteSource(
+                            ResourceLocation.withDefaultNamespace("block/sea_lantern"),
+                            new Border(2, true, true),
+                            Optional.empty()
+                    ));
         }
     }
 }

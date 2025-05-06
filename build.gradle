@@ -73,7 +73,18 @@ sourceSets {
     }
 }
 
+repositories {
+    maven {
+        name = 'CurseMaven'
+        url = 'https://www.cursemaven.com'
+        content {
+            includeGroup('curse.maven')
+        }
+    }
+}
+
 dependencies {
+    implementation("curse.maven:atlasviewer-633577:${atlasviewer_coord}")
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -82,7 +93,8 @@ tasks.withType(ProcessResources).configureEach {
             minecraft_version_range: minecraft_version_range,
             neoforge_version: neoforge_version,
             neoforge_version_range: neoforge_version_range,
-            mod_version: mod_version
+            mod_version: mod_version,
+            atlasviewer_version: atlasviewer_version
     ]
     inputs.properties replaceProperties
 
