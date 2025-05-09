@@ -1,6 +1,6 @@
 package xfacthd.contex.client.model;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
@@ -147,7 +147,7 @@ public final class ConTexModel extends DelegateBlockStateModel
         for (BlockModelPart part : delegate.collectParts(level, pos, state, random))
         {
             QuadCollection.Builder preNonCtQuads = new QuadCollection.Builder();
-            Map<MetaPair, QuadCollection.Builder> ctQuads = new Object2ObjectOpenHashMap<>();
+            Map<MetaPair, QuadCollection.Builder> ctQuads = new Object2ObjectLinkedOpenHashMap<>();
             QuadCollection.Builder postNonCtQuads = new QuadCollection.Builder();
             int ctQuadsFound = 0;
 
