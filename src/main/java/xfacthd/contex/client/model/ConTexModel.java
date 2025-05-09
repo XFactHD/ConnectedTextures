@@ -47,19 +47,19 @@ public final class ConTexModel extends DelegateBlockStateModel
     @Override
     public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockModelPart> parts)
     {
-        Object key = delegate.createGeometryKey(level, pos, state, random);
-        List<ConnectedBlockModelPart> decomposedParts = decomposedPartsPerKey.get(key);
-        if (decomposedParts == null)
-        {
-            random.setSeed(state.getSeed(pos));
-            decomposedParts = decomposeBaseModel(level, pos, random);
-            decomposedPartsPerKey.put(key, decomposedParts);
-        }
-
-        ConnectionStateContainer ctStates = computeConnectionState(key, level, pos, state);
+        Object delegateGeometryKey = delegate.createGeometryKey(level, pos, state, random);
+        ConnectionStateContainer ctStates = computeConnectionState(delegateGeometryKey, level, pos, state);
         List<BlockModelPart> ctParts = ctPartCache.get(ctStates);
         if (ctParts == null)
         {
+            List<ConnectedBlockModelPart> decomposedParts = decomposedPartsPerKey.get(delegateGeometryKey);
+            if (decomposedParts == null)
+            {
+                random.setSeed(state.getSeed(pos));
+                decomposedParts = decomposeBaseModel(level, pos, random);
+                decomposedPartsPerKey.put(delegateGeometryKey, decomposedParts);
+            }
+
             ctParts = generateConnectionQuads(ctStates, decomposedParts);
             ctPartCache.put(ctStates, ctParts);
         }
@@ -107,13 +107,18 @@ public final class ConTexModel extends DelegateBlockStateModel
     @Override
     public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random)
     {
-        Object key = delegate.createGeometryKey(level, pos, state, random);
-        return computeConnectionState(key, level, pos, state);
+        Object delegateGeometryKey = delegate.createGeometryKey(level, pos, state, random);
+        return computeConnectionState(delegateGeometryKey, level, pos, state);
     }
 
-    private ConnectionStateContainer computeConnectionState(@Nullable Object key, BlockAndTintGetter level, BlockPos pos, BlockState state)
+    private ConnectionStateContainer computeConnectionState(
+            @Nullable Object delegateGeometryKey,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            BlockState state
+    )
     {
-        ConnectionStateContainer ctState = new ConnectionStateContainer(this, metadata.length, key);
+        ConnectionStateContainer ctState = new ConnectionStateContainer(this, metadata.length, delegateGeometryKey);
         byte[] stateMap = new byte[6];
         for (int i = 0; i < metadata.length; i++)
         {

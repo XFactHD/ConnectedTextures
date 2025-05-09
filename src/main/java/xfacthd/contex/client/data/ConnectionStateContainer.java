@@ -14,11 +14,11 @@ public final class ConnectionStateContainer
     @Nullable
     private final Object delegateGeometryKey;
 
-    public ConnectionStateContainer(ConTexModel owningModel, int metaCount, @Nullable Object key)
+    public ConnectionStateContainer(ConTexModel owningModel, int metaCount, @Nullable Object delegateGeometryKey)
     {
         this.owningModel = owningModel;
         this.states = new long[metaCount];
-        this.delegateGeometryKey = key;
+        this.delegateGeometryKey = delegateGeometryKey;
     }
 
     public byte get(Direction side, int metaIdx)
