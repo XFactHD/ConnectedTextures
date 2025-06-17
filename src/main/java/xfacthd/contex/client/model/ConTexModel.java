@@ -99,7 +99,7 @@ public final class ConTexModel extends DelegateBlockStateModel
                 List<BakedQuad> quads = meta.type().makeConnectionQuads(quad, side, states, ctTexture);
                 Utils.addQuads(quadsBuilder, null, quads);
             }
-            outParts.add(new SimpleModelWrapper(quadsBuilder.build(), part.useAmbientOcclusion(), part.particleIcon(), part.renderType()));
+            outParts.add(new SimpleModelWrapper(quadsBuilder.build(), part.useAmbientOcclusion(), part.particleIcon(), part.chunkLayer()));
         }
         return outParts;
     }

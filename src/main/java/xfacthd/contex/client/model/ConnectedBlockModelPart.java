@@ -1,8 +1,8 @@
 package xfacthd.contex.client.model;
 
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockModelPart;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.Direction;
@@ -15,7 +15,7 @@ record ConnectedBlockModelPart(
         QuadCollection quads,
         boolean useAmbientOcclusion,
         TextureAtlasSprite particleIcon,
-        RenderType renderType,
+        ChunkSectionLayer chunkLayer,
         int metaIdx,
         int texIdx
 ) implements BlockModelPart
@@ -27,9 +27,9 @@ record ConnectedBlockModelPart(
     }
 
     @Override
-    public RenderType getRenderType(BlockState state)
+    public ChunkSectionLayer getRenderType(BlockState state)
     {
-        return renderType;
+        return chunkLayer;
     }
 
     public static ConnectedBlockModelPart of(BlockModelPart srcPart, BlockState state, QuadCollection quads, int metaIdx, int texIdx)
@@ -37,7 +37,7 @@ record ConnectedBlockModelPart(
         //noinspection deprecation
         boolean ao = srcPart.useAmbientOcclusion();
         TextureAtlasSprite particleIcon = srcPart.particleIcon();
-        RenderType renderType = srcPart.getRenderType(state);
-        return new ConnectedBlockModelPart(quads, ao, particleIcon, renderType, metaIdx, texIdx);
+        ChunkSectionLayer chunkLayer = srcPart.getRenderType(state);
+        return new ConnectedBlockModelPart(quads, ao, particleIcon, chunkLayer, metaIdx, texIdx);
     }
 }
