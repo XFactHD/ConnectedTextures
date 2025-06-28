@@ -51,6 +51,18 @@
         "top": 2
       },
       "texture": "minecraft:block/sea_lantern"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 2,
+        "copy_from_opposite_edge": true,
+        "left": 2,
+        "right": 2,
+        "synthesize_inner_corners": true,
+        "top": 2
+      },
+      "texture": "minecraft:block/red_wool"
     }
   ]
 }

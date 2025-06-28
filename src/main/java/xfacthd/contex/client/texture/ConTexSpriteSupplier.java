@@ -12,6 +12,7 @@ import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceMetadata;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -150,7 +151,9 @@ public record ConTexSpriteSupplier(
             int vertWidth,
             int horHeight,
             boolean mirrorPar,
-            boolean mirrorPerp
+            boolean mirrorPerp,
+            boolean oppositeEdge,
+            boolean synthCorners
     )
     {
         static OutputFrame of(NativeImage srcImage, NativeImage destImage, Border border, FrameInfo frame, FrameSize srcSize, FrameSize destSize)
@@ -169,54 +172,83 @@ public record ConTexSpriteSupplier(
             int horHeight = srcHeight - bottom - top;
             boolean mirrorPar = border.mirrorParallel();
             boolean mirrorPerp = border.mirrorPerpendicular();
-            return new OutputFrame(srcImage, destImage, srcWidth, srcHeight, srcX, srcY, destX, destY, left, right, bottom, top, vertWidth, horHeight, mirrorPar, mirrorPerp);
+            boolean oppositeEdge = border.copyFromOppositeEdge();
+            boolean synthCorners = border.synthesizeInnerCorners();
+            return new OutputFrame(srcImage, destImage, srcWidth, srcHeight, srcX, srcY, destX, destY, left, right, bottom, top, vertWidth, horHeight, mirrorPar, mirrorPerp, oppositeEdge, synthCorners);
         }
 
         void build()
         {
+            int srcXLeft = oppositeEdge ? (srcWidth - (right * 2)) : left;
+            int srcXRight = oppositeEdge ? left : (srcWidth - (right * 2));
+            int srcYTop = oppositeEdge ? (srcHeight - (bottom * 2)) : top;
+            int srcYBottom = oppositeEdge ? top : (srcHeight - (bottom * 2));
+
+            int offXLeft = oppositeEdge ? -(srcWidth - (right * 2)) : -left;
+            int offXRight = oppositeEdge ? (srcWidth - (right * 2)) : right;
+            int offYTop = oppositeEdge ? -(srcHeight - (bottom * 2)) : -top;
+            int offYBottom = oppositeEdge ? (srcHeight - (bottom * 2)) : bottom;
+
             // Fully connected (top left)
             srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
             // Top edge
-            copyRect(0, 0, left, top, 0, -top, vertWidth, top, mirrorPerp, mirrorPar);
+            copyRect(0, 0, left, srcYTop, 0, offYTop, vertWidth, top, mirrorPerp, mirrorPar);
             // Bottom edge
-            copyRect(0, 0, left, srcHeight - (bottom * 2), 0, bottom, vertWidth, bottom, mirrorPerp, mirrorPar);
+            copyRect(0, 0, left, srcYBottom, 0, offYBottom, vertWidth, bottom, mirrorPerp, mirrorPar);
             // Left edge
-            copyRect(0, 0, left, top, -left, 0, left, horHeight, mirrorPar, mirrorPerp);
+            copyRect(0, 0, srcXLeft, top, offXLeft, 0, left, horHeight, mirrorPar, mirrorPerp);
             // Right edge
-            copyRect(0, 0, srcWidth - (right * 2), top, right, 0, right, horHeight, mirrorPar, mirrorPerp);
+            copyRect(0, 0, srcXRight, top, offXRight, 0, right, horHeight, mirrorPar, mirrorPerp);
             // Top-left corner
-            copyRect(0, 0, left, top, -left, -top, left, top, mirrorPar, mirrorPar);
+            copyRect(0, 0, srcXLeft, srcYTop, offXLeft, offYTop, left, top, mirrorPar, mirrorPar);
             // Top-right corner
-            copyRect(0, 0, srcWidth - (right * 2), top, right, -top, right, top, mirrorPar, mirrorPar);
+            copyRect(0, 0, srcXRight, srcYTop, offXRight, offYTop, right, top, mirrorPar, mirrorPar);
             // Bottom-left corner
-            copyRect(0, 0, left, srcHeight - (bottom * 2), -left, bottom, left, bottom, mirrorPar, mirrorPar);
+            copyRect(0, 0, srcXLeft, srcYBottom, offXLeft, offYBottom, left, bottom, mirrorPar, mirrorPar);
             // Bottom-right corner
-            copyRect(0, 0, srcWidth - (right * 2), srcHeight - (bottom * 2), right, bottom, right, bottom, mirrorPar, mirrorPar);
+            copyRect(0, 0, srcXRight, srcYBottom, offXRight, offYBottom, right, bottom, mirrorPar, mirrorPar);
+
+            int srcVertX = synthCorners ? 0 : left;
+            int srcVertWidth = synthCorners ? srcWidth : vertWidth;
 
             // Vertically connected (top right)
             srcImage.copyRect(destImage, srcX, srcY, destX + srcWidth, destY, srcWidth, srcHeight, false, false);
             // Top edge
-            copyRect(1, 0, left, top, 0, -top, vertWidth, top, mirrorPerp, mirrorPar);
+            copyRect(1, 0, srcVertX, srcYTop, 0, offYTop, srcVertWidth, top, mirrorPerp, mirrorPar);
             // Bottom edge
-            copyRect(1, 0, left, srcHeight - (bottom * 2), 0, bottom, vertWidth, bottom, mirrorPerp, mirrorPar);
+            copyRect(1, 0, srcVertX, srcYBottom, 0, offYBottom, srcVertWidth, bottom, mirrorPerp, mirrorPar);
+
+            int srcHorY = synthCorners ? 0 : top;
+            int srcHorHeight = synthCorners ? srcHeight : horHeight;
 
             // Horizontally connected (bottom left)
             srcImage.copyRect(destImage, srcX, srcY, destX, destY + srcHeight, srcWidth, srcHeight, false, false);
             // Left edge
-            copyRect(0, 1, left, top, -left, 0, left, horHeight, mirrorPar, mirrorPerp);
+            copyRect(0, 1, srcXLeft, srcHorY, offXLeft, 0, left, srcHorHeight, mirrorPar, mirrorPerp);
             // Right edge
-            copyRect(0, 1, srcWidth - (right * 2), top, right, 0, right, horHeight, mirrorPar, mirrorPerp);
+            copyRect(0, 1, srcXRight, srcHorY, offXRight, 0, right, srcHorHeight, mirrorPar, mirrorPerp);
 
             // Horizontally and vertically connected (bottom right)
             srcImage.copyRect(destImage, srcX, srcY, destX + srcWidth, destY + srcHeight, srcWidth, srcHeight, false, false);
             // Top edge
-            copyRect(1, 1, left, top, 0, -top, vertWidth, top, mirrorPerp, mirrorPar);
+            copyRect(1, 1, left, srcYTop, 0, offYTop, vertWidth, top, mirrorPerp, mirrorPar);
             // Bottom edge
-            copyRect(1, 1, left, srcHeight - (bottom * 2), 0, bottom, vertWidth, bottom, mirrorPerp, mirrorPar);
+            copyRect(1, 1, left, srcYBottom, 0, offYBottom, vertWidth, bottom, mirrorPerp, mirrorPar);
             // Left edge
-            copyRect(1, 1, left, top, -left, 0, left, horHeight, mirrorPar, mirrorPerp);
+            copyRect(1, 1, srcXLeft, top, offXLeft, 0, left, horHeight, mirrorPar, mirrorPerp);
             // Right edge
-            copyRect(1, 1, srcWidth - (right * 2), top, right, 0, right, horHeight, mirrorPar, mirrorPerp);
+            copyRect(1, 1, srcXRight, top, offXRight, 0, right, horHeight, mirrorPar, mirrorPerp);
+            if (synthCorners)
+            {
+                // Top-left corner
+                buildInnerCorner(0, srcYTop, srcXRight, 0, 0, 0, left, top, false, false);
+                // Top-right corner
+                buildInnerCorner(srcWidth - right, srcYTop, srcXLeft, 0, srcWidth - right, 0, right, top, true, false);
+                // Bottom-left corner
+                buildInnerCorner(0, srcYBottom, srcXRight, srcHeight - bottom, 0, srcHeight - bottom, left, bottom, false, true);
+                // Bottom-right corner
+                buildInnerCorner(srcWidth - right, srcYBottom, srcXLeft, srcHeight - bottom, srcWidth - right, srcHeight - bottom, right, bottom, true, true);
+            }
         }
 
         void copyRect(int quadrantX, int quadrantY, int srcX, int srcY, int offX, int offY, int width, int height, boolean mirrorX, boolean mirrorY)
@@ -224,6 +256,38 @@ public record ConTexSpriteSupplier(
             int destX = this.destX + (quadrantX * srcWidth) + srcX + offX;
             int destY = this.destY + (quadrantY * srcHeight) + srcY + offY;
             srcImage.copyRect(destImage, this.srcX + srcX, this.srcY + srcY, destX, destY, width, height, mirrorX, mirrorY);
+        }
+
+        void buildInnerCorner(int srcXVert, int srcYVert, int srcXHor, int srcYHor, int destX, int destY, int width, int height, boolean invX, boolean invY)
+        {
+            destX += srcWidth;
+            destY += srcHeight;
+
+            for (int y = 0; y < height; y++)
+            {
+                int checkY = invY ? (width - y - 1) : y;
+                for (int x = 0; x < width; x++)
+                {
+                    int checkX = invX ? (width - x - 1) : x;
+                    if (checkX == checkY)
+                    {
+                        int colVert = srcImage.getPixel(srcXVert + x, srcYVert + y);
+                        int colHor = srcImage.getPixel(srcXHor + x, srcYHor + y);
+                        int colOut = ARGB.average(colVert, colHor);
+                        destImage.setPixel(destX + x, destY + y, colOut);
+                    }
+                    else if (checkX > checkY)
+                    {
+                        int colOut = srcImage.getPixel(srcXVert + x, srcYVert + y);
+                        destImage.setPixel(destX + x, destY + y, colOut);
+                    }
+                    else
+                    {
+                        int colOut = srcImage.getPixel(srcXHor + x, srcYHor + y);
+                        destImage.setPixel(destX + x, destY + y, colOut);
+                    }
+                }
+            }
         }
     }
 

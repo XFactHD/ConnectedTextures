@@ -5,7 +5,7 @@
       "type": "contex:carpet_full",
       "textures": [
         {
-          "main_texture": "minecraft:block/polished_granite"
+          "main_texture": "minecraft:block/red_wool"
         }
       ]
     }

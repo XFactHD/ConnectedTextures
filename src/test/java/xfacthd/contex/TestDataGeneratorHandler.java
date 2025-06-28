@@ -82,6 +82,7 @@ public final class TestDataGeneratorHandler
         private final ResourceLocation TEX_GRANITE = mcLocation("block/polished_granite");
         private final ResourceLocation TEX_REDSTONE = mcLocation("block/redstone_block");
         private final ResourceLocation TEX_SEA_LANTERN = mcLocation("block/sea_lantern");
+        private final ResourceLocation TEX_RED_WOOL = mcLocation("block/red_wool");
         private final ResourceLocation TEX_OAK_LOG = mcLocation("block/oak_log");
         private final ResourceLocation TEX_STONE = mcLocation("block/stone");
 
@@ -128,8 +129,8 @@ public final class TestDataGeneratorHandler
             slabGenerator.metadata(builder -> builder.type(FullTextureType.INSTANCE).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_DIORITE));
             blockModels.blockStateOutput.accept(slabGenerator);
 
-            TexturedModel.CARPET.get(Blocks.POLISHED_GRANITE).create(Blocks.RED_CARPET, blockModels.modelOutput);
-            variant(blockModels, Blocks.RED_CARPET, builder -> builder.type(FullCarpetTextureType.TYPES[Direction.DOWN.ordinal()]).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
+            TexturedModel.CARPET.get(Blocks.RED_WOOL).create(Blocks.RED_CARPET, blockModels.modelOutput);
+            variant(blockModels, Blocks.RED_CARPET, builder -> builder.type(FullCarpetTextureType.TYPES[Direction.DOWN.ordinal()]).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_RED_WOOL));
 
             ConTexBlockModelDefinitionGenerator logGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.OAK_LOG);
             MultiVariant logVariant = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(Blocks.OAK_LOG));
@@ -202,7 +203,12 @@ public final class TestDataGeneratorHandler
                     ))
                     .addSource(new ConTexSpriteSource(
                             ResourceLocation.withDefaultNamespace("block/sea_lantern"),
-                            new Border(2, true, true),
+                            new Border(2, true, true, false, false),
+                            Optional.empty()
+                    ))
+                    .addSource(new ConTexSpriteSource(
+                            ResourceLocation.withDefaultNamespace("block/red_wool"),
+                            new Border(2, false, false, true, true),
                             Optional.empty()
                     ));
         }

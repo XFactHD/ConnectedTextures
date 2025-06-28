@@ -32,6 +32,9 @@ public final class ConTexCommand
     private static final DynamicCommandExceptionType EX_NO_SUCH_TEXTURE = new DynamicCommandExceptionType(
             tex -> Component.translatable("msg.contex.gen_ctm_tex.no_such_texture", tex)
     );
+    private static final SimpleCommandExceptionType EX_INVALID_CORNER_SYNTH = new SimpleCommandExceptionType(
+            Component.translatable("msg.contex.gen_ctm_tex.invalid_corner_synth")
+    );
     private static final SimpleCommandExceptionType EX_GEN_FAILED = new SimpleCommandExceptionType(
             Component.translatable("msg.contex.gen_ctm_tex.gen_failed")
     );
@@ -50,7 +53,11 @@ public final class ConTexCommand
                                                 .executes(ConTexCommand::generateTextureSimpleBorder)
                                                 .then(Commands.argument("mirror_parallel", BoolArgumentType.bool())
                                                         .then(Commands.argument("mirror_perpendicular", BoolArgumentType.bool())
-                                                                .executes(ConTexCommand::generateTextureSimpleBorderMirror)
+                                                                .then(Commands.argument("copy_from_opposite_edge", BoolArgumentType.bool())
+                                                                        .then(Commands.argument("synthesize_inner_corners", BoolArgumentType.bool())
+                                                                                .executes(ConTexCommand::generateTextureSimpleBorderMirror)
+                                                                        )
+                                                                )
                                                         )
                                                 )
                                         )
@@ -61,7 +68,11 @@ public final class ConTexCommand
                                                                         .executes(ConTexCommand::generateTextureFullBorder)
                                                                         .then(Commands.argument("mirror_parallel", BoolArgumentType.bool())
                                                                                 .then(Commands.argument("mirror_perpendicular", BoolArgumentType.bool())
-                                                                                        .executes(ConTexCommand::generateTextureFullBorderMirror)
+                                                                                        .then(Commands.argument("copy_from_opposite_edge", BoolArgumentType.bool())
+                                                                                                .then(Commands.argument("synthesize_inner_corners", BoolArgumentType.bool())
+                                                                                                        .executes(ConTexCommand::generateTextureFullBorderMirror)
+                                                                                                )
+                                                                                        )
                                                                                 )
                                                                         )
                                                                 )
@@ -78,7 +89,7 @@ public final class ConTexCommand
         CommandSourceStack source = ctx.getSource();
         ResourceLocation texture = ResourceLocationArgument.getId(ctx, "src_texture");
         int border = IntegerArgumentType.getInteger(ctx, "border");
-        return generateTexture(source, texture, border, border, border, border, false, false);
+        return generateTexture(source, texture, border, border, border, border, false, false, false, false);
     }
 
     private static int generateTextureSimpleBorderMirror(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
@@ -88,7 +99,9 @@ public final class ConTexCommand
         int border = IntegerArgumentType.getInteger(ctx, "border");
         boolean mirrorParallel = BoolArgumentType.getBool(ctx, "mirror_parallel");
         boolean mirrorPerpendicular = BoolArgumentType.getBool(ctx, "mirror_perpendicular");
-        return generateTexture(source, texture, border, border, border, border, mirrorParallel, mirrorPerpendicular);
+        boolean copyFromOppositeEdge = BoolArgumentType.getBool(ctx, "copy_from_opposite_edge");
+        boolean synthesizeInnerCorners = BoolArgumentType.getBool(ctx, "synthesize_inner_corners");
+        return generateTexture(source, texture, border, border, border, border, mirrorParallel, mirrorPerpendicular, copyFromOppositeEdge, synthesizeInnerCorners);
     }
 
     private static int generateTextureFullBorder(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
@@ -99,7 +112,7 @@ public final class ConTexCommand
         int borderRight = IntegerArgumentType.getInteger(ctx, "border_right");
         int borderTop = IntegerArgumentType.getInteger(ctx, "border_top");
         int borderBottom = IntegerArgumentType.getInteger(ctx, "border_bottom");
-        return generateTexture(source, texture, borderLeft, borderRight, borderTop, borderBottom, false, false);
+        return generateTexture(source, texture, borderLeft, borderRight, borderTop, borderBottom, false, false, false, false);
     }
 
     private static int generateTextureFullBorderMirror(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
@@ -112,7 +125,9 @@ public final class ConTexCommand
         int borderBottom = IntegerArgumentType.getInteger(ctx, "border_bottom");
         boolean mirrorParallel = BoolArgumentType.getBool(ctx, "mirror_parallel");
         boolean mirrorPerpendicular = BoolArgumentType.getBool(ctx, "mirror_perpendicular");
-        return generateTexture(source, texture, borderLeft, borderRight, borderTop, borderBottom, mirrorParallel, mirrorPerpendicular);
+        boolean copyFromOppositeEdge = BoolArgumentType.getBool(ctx, "copy_from_opposite_edge");
+        boolean synthesizeInnerCorners = BoolArgumentType.getBool(ctx, "synthesize_inner_corners");
+        return generateTexture(source, texture, borderLeft, borderRight, borderTop, borderBottom, mirrorParallel, mirrorPerpendicular, copyFromOppositeEdge, synthesizeInnerCorners);
     }
 
     private static int generateTexture(
@@ -123,7 +138,9 @@ public final class ConTexCommand
             int borderTop,
             int borderBottom,
             boolean mirrorParallel,
-            boolean mirrorPerpendicular
+            boolean mirrorPerpendicular,
+            boolean copyFromOppositeEdge,
+            boolean synthesizeInnerCorners
     ) throws CommandSyntaxException
     {
         SpriteContents srcSprite = ModelUtils.getSprite(texture).contents();
@@ -135,7 +152,12 @@ public final class ConTexCommand
         NativeImage srcImage = srcSprite.getOriginalImage();
         ResourceMetadata metadata = srcSprite.metadata();
         ResourceLocation outLoc = texture.withSuffix("_ctm");
-        Border border = new Border(borderLeft, borderTop, borderRight, borderBottom, mirrorParallel, mirrorPerpendicular);
+        Border border = new Border(borderLeft, borderTop, borderRight, borderBottom, mirrorParallel, mirrorPerpendicular, copyFromOppositeEdge, synthesizeInnerCorners);
+
+        if (synthesizeInnerCorners && !border.canSynthesizeCorners())
+        {
+            throw EX_INVALID_CORNER_SYNTH.create();
+        }
 
         SpriteContents ctmSprite = ConTexSpriteSupplier.createTexture(texture, outLoc, srcImage, metadata, border);
         if (ctmSprite == null)
