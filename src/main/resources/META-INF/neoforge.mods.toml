@@ -1,16 +1,14 @@
-modLoader="javafml"
-loaderVersion="[1,)"
 license="LGPL v3"
 issueTrackerURL="https://github.com/XFactHD/ConnectedTextures"
 
 [[mods]]
 	modId="contex"
 	version="${mod_version}"
-	displayName="ConnectedTextures"
-	#displayURL="https://www.curseforge.com/minecraft/mc-mods/connectedtextures"
+	displayName="ConTex"
+	#displayURL="https://www.curseforge.com/minecraft/mc-mods/contex"
 	logoFile="logo.png"
 	authors="XFactHD"
-	description=''''''
+	description='''Yet another connected textures mod'''
 
 [[dependencies.contex]]
     modId="neoforge"

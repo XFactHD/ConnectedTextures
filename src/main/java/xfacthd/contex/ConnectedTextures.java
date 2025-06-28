@@ -16,7 +16,7 @@ public final class ConnectedTextures
     {
         if (FMLEnvironment.dist.isDedicatedServer())
         {
-            LOGGER.warn("ConnectedTextures is a client-only mod, it does nothing on a server and can be safely removed from the server");
+            LOGGER.warn("ConTex is a client-only mod, it does nothing on a server and can be safely removed from the server");
         }
     }
 }
