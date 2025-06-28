@@ -11,9 +11,6 @@ import xfacthd.contex.api.utils.Constants;
 
 public sealed class SimpleTextureType extends FullTextureType permits OmniPillarTextureType, SimpleCarpetTextureType
 {
-    private static final ConnectionDirection[] CARDINAL_DIRECTIONS = new ConnectionDirection[] {
-            ConnectionDirection.UP, ConnectionDirection.RIGHT, ConnectionDirection.DOWN, ConnectionDirection.LEFT
-    };
     public static final SimpleTextureType INSTANCE = new SimpleTextureType();
 
     protected SimpleTextureType() { }
@@ -31,18 +28,8 @@ public sealed class SimpleTextureType extends FullTextureType permits OmniPillar
         byte connections = 0;
         for (ConnectionDirection dir : CARDINAL_DIRECTIONS)
         {
-            BlockPos otherPos = pos.offset(dir.getOffset(side));
-            if (!predicate.test(level, pos, otherPos, state, side, side))
-            {
-                continue;
-            }
-
-            if (isConnectionVisible(level, otherPos, side, predicate, occlusionMode))
-            {
-                connections = dir.set(connections);
-            }
+            connections = testDirection(dir, connections, level, pos, state, side, predicate, occlusionMode);
         }
-
         return connections;
     }
 

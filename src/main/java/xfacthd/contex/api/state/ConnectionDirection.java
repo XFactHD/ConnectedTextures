@@ -73,6 +73,26 @@ public enum ConnectionDirection
         return (byte) (connections | (byte) (1 << ordinal()));
     }
 
+    /**
+     * Check whether both cardinal neighbors of this diagonal {@link ConnectionDirection} are set on the given connection state
+     */
+    public boolean areCardinalNeighborsSet(byte connections)
+    {
+        return switch (this)
+        {
+            case UP_RIGHT -> UP.isSet(connections) && RIGHT.isSet(connections);
+            case DOWN_RIGHT -> DOWN.isSet(connections) && RIGHT.isSet(connections);
+            case DOWN_LEFT -> DOWN.isSet(connections) && LEFT.isSet(connections);
+            case UP_LEFT -> UP.isSet(connections) && LEFT.isSet(connections);
+            default -> throw new IllegalStateException("Cannot check cardinal neighbors of cardinal direction " + this);
+        };
+    }
+
+    public boolean isDiagonal()
+    {
+        return cardinalIdx == -1;
+    }
+
     public static ConnectionDirection from(Direction side, Direction dir)
     {
         ConnectionDirection conDir = DIRECTIONS[side.ordinal() * DIR_COUNT + dir.ordinal()];

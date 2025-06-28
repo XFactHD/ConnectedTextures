@@ -3,8 +3,11 @@ package xfacthd.contex.api.type;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import xfacthd.contex.api.model.ModelUtils;
 import xfacthd.contex.api.model.Modifiers;
@@ -104,5 +107,29 @@ public abstract class DefaultTextureType extends TextureType
                     .apply(Modifiers.remapTexture(tex, uvs))
                     .export();
         }
+    }
+
+    protected static byte testDirection(
+            ConnectionDirection dir,
+            byte connections,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            BlockState state,
+            Direction side,
+            ConnectionPredicate predicate,
+            OcclusionMode occlusionMode
+    )
+    {
+        BlockPos otherPos = pos.offset(dir.getOffset(side));
+        if (!predicate.test(level, pos, otherPos, state, side, side))
+        {
+            return connections;
+        }
+
+        if (isConnectionVisible(level, otherPos, side, predicate, occlusionMode))
+        {
+            return dir.set(connections);
+        }
+        return connections;
     }
 }
