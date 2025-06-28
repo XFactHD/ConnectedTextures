@@ -113,6 +113,16 @@ public enum ConnectionDirection
         return conDir;
     }
 
+    public static int mask(ConnectionDirection... directions)
+    {
+        byte value = 0;
+        for (ConnectionDirection dir : directions)
+        {
+            value = dir.set(value);
+        }
+        return value & 0xFF;
+    }
+
 
 
     @SuppressWarnings("ConstantValue")

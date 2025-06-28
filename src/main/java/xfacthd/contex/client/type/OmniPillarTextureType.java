@@ -1,22 +1,51 @@
 package xfacthd.contex.client.type;
 
 import net.minecraft.client.renderer.block.model.BlockElementFace;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.state.ConnectionDirection;
+import xfacthd.contex.api.type.ConnectionPredicate;
+import xfacthd.contex.api.type.DefaultTextureType;
+import xfacthd.contex.api.type.OcclusionMode;
 
-public final class OmniPillarTextureType extends SimpleTextureType
+public final class OmniPillarTextureType extends DefaultTextureType
 {
+    private static final ConnectionDirection[] DIRECTIONS = ConnectionDirection.values();
     private static final Direction[] DIR_AXIS_Y = new Direction[] { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
     private static final Direction[] DIR_AXIS_X = new Direction[] { Direction.UP, Direction.NORTH, Direction.DOWN, Direction.SOUTH };
-    private static final ConnectionDirection[] CONDIR_AXIS_Y = new ConnectionDirection[] {
-            ConnectionDirection.UP, ConnectionDirection.UP, ConnectionDirection.UP, ConnectionDirection.UP
-    };
-    private static final ConnectionDirection[] CONDIR_AXIS_X = new ConnectionDirection[] {
-            ConnectionDirection.LEFT, ConnectionDirection.LEFT, ConnectionDirection.LEFT, ConnectionDirection.LEFT
-    };
+    private static final Direction[] DIR_AXIS_Z = new Direction[] { Direction.UP, Direction.WEST, Direction.DOWN, Direction.EAST };
+    private static final Direction[] DIAG_DIR_AXIS_X = new Direction[] { Direction.NORTH, Direction.SOUTH };
+    private static final Direction[] DIAG_DIR_AXIS_Z = new Direction[] { Direction.EAST, Direction.WEST, Direction.UP, Direction.DOWN };
+    private static final int DIAG_CHECK_MASK = ConnectionDirection.mask(
+            ConnectionDirection.UP_LEFT, ConnectionDirection.UP_RIGHT, ConnectionDirection.DOWN_LEFT, ConnectionDirection.DOWN_RIGHT
+    );
+    private static final int CON_MASK_AXIS_Y = ConnectionDirection.mask(ConnectionDirection.UP, ConnectionDirection.DOWN);
+    private static final int CON_MASK_DIAG_AXIS_X = ConnectionDirection.mask(ConnectionDirection.UP, ConnectionDirection.DOWN);
+    private static final int CON_MASK_AXIS_X = ConnectionDirection.mask(ConnectionDirection.LEFT, ConnectionDirection.RIGHT);
+    private static final int CON_MASK_DIAG_AXIS_Z = 0;
     public static final OmniPillarTextureType INSTANCE = new OmniPillarTextureType();
 
     private OmniPillarTextureType() { }
+
+    @Override
+    public byte getConnectionState(
+            BlockAndTintGetter level,
+            BlockPos pos,
+            BlockState state,
+            Direction side,
+            ConnectionPredicate predicate,
+            OcclusionMode occlusionMode
+    )
+    {
+        byte connections = 0;
+        for (ConnectionDirection dir : DIRECTIONS)
+        {
+            connections = testDirection(dir, connections, level, pos, state, side, predicate, occlusionMode);
+        }
+        return connections;
+    }
 
     @Override
     public void postProcessConnections(byte[] stateMap)
@@ -26,7 +55,15 @@ public final class OmniPillarTextureType extends SimpleTextureType
             byte state = stateMap[side.ordinal()];
             if (ConnectionDirection.UP.isSet(state) || ConnectionDirection.DOWN.isSet(state))
             {
-                cleanConnections(stateMap, DIR_AXIS_Y, Direction.UP, Direction.DOWN, CONDIR_AXIS_Y);
+                cleanConnections(stateMap, DIR_AXIS_Y, Direction.UP, Direction.DOWN, CON_MASK_AXIS_Y);
+                return;
+            }
+        }
+        for (Direction side : DIAG_DIR_AXIS_X)
+        {
+            if ((stateMap[side.ordinal()] & DIAG_CHECK_MASK) != 0)
+            {
+                cleanConnections(stateMap, DIR_AXIS_X, Direction.EAST, Direction.WEST, CON_MASK_DIAG_AXIS_X);
                 return;
             }
         }
@@ -35,32 +72,31 @@ public final class OmniPillarTextureType extends SimpleTextureType
             byte state = stateMap[side.ordinal()];
             if (ConnectionDirection.LEFT.isSet(state) || ConnectionDirection.RIGHT.isSet(state))
             {
-                cleanConnections(stateMap, DIR_AXIS_X, Direction.EAST, Direction.WEST, CONDIR_AXIS_X);
+                cleanConnections(stateMap, DIR_AXIS_X, Direction.EAST, Direction.WEST, CON_MASK_AXIS_X);
                 return;
             }
         }
-        // If X and Y have no connections, it can only be Z or none, so no need to check or clean anything up
+        for (Direction side : DIAG_DIR_AXIS_Z)
+        {
+            if ((stateMap[side.ordinal()] & DIAG_CHECK_MASK) != 0)
+            {
+                cleanConnections(stateMap, DIR_AXIS_Z, Direction.NORTH, Direction.SOUTH, CON_MASK_DIAG_AXIS_Z);
+                return;
+            }
+        }
+        // If X and Y have no connections and Z is not blocked by adjacent X or Y pillars, it can only be Z or none, so no need to check or clean anything up
     }
 
-    private static void cleanConnections(
-            byte[] stateMap,
-            Direction[] allowedDirs,
-            Direction remOne,
-            Direction remTwo,
-            ConnectionDirection[] allowedConDirs
-    )
+    private static void cleanConnections(byte[] stateMap, Direction[] allowedDirs, Direction remOne, Direction remTwo, int conMask)
     {
         stateMap[remOne.ordinal()] = 0;
         stateMap[remTwo.ordinal()] = 0;
 
         for (int i = 0; i < 4; i++)
         {
-            ConnectionDirection conDir = allowedConDirs[i];
-            byte connections = (byte) ((0b1 << conDir.ordinal()) | (0b1 << conDir.getOpposite().ordinal()));
-
             Direction side = allowedDirs[i];
             byte state = stateMap[side.ordinal()];
-            stateMap[side.ordinal()] = (byte) (state & connections);
+            stateMap[side.ordinal()] = (byte) (state & conMask);
         }
     }
 

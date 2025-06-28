@@ -9,7 +9,7 @@ import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.type.OcclusionMode;
 import xfacthd.contex.api.utils.Constants;
 
-public sealed class SimpleTextureType extends FullTextureType permits OmniPillarTextureType, SimpleCarpetTextureType
+public sealed class SimpleTextureType extends FullTextureType permits SimpleCarpetTextureType
 {
     public static final SimpleTextureType INSTANCE = new SimpleTextureType();
 
