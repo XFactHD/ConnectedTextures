@@ -25,8 +25,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.data.SpriteSourceProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import xfacthd.contex.api.datagen.ConTexBlockModelDefinitionGenerator;
@@ -48,13 +48,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-@EventBusSubscriber(modid = Constants.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
 public final class TestDataGeneratorHandler
 {
-    private TestDataGeneratorHandler() { }
+    public TestDataGeneratorHandler(IEventBus modBus)
+    {
+        modBus.addListener(TestDataGeneratorHandler::onGatherData);
+    }
 
-    @SubscribeEvent
-    public static void onGatherData(final GatherDataEvent.Client event)
+    private static void onGatherData(final GatherDataEvent.Client event)
     {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
