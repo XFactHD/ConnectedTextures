@@ -6,6 +6,7 @@
     "label.contex.source_tooltip.ctm.mirror_perpendicular": "Mirror perpendicular",
     "value.contex.source_tooltip.ctm.border": "l: %s, r: %s, t: %s, b: %s",
     "msg.contex.gen_ctm_tex.no_such_texture": "Specified texture '%s' does not exist",
+    "msg.contex.gen_ctm_tex.texture_animated": "Cannot generate CTM texture from animated texture",
     "msg.contex.gen_ctm_tex.invalid_corner_synth": "Cannot synthesize inner corners with varying edge sizes or mirroring",
     "msg.contex.gen_ctm_tex.gen_failed": "CTM texture generation failed",
     "msg.contex.gen_ctm_tex.export_failed": "CTM texture export failed: %s",

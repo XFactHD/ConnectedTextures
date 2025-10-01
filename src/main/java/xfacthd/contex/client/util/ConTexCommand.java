@@ -32,6 +32,9 @@ public final class ConTexCommand
     private static final DynamicCommandExceptionType EX_NO_SUCH_TEXTURE = new DynamicCommandExceptionType(
             tex -> Component.translatable("msg.contex.gen_ctm_tex.no_such_texture", tex)
     );
+    private static final SimpleCommandExceptionType EX_TEXTURE_ANIMATED = new SimpleCommandExceptionType(
+            Component.translatable("msg.contex.gen_ctm_tex.texture_animated")
+    );
     private static final SimpleCommandExceptionType EX_INVALID_CORNER_SYNTH = new SimpleCommandExceptionType(
             Component.translatable("msg.contex.gen_ctm_tex.invalid_corner_synth")
     );
@@ -148,9 +151,13 @@ public final class ConTexCommand
         {
             throw EX_NO_SUCH_TEXTURE.create(texture);
         }
+        if (srcSprite.isAnimated())
+        {
+            throw EX_TEXTURE_ANIMATED.create();
+        }
 
         NativeImage srcImage = srcSprite.getOriginalImage();
-        ResourceMetadata metadata = srcSprite.metadata();
+        ResourceMetadata metadata = srcSprite::getAdditionalMetadata;
         ResourceLocation outLoc = texture.withSuffix("_ctm");
         Border border = new Border(borderLeft, borderTop, borderRight, borderBottom, mirrorParallel, mirrorPerpendicular, copyFromOppositeEdge, synthesizeInnerCorners);
 

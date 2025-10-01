@@ -1,17 +1,19 @@
 package xfacthd.contex.client.compat.atlasviewer;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
+import org.slf4j.Logger;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
-import xfacthd.contex.ConnectedTextures;
 import xfacthd.contex.api.texture.Border;
 import xfacthd.contex.api.texture.ConTexSpriteSource;
 import xfacthd.contex.client.texture.ConTexSpriteSupplier;
 
 public final class AtlasViewerCompat
 {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component LABEL_TEXTURE = Component.translatable("label.contex.source_tooltip.ctm.texture");
     private static final Component LABEL_BORDER = Component.translatable("label.contex.source_tooltip.ctm.border");
     private static final Component LABEL_SPRITE = Component.translatable("label.contex.source_tooltip.ctm.sprite");
@@ -29,7 +31,7 @@ public final class AtlasViewerCompat
             }
             catch (Throwable e)
             {
-                ConnectedTextures.LOGGER.error("Failed to initialize AtlasViewer compat", e);
+                LOGGER.error("Failed to initialize AtlasViewer compat", e);
             }
         }
     }

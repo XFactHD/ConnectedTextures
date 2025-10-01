@@ -1,17 +1,16 @@
 package xfacthd.contex.api.model;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 public final class ModelUtils
 {
-    @SuppressWarnings("deprecation")
     public static TextureAtlasSprite getSprite(ResourceLocation loc)
     {
-        return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(loc);
+        return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS).getSprite(loc);
     }
 
     /**

@@ -21,6 +21,7 @@ import xfacthd.contex.api.texture.Border;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public record ConTexSpriteSupplier(
         ResourceLocation srcLoc,
@@ -86,7 +87,8 @@ public record ConTexSpriteSupplier(
             OutputFrame.of(srcImage, destImage, border, frame, srcSize, destSize).build();
         }
 
-        return new SpriteContents(outLoc, destSize, destImage, metadata);
+        // FIXME: properly handle additional metadata sections (see PR)
+        return new SpriteContents(outLoc, destSize, destImage, Optional.ofNullable(animMeta), List.of());
     }
 
     @Nullable
