@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.107'
+    id 'net.neoforged.moddev' version '2.0.112'
 }
 
 version = mod_version
@@ -34,9 +34,6 @@ neoForge {
         client {
             client()
             gameDirectory = project.file('run')
-
-            // TODO: this should be moved to a NeoForge patch or MDG
-            programArgument '--offlineDeveloperMode'
         }
 
         server {

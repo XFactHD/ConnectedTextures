@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -180,7 +181,7 @@ public final class TestDataGeneratorHandler
         @Override
         protected void gather()
         {
-            atlas(BLOCKS_ATLAS)
+            atlas(AtlasIds.BLOCKS)
                     .addSource(new ConTexSpriteSource(
                             ResourceLocation.withDefaultNamespace("block/glass"),
                             new Border(1),
