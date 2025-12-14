@@ -3,14 +3,14 @@ package xfacthd.contex.api.type;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import xfacthd.contex.api.utils.Constants;
 
 import java.util.EnumSet;
-import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class TextureType
 {
@@ -63,8 +63,9 @@ public abstract class TextureType
      * @param side      The side of the block
      * @param state     The calculated connection state
      * @param ctTexture The additional texture to use for connections
+     * @param output    The output to pass the generated quads to
      */
-    public abstract List<BakedQuad> makeConnectionQuads(BakedQuad srcQuad, Direction side, byte state, ResourceLocation ctTexture);
+    public abstract void makeConnectionQuads(BakedQuad srcQuad, Direction side, byte state, Identifier ctTexture, Consumer<BakedQuad> output);
 
     /**
      * Check whether the connection on the given side of the block being connected to is visible

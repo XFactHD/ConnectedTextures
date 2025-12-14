@@ -3,12 +3,12 @@ package xfacthd.contex.api.model;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 public final class ModelUtils
 {
-    public static TextureAtlasSprite getSprite(ResourceLocation loc)
+    public static TextureAtlasSprite getSprite(Identifier loc)
     {
         return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS).getSprite(loc);
     }
@@ -53,11 +53,11 @@ public final class ModelUtils
 
         if (coordTo == coordMin)
         {
-            data.uv(uvTo, uvIdx,  (invert) ? uvAbsMax : uvAbsMin);
+            data.uv(uvTo, uvIdx, (invert) ? uvAbsMax : uvAbsMin);
         }
         else if (coordTo == coordMax)
         {
-            data.uv(uvTo, uvIdx,  (invert) ? uvAbsMin : uvAbsMax);
+            data.uv(uvTo, uvIdx, (invert) ? uvAbsMin : uvAbsMax);
         }
         else
         {
@@ -72,8 +72,6 @@ public final class ModelUtils
         return (Mth.equal(data.uv(0, 1), data.uv(1, 1)) || Mth.equal(data.uv(3, 1), data.uv(2, 1))) &&
                (Mth.equal(data.uv(1, 0), data.uv(2, 0)) || Mth.equal(data.uv(0, 0), data.uv(3, 0)));
     }
-
-
 
     private ModelUtils() { }
 }

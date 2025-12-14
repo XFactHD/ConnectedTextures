@@ -1,7 +1,7 @@
 package xfacthd.contex.api.type;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 import org.jetbrains.annotations.ApiStatus;
@@ -20,21 +20,21 @@ public final class RegisterTextureMetaEvent extends Event implements IModBusEven
         this.predicateRegistrar = predicateRegistrar;
     }
 
-    public void registerType(ResourceLocation name, TextureType type)
+    public void registerType(Identifier name, TextureType type)
     {
         typeRegistrar.accept(name, type);
     }
 
-    public void registerPredicate(ResourceLocation name, MapCodec<? extends ConnectionPredicate> predicate)
+    public void registerPredicate(Identifier name, MapCodec<? extends ConnectionPredicate> predicate)
     {
         predicateRegistrar.accept(name, predicate);
     }
 
 
 
-    public interface Registrar<T> extends BiConsumer<ResourceLocation, T>
+    public interface Registrar<T> extends BiConsumer<Identifier, T>
     {
         @Override
-        void accept(ResourceLocation name, T t);
+        void accept(Identifier name, T t);
     }
 }

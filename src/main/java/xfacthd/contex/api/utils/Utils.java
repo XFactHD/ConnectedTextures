@@ -1,21 +1,17 @@
 package xfacthd.contex.api.utils;
 
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.IntFunction;
 
 public final class Utils
 {
-    public static ResourceLocation rl(String path)
+    public static Identifier rl(String path)
     {
-        return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, path);
+        return Identifier.fromNamespaceAndPath(Constants.MOD_ID, path);
     }
 
     /**
@@ -70,31 +66,11 @@ public final class Utils
         return dir.getAxis() == Direction.Axis.Z;
     }
 
-    public static void addQuads(QuadCollection.Builder builder, @Nullable Direction side, List<BakedQuad> quads)
-    {
-        if (side == null)
-        {
-            for (BakedQuad quad : quads)
-            {
-                builder.addUnculledFace(quad);
-            }
-        }
-        else
-        {
-            for (BakedQuad quad : quads)
-            {
-                builder.addCulledFace(side, quad);
-            }
-        }
-    }
-
     public static <T> T[] fillArray(T[] array, IntFunction<? extends T> generator)
     {
         Arrays.setAll(array, generator);
         return array;
     }
-
-
 
     private Utils() { }
 }

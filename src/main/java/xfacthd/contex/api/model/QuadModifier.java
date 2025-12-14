@@ -1,7 +1,8 @@
 package xfacthd.contex.api.model;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
+import org.jspecify.annotations.Nullable;
 
 public final class QuadModifier
 {
@@ -19,7 +20,7 @@ public final class QuadModifier
         return new QuadModifier(new QuadData(quad), false, false);
     }
 
-    private QuadModifier(QuadData data, boolean modified, boolean failed)
+    private QuadModifier(@UnknownNullability QuadData data, boolean modified, boolean failed)
     {
         this.data = data;
         this.modified = modified;
@@ -57,15 +58,7 @@ public final class QuadModifier
             return data.quad;
         }
 
-        return new BakedQuad(
-                data.vertexData,
-                data.quad.tintIndex(),
-                data.quad.direction(),
-                data.sprite,
-                data.quad.shade(),
-                data.quad.lightEmission(),
-                data.quad.hasAmbientOcclusion()
-        );
+        return data.toQuad();
     }
 
     /**
@@ -87,8 +80,6 @@ public final class QuadModifier
     {
         return failed;
     }
-
-
 
     @FunctionalInterface
     public interface Modifier

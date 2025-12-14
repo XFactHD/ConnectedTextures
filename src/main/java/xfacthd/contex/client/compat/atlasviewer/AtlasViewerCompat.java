@@ -2,7 +2,7 @@ package xfacthd.contex.client.compat.atlasviewer;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import org.slf4j.Logger;
@@ -49,8 +49,8 @@ public final class AtlasViewerCompat
 
             event.registerSourceTooltipAppender(ConTexSpriteSource.class, (src, consumer) ->
             {
-                ResourceLocation resource = src.texture();
-                ResourceLocation sprite = src.sprite().orElse(resource);
+                Identifier resource = src.texture();
+                Identifier sprite = src.sprite().orElse(resource);
                 Border border = src.border();
 
                 consumer.accept(AtlasViewerCompat.LABEL_TEXTURE, Component.literal(resource.toString()));

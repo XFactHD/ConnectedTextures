@@ -19,7 +19,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -75,17 +75,17 @@ public final class TestDataGeneratorHandler
         private static final TextureSlot SLOT_GLASS = TextureSlot.create("glass");
         private static final ModelTemplate TEMPLATE_BLOCK = ModelTemplates.create("block", SLOT_REDSTONE, SLOT_GLASS, TextureSlot.PARTICLE);
 
-        private final ResourceLocation TEX_DEEPSLATE = mcLocation("block/chiseled_deepslate");
-        private final ResourceLocation TEX_BLACKSTONE = mcLocation("block/chiseled_polished_blackstone");
-        private final ResourceLocation TEX_STONEBRICKS = mcLocation("block/chiseled_stone_bricks");
-        private final ResourceLocation TEX_GLASS = mcLocation("block/glass");
-        private final ResourceLocation TEX_DIORITE = mcLocation("block/polished_diorite");
-        private final ResourceLocation TEX_GRANITE = mcLocation("block/polished_granite");
-        private final ResourceLocation TEX_REDSTONE = mcLocation("block/redstone_block");
-        private final ResourceLocation TEX_SEA_LANTERN = mcLocation("block/sea_lantern");
-        private final ResourceLocation TEX_RED_WOOL = mcLocation("block/red_wool");
-        private final ResourceLocation TEX_OAK_LOG = mcLocation("block/oak_log");
-        private final ResourceLocation TEX_STONE = mcLocation("block/stone");
+        private final Identifier TEX_DEEPSLATE = mcLocation("block/chiseled_deepslate");
+        private final Identifier TEX_BLACKSTONE = mcLocation("block/chiseled_polished_blackstone");
+        private final Identifier TEX_STONEBRICKS = mcLocation("block/chiseled_stone_bricks");
+        private final Identifier TEX_GLASS = mcLocation("block/glass");
+        private final Identifier TEX_DIORITE = mcLocation("block/polished_diorite");
+        private final Identifier TEX_GRANITE = mcLocation("block/polished_granite");
+        private final Identifier TEX_REDSTONE = mcLocation("block/redstone_block");
+        private final Identifier TEX_SEA_LANTERN = mcLocation("block/sea_lantern");
+        private final Identifier TEX_RED_WOOL = mcLocation("block/red_wool");
+        private final Identifier TEX_OAK_LOG = mcLocation("block/oak_log");
+        private final Identifier TEX_STONE = mcLocation("block/stone");
 
         public TestBlockModelProvider(PackOutput output)
         {
@@ -109,7 +109,7 @@ public final class TestDataGeneratorHandler
                     .put(SLOT_GLASS, TEX_GLASS)
                     .put(TextureSlot.PARTICLE, TEX_REDSTONE);
             TEMPLATE_BLOCK.extend()
-                    .element(elem -> elem.allFaces((dir, face) -> face.texture(SLOT_REDSTONE).cullface(dir).emissivity(15, 15)))
+                    .element(elem -> elem.allFaces((dir, face) -> face.texture(SLOT_REDSTONE).cullface(dir)).lightEmission(15))
                     .element(elem -> elem.allFaces((dir, face) -> face.texture(SLOT_GLASS).cullface(dir)))
                     .renderType("cutout")
                     .build()
@@ -118,9 +118,9 @@ public final class TestDataGeneratorHandler
 
             ConTexBlockModelDefinitionGenerator slabGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.OAK_SLAB);
             TextureMapping slabTextures = TextureMapping.column(TEX_DIORITE, TEX_DIORITE);
-            ResourceLocation bottomSlab = ModelTemplates.SLAB_BOTTOM.create(Blocks.OAK_SLAB, slabTextures, blockModels.modelOutput);
-            ResourceLocation topSlab = ModelTemplates.SLAB_TOP.create(Blocks.OAK_SLAB, slabTextures, blockModels.modelOutput);
-            ResourceLocation doubleSlab = ModelTemplates.CUBE_COLUMN.createWithOverride(Blocks.OAK_SLAB, "_double", slabTextures, blockModels.modelOutput);
+            Identifier bottomSlab = ModelTemplates.SLAB_BOTTOM.create(Blocks.OAK_SLAB, slabTextures, blockModels.modelOutput);
+            Identifier topSlab = ModelTemplates.SLAB_TOP.create(Blocks.OAK_SLAB, slabTextures, blockModels.modelOutput);
+            Identifier doubleSlab = ModelTemplates.CUBE_COLUMN.createWithOverride(Blocks.OAK_SLAB, "_double", slabTextures, blockModels.modelOutput);
             slabGenerator.variant(MultiVariantGenerator.dispatch(Blocks.OAK_SLAB).with(
                     PropertyDispatch.initial(BlockStateProperties.SLAB_TYPE)
                             .select(SlabType.BOTTOM, BlockModelGenerators.plainVariant(bottomSlab))
@@ -183,32 +183,32 @@ public final class TestDataGeneratorHandler
         {
             atlas(AtlasIds.BLOCKS)
                     .addSource(new ConTexSpriteSource(
-                            ResourceLocation.withDefaultNamespace("block/glass"),
+                            Identifier.withDefaultNamespace("block/glass"),
                             new Border(1),
                             Optional.empty()
                     ))
                     .addSource(new ConTexSpriteSource(
-                            ResourceLocation.withDefaultNamespace("block/polished_diorite"),
+                            Identifier.withDefaultNamespace("block/polished_diorite"),
                             new Border(2),
                             Optional.empty()
                     ))
                     .addSource(new ConTexSpriteSource(
-                            ResourceLocation.withDefaultNamespace("block/polished_granite"),
+                            Identifier.withDefaultNamespace("block/polished_granite"),
                             new Border(2),
                             Optional.empty()
                     ))
                     .addSource(new ConTexSpriteSource(
-                            ResourceLocation.withDefaultNamespace("block/stone"),
+                            Identifier.withDefaultNamespace("block/stone"),
                             new Border(2),
                             Optional.empty()
                     ))
                     .addSource(new ConTexSpriteSource(
-                            ResourceLocation.withDefaultNamespace("block/sea_lantern"),
+                            Identifier.withDefaultNamespace("block/sea_lantern"),
                             new Border(2, true, true, false, false),
                             Optional.empty()
                     ))
                     .addSource(new ConTexSpriteSource(
-                            ResourceLocation.withDefaultNamespace("block/red_wool"),
+                            Identifier.withDefaultNamespace("block/red_wool"),
                             new Border(2, false, false, true, true),
                             Optional.empty()
                     ));

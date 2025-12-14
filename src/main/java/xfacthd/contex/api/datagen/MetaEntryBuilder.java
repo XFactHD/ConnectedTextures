@@ -1,8 +1,8 @@
 package xfacthd.contex.api.datagen;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.type.OcclusionMode;
 import xfacthd.contex.api.type.TextureType;
@@ -53,12 +53,12 @@ public final class MetaEntryBuilder
         return this;
     }
 
-    public MetaEntryBuilder addTexture(ResourceLocation texture)
+    public MetaEntryBuilder addTexture(Identifier texture)
     {
         return addTexture(texture, texture.withSuffix("_ctm"));
     }
 
-    public MetaEntryBuilder addTexture(ResourceLocation baseTexture, ResourceLocation ctTexture)
+    public MetaEntryBuilder addTexture(Identifier baseTexture, Identifier ctTexture)
     {
         textures.add(new TextureEntry(baseTexture, ctTexture));
         return this;

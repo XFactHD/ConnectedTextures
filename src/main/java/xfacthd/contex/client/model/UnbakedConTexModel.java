@@ -3,7 +3,7 @@ package xfacthd.contex.client.model;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xfacthd.contex.client.data.MetaEntry;
 
 import java.util.List;

@@ -6,7 +6,7 @@ import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.renderer.block.model.BlockModelDefinition;
 import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xfacthd.contex.client.data.MetaEntry;
 import xfacthd.contex.client.model.ConTexBlockModelDefinition;
 

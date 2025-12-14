@@ -13,10 +13,10 @@ import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceMetadata;
 import net.neoforged.fml.loading.FMLPaths;
 import xfacthd.contex.api.model.ModelUtils;
@@ -26,6 +26,7 @@ import xfacthd.contex.client.texture.ConTexSpriteSupplier;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 public final class ConTexCommand
 {
@@ -51,7 +52,7 @@ public final class ConTexCommand
         dispatcher.register(
                 Commands.literal("contex")
                         .then(Commands.literal("gen_ctm_tex")
-                                .then(Commands.argument("src_texture", ResourceLocationArgument.id())
+                                .then(Commands.argument("src_texture", IdentifierArgument.id())
                                         .then(Commands.argument("border", IntegerArgumentType.integer(1))
                                                 .executes(ConTexCommand::generateTextureSimpleBorder)
                                                 .then(Commands.argument("mirror_parallel", BoolArgumentType.bool())
@@ -90,7 +91,7 @@ public final class ConTexCommand
     private static int generateTextureSimpleBorder(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
         CommandSourceStack source = ctx.getSource();
-        ResourceLocation texture = ResourceLocationArgument.getId(ctx, "src_texture");
+        Identifier texture = IdentifierArgument.getId(ctx, "src_texture");
         int border = IntegerArgumentType.getInteger(ctx, "border");
         return generateTexture(source, texture, border, border, border, border, false, false, false, false);
     }
@@ -98,7 +99,7 @@ public final class ConTexCommand
     private static int generateTextureSimpleBorderMirror(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
         CommandSourceStack source = ctx.getSource();
-        ResourceLocation texture = ResourceLocationArgument.getId(ctx, "src_texture");
+        Identifier texture = IdentifierArgument.getId(ctx, "src_texture");
         int border = IntegerArgumentType.getInteger(ctx, "border");
         boolean mirrorParallel = BoolArgumentType.getBool(ctx, "mirror_parallel");
         boolean mirrorPerpendicular = BoolArgumentType.getBool(ctx, "mirror_perpendicular");
@@ -110,7 +111,7 @@ public final class ConTexCommand
     private static int generateTextureFullBorder(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
         CommandSourceStack source = ctx.getSource();
-        ResourceLocation texture = ResourceLocationArgument.getId(ctx, "src_texture");
+        Identifier texture = IdentifierArgument.getId(ctx, "src_texture");
         int borderLeft = IntegerArgumentType.getInteger(ctx, "border_left");
         int borderRight = IntegerArgumentType.getInteger(ctx, "border_right");
         int borderTop = IntegerArgumentType.getInteger(ctx, "border_top");
@@ -121,7 +122,7 @@ public final class ConTexCommand
     private static int generateTextureFullBorderMirror(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
     {
         CommandSourceStack source = ctx.getSource();
-        ResourceLocation texture = ResourceLocationArgument.getId(ctx, "src_texture");
+        Identifier texture = IdentifierArgument.getId(ctx, "src_texture");
         int borderLeft = IntegerArgumentType.getInteger(ctx, "border_left");
         int borderRight = IntegerArgumentType.getInteger(ctx, "border_right");
         int borderTop = IntegerArgumentType.getInteger(ctx, "border_top");
@@ -135,7 +136,7 @@ public final class ConTexCommand
 
     private static int generateTexture(
             CommandSourceStack source,
-            ResourceLocation texture,
+            Identifier texture,
             int borderLeft,
             int borderRight,
             int borderTop,
@@ -158,7 +159,7 @@ public final class ConTexCommand
 
         NativeImage srcImage = srcSprite.getOriginalImage();
         ResourceMetadata metadata = srcSprite::getAdditionalMetadata;
-        ResourceLocation outLoc = texture.withSuffix("_ctm");
+        Identifier outLoc = texture.withSuffix("_ctm");
         Border border = new Border(borderLeft, borderTop, borderRight, borderBottom, mirrorParallel, mirrorPerpendicular, copyFromOppositeEdge, synthesizeInnerCorners);
 
         if (synthesizeInnerCorners && !border.canSynthesizeCorners())
@@ -166,7 +167,7 @@ public final class ConTexCommand
             throw EX_INVALID_CORNER_SYNTH.create();
         }
 
-        SpriteContents ctmSprite = ConTexSpriteSupplier.createTexture(texture, outLoc, srcImage, metadata, border);
+        SpriteContents ctmSprite = ConTexSpriteSupplier.createTexture(texture, outLoc, srcImage, metadata, border, Set.of());
         if (ctmSprite == null)
         {
             throw EX_GEN_FAILED.create();

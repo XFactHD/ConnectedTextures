@@ -5,50 +5,26 @@
       "faces": {
         "down": {
           "cullface": "down",
-          "neoforge_data": {
-            "block_light": 15,
-            "sky_light": 15
-          },
           "texture": "#redstone"
         },
         "east": {
           "cullface": "east",
-          "neoforge_data": {
-            "block_light": 15,
-            "sky_light": 15
-          },
           "texture": "#redstone"
         },
         "north": {
           "cullface": "north",
-          "neoforge_data": {
-            "block_light": 15,
-            "sky_light": 15
-          },
           "texture": "#redstone"
         },
         "south": {
           "cullface": "south",
-          "neoforge_data": {
-            "block_light": 15,
-            "sky_light": 15
-          },
           "texture": "#redstone"
         },
         "up": {
           "cullface": "up",
-          "neoforge_data": {
-            "block_light": 15,
-            "sky_light": 15
-          },
           "texture": "#redstone"
         },
         "west": {
           "cullface": "west",
-          "neoforge_data": {
-            "block_light": 15,
-            "sky_light": 15
-          },
           "texture": "#redstone"
         }
       },
@@ -57,6 +33,7 @@
         0,
         0
       ],
+      "light_emission": 15,
       "to": [
         16,
         16,

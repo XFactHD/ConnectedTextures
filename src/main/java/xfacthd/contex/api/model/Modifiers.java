@@ -10,8 +10,6 @@ import xfacthd.contex.api.utils.Utils;
 public final class Modifiers
 {
     private static final QuadModifier.Modifier NOOP_MODIFIER = data -> true;
-    // Factor 16 is required because the relative UV of a TextureAtlasSprite is not 0-16 anymore since 1.20.2
-    private static final float UV_SUBSTEP_COUNT = 16F * 8F;
 
     /**
      * Cuts the quad pointing upwards or downwards at the edge given by the given {@code cutDir}
@@ -191,27 +189,21 @@ public final class Modifiers
         return data ->
         {
             TextureAtlasSprite srcSprite = data.sprite;
-            float shrinkRatio = targetSprite.uvShrinkRatio();
 
             float minU = uv.minU();
             float minV = uv.minV();
             float maxU = uv.maxU();
             float maxV = uv.maxV();
 
-            float uCenter = (minU + minU + maxU + maxU) / 4F;
-            float vCenter = (minV + minV + maxV + maxV) / 4F;
-
             for (int i = 0; i < 4; i++)
             {
-                float uAbsSrc = Math.round(srcSprite.getUOffset(data.uv(i, 0)) * UV_SUBSTEP_COUNT) / UV_SUBSTEP_COUNT;
-                float uAbs = Mth.lerp(uAbsSrc, minU, maxU);
-                float uRel = targetSprite.getU(Mth.lerp(shrinkRatio, uAbs, uCenter));
-                data.uv(i, 0, uRel);
+                float uRelSrc = getRelUV(data, srcSprite, i, 0);
+                float uRelDest = Mth.lerp(uRelSrc, minU, maxU);
 
-                float vAbsSrc = Math.round(srcSprite.getVOffset(data.uv(i, 1)) * UV_SUBSTEP_COUNT) / UV_SUBSTEP_COUNT;
-                float vAbs = Mth.lerp(vAbsSrc, minV, maxV);
-                float vRel = targetSprite.getV(Mth.lerp(shrinkRatio, vAbs, vCenter));
-                data.uv(i, 1, vRel);
+                float vRelSrc = getRelUV(data, srcSprite, i, 1);
+                float vRelDest = Mth.lerp(vRelSrc, minV, maxV);
+
+                data.uv(i, targetSprite.getU(uRelDest), targetSprite.getV(vRelDest));
             }
 
             data.sprite(targetSprite);
@@ -220,7 +212,12 @@ public final class Modifiers
         };
     }
 
-
+    private static float getRelUV(QuadData data, TextureAtlasSprite sprite, int vertex, int uvIdx)
+    {
+        float uv0 = uvIdx == 0 ? sprite.getU0() : sprite.getV0();
+        float uv1 = uvIdx == 0 ? sprite.getU1() : sprite.getV1();
+        return (data.uv(vertex, uvIdx) - uv0) / (uv1 - uv0);
+    }
 
     private Modifiers() {}
 }

@@ -1,7 +1,7 @@
 package xfacthd.contex.client.data;
 
 import net.minecraft.core.Direction;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xfacthd.contex.client.model.ConTexModel;
 
 import java.util.Arrays;

@@ -3,7 +3,7 @@ package xfacthd.contex.client.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import xfacthd.contex.api.type.ConnectionPredicate;
 import xfacthd.contex.api.type.OcclusionMode;
 import xfacthd.contex.api.type.TextureType;
@@ -39,7 +39,7 @@ public record MetaEntry(TextureType type, ConnectionPredicate predicate, Occlusi
         return textures[texIdx];
     }
 
-    public int findTexture(ResourceLocation tex)
+    public int findTexture(Identifier tex)
     {
         for (int i = 0; i < textures.length; i++)
         {
@@ -54,7 +54,7 @@ public record MetaEntry(TextureType type, ConnectionPredicate predicate, Occlusi
 
     public static DataResult<List<MetaEntry>> validate(List<MetaEntry> metadata)
     {
-        record Key(ResourceLocation texture, Optional<StatePredicate> statePredicate) { }
+        record Key(Identifier texture, Optional<StatePredicate> statePredicate) { }
 
         Map<Key, MetaEntry> uniqueTextures = new HashMap<>();
         for (int metaIdx = 0; metaIdx < metadata.size(); metaIdx++)

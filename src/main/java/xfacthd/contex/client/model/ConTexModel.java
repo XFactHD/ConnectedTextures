@@ -9,18 +9,19 @@ import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
 import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import xfacthd.contex.api.model.Modifiers;
 import xfacthd.contex.api.model.QuadModifier;
 import xfacthd.contex.api.type.TextureType;
 import xfacthd.contex.api.utils.Utils;
 import xfacthd.contex.client.data.ConnectionStateContainer;
 import xfacthd.contex.client.data.MetaEntry;
+import xfacthd.contex.client.util.ExtendedQuadCollectionBuilder;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -35,7 +36,7 @@ public final class ConTexModel extends DelegateBlockStateModel
     private final Map<ConnectionStateContainer, List<BlockModelPart>> ctPartCache = new ConcurrentHashMap<>();
     private final BlockState state;
     private final MetaEntry[] metadata;
-    private final Map<Object, List<ConnectedBlockModelPart>> decomposedPartsPerKey = new ConcurrentHashMap<>();
+    private final Map<@Nullable Object, List<ConnectedBlockModelPart>> decomposedPartsPerKey = new ConcurrentHashMap<>();
 
     ConTexModel(BlockStateModel baseModel, BlockState state, List<MetaEntry> metadata)
     {
@@ -68,7 +69,7 @@ public final class ConTexModel extends DelegateBlockStateModel
 
     private List<BlockModelPart> generateConnectionQuads(ConnectionStateContainer ctStates, List<ConnectedBlockModelPart> srcParts)
     {
-        List<BlockModelPart> outParts = new ObjectArrayList<>();
+        List<BlockModelPart> outParts = new ObjectArrayList<>(srcParts.size());
         for (ConnectedBlockModelPart part : srcParts)
         {
             int metaIdx = part.metaIdx();
@@ -80,24 +81,25 @@ public final class ConTexModel extends DelegateBlockStateModel
             }
 
             MetaEntry meta = metadata[metaIdx];
-            ResourceLocation ctTexture = meta.texture(texIdx).get(meta.type());
+            TextureType texType = meta.type();
+            Identifier ctTexture = meta.texture(texIdx).get(texType);
 
-            QuadCollection.Builder quadsBuilder = new QuadCollection.Builder();
+            ExtendedQuadCollectionBuilder quadsBuilder = new ExtendedQuadCollectionBuilder();
             for (Direction side : DIRECTIONS)
             {
+                quadsBuilder.setCullFace(side);
                 byte states = ctStates.get(side, metaIdx);
                 for (BakedQuad quad : part.getQuads(side))
                 {
-                    List<BakedQuad> quads = meta.type().makeConnectionQuads(quad, side, states, ctTexture);
-                    Utils.addQuads(quadsBuilder, side, quads);
+                    texType.makeConnectionQuads(quad, side, states, ctTexture, quadsBuilder);
                 }
             }
+            quadsBuilder.setCullFace(null);
             for (BakedQuad quad : part.getQuads(null))
             {
                 Direction side = quad.direction();
                 byte states = ctStates.get(side, metaIdx);
-                List<BakedQuad> quads = meta.type().makeConnectionQuads(quad, side, states, ctTexture);
-                Utils.addQuads(quadsBuilder, null, quads);
+                texType.makeConnectionQuads(quad, side, states, ctTexture, quadsBuilder);
             }
             outParts.add(new SimpleModelWrapper(quadsBuilder.build(), part.useAmbientOcclusion(), part.particleIcon(), part.chunkLayer()));
         }

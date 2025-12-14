@@ -9,12 +9,14 @@ import net.minecraft.client.renderer.texture.atlas.sources.LazyLoadedImage;
 import net.minecraft.client.resources.metadata.animation.AnimationFrame;
 import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceMetadata;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import xfacthd.contex.api.texture.Border;
 
@@ -22,29 +24,31 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public record ConTexSpriteSupplier(
-        ResourceLocation srcLoc,
-        ResourceLocation outLoc,
+        Identifier srcLoc,
+        Identifier outLoc,
         Resource imgResource,
         LazyLoadedImage image,
-        Border border
-) implements SpriteSource.SpriteSupplier
+        Border border,
+        Set<MetadataSectionType<?>> additionalMetadata
+) implements SpriteSource.DiscardableLoader
 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public ConTexSpriteSupplier(ResourceLocation srcLoc, ResourceLocation outLoc, Resource imgResource, Border border)
+    public ConTexSpriteSupplier(Identifier srcLoc, Identifier outLoc, Resource imgResource, Border border, Set<MetadataSectionType<?>> additionalMetadata)
     {
-        this(srcLoc, outLoc, imgResource, new LazyLoadedImage(srcLoc, imgResource, 1), border);
+        this(srcLoc, outLoc, imgResource, new LazyLoadedImage(srcLoc, imgResource, 1), border, additionalMetadata);
     }
 
     @Override
     @Nullable
-    public SpriteContents apply(SpriteResourceLoader loader)
+    public SpriteContents get(SpriteResourceLoader loader)
     {
         try
         {
-            return createTexture(srcLoc, outLoc, image.get(), imgResource.metadata(), border);
+            return createTexture(srcLoc, outLoc, image.get(), imgResource.metadata(), border, additionalMetadata);
         }
         catch (IOException e)
         {
@@ -59,14 +63,15 @@ public record ConTexSpriteSupplier(
 
     @Nullable
     public static SpriteContents createTexture(
-            ResourceLocation srcLoc,
-            ResourceLocation outLoc,
+            Identifier srcLoc,
+            Identifier outLoc,
             NativeImage srcImage,
             ResourceMetadata metadata,
-            Border border
+            Border border,
+            Set<MetadataSectionType<?>> additionalMetadata
     )
     {
-        AnimationMetadataSection animMeta = metadata.getSection(AnimationMetadataSection.TYPE).orElse(null);
+        Optional<AnimationMetadataSection> animMeta = metadata.getSection(AnimationMetadataSection.TYPE);
         FrameSize srcSize = computeFrameSize(srcLoc, animMeta, srcImage);
         if (srcSize == null || !border.canApplyTo(srcSize))
         {
@@ -87,19 +92,20 @@ public record ConTexSpriteSupplier(
             OutputFrame.of(srcImage, destImage, border, frame, srcSize, destSize).build();
         }
 
-        // FIXME: properly handle additional metadata sections (see PR)
-        return new SpriteContents(outLoc, destSize, destImage, Optional.ofNullable(animMeta), List.of());
+        List<MetadataSectionType.WithValue<?>> typedMetadata = metadata.getTypedSections(additionalMetadata);
+        Optional<TextureMetadataSection> texMeta = metadata.getSection(TextureMetadataSection.TYPE);
+        return new SpriteContents(outLoc, destSize, destImage, animMeta, typedMetadata, texMeta);
     }
 
     @Nullable
-    private static FrameSize computeFrameSize(ResourceLocation srcLoc, @Nullable AnimationMetadataSection animMeta, NativeImage image)
+    private static FrameSize computeFrameSize(Identifier srcLoc, Optional<AnimationMetadataSection> animMeta, NativeImage image)
     {
-        if (animMeta == null)
+        if (animMeta.isEmpty())
         {
             return new FrameSize(image.getWidth(), image.getHeight());
         }
 
-        FrameSize size = animMeta.calculateFrameSize(image.getWidth(), image.getHeight());
+        FrameSize size = animMeta.get().calculateFrameSize(image.getWidth(), image.getHeight());
         if (!Mth.isMultipleOf(image.getWidth(), size.width()) || !Mth.isMultipleOf(image.getHeight(), size.height()))
         {
             LOGGER.error("Image '{}' size {}x{} is not multiple of frame size {}x{}", srcLoc, image.getWidth(), image.getHeight(), size.width(), size.height());
@@ -108,9 +114,9 @@ public record ConTexSpriteSupplier(
         return size;
     }
 
-    private static List<FrameInfo> collectFrames(NativeImage image, FrameSize size, @Nullable AnimationMetadataSection anim)
+    private static List<FrameInfo> collectFrames(NativeImage image, FrameSize size, Optional<AnimationMetadataSection> anim)
     {
-        if (anim == null)
+        if (anim.isEmpty())
         {
             return List.of(FrameInfo.ZERO);
         }
@@ -118,9 +124,10 @@ public record ConTexSpriteSupplier(
         List<FrameInfo> frames = new ArrayList<>();
         int rowCount = image.getWidth() / size.width();
         // Collect explicitly specified frames
-        if (anim.frames().isPresent())
+        Optional<List<AnimationFrame>> srcFrames = anim.get().frames();
+        if (srcFrames.isPresent())
         {
-            for (AnimationFrame frame : anim.frames().get())
+            for (AnimationFrame frame : srcFrames.get())
             {
                 frames.add(FrameInfo.of(frame.index(), rowCount));
             }

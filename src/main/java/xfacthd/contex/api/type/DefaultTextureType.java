@@ -5,19 +5,16 @@ import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 import xfacthd.contex.api.model.ModelUtils;
 import xfacthd.contex.api.model.Modifiers;
 import xfacthd.contex.api.model.QuadModifier;
 import xfacthd.contex.api.state.ConnectionDirection;
 import xfacthd.contex.api.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Default texture type implementation which splits the faces into four quadrants and generates the appropriate quad
@@ -25,6 +22,7 @@ import java.util.Objects;
  * If a quadrant has no connections, the incoming quad's sprite is used, otherwise the given CT texture is used. The
  * relative connection UVs returned by {@link #getConnectionUVs(boolean, boolean, boolean, Direction)} are expected
  * to adhere to this convention.
+ * FIXME: removal of UV shrinking makes "texture map"-style compact CT no longer viable (shows seams), replace with separate sprite per variant
  */
 public abstract class DefaultTextureType extends TextureType
 {
@@ -35,17 +33,12 @@ public abstract class DefaultTextureType extends TextureType
     }
 
     @Override
-    public List<BakedQuad> makeConnectionQuads(BakedQuad srcQuad, Direction side, byte state, ResourceLocation ctTexture)
+    public void makeConnectionQuads(BakedQuad srcQuad, Direction side, byte state, Identifier ctTexture, Consumer<BakedQuad> output)
     {
-        List<BakedQuad> quads = new ArrayList<>(4);
-
-        quads.add(makeConnectionQuad(srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.UP, ctTexture));
-        quads.add(makeConnectionQuad(srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.UP, ctTexture));
-        quads.add(makeConnectionQuad(srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.DOWN, ctTexture));
-        quads.add(makeConnectionQuad(srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.DOWN, ctTexture));
-
-        quads.removeIf(Objects::isNull);
-        return quads;
+        makeConnectionQuad(output, srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.UP, ctTexture);
+        makeConnectionQuad(output, srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.UP, ctTexture);
+        makeConnectionQuad(output, srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.DOWN, ctTexture);
+        makeConnectionQuad(output, srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.DOWN, ctTexture);
     }
 
     /**
@@ -68,17 +61,15 @@ public abstract class DefaultTextureType extends TextureType
      * @param xDir The horizontal direction of the corner the resulting quad will cover
      * @param yDir The vertical direction of the corner the resulting quad will cover
      * @param ctTex The texture location to use if the quadrant has at least an X and/or Y connection
-     * @return The resulting quad for the quadrant or null if the source quad being cut to the quadrant's size would
-     *         result in an empty quad
      */
-    @Nullable
-    protected final BakedQuad makeConnectionQuad(
+    protected final void makeConnectionQuad(
+            Consumer<BakedQuad> output,
             BakedQuad srcQuad,
             Direction side,
             byte state,
             ConnectionDirection xDir,
             ConnectionDirection yDir,
-            ResourceLocation ctTex
+            Identifier ctTex
     )
     {
         boolean xCon = xDir.isSet(state);
@@ -90,10 +81,11 @@ public abstract class DefaultTextureType extends TextureType
 
         BlockElementFace.UVs uvs = getConnectionUVs(xCon, yCon, diagCon, side);
         TextureAtlasSprite tex = (xCon || yCon) ? ModelUtils.getSprite(ctTex) : srcQuad.sprite();
+        BakedQuad result;
         if (Utils.isY(side))
         {
             up ^= side == Direction.UP;
-            return QuadModifier.of(srcQuad)
+            result = QuadModifier.of(srcQuad)
                     .apply(Modifiers.cutTopBottom(up ? Direction.SOUTH : Direction.NORTH, .5F))
                     .apply(Modifiers.cutTopBottom(right ? Direction.WEST : Direction.EAST, .5F))
                     .apply(Modifiers.remapTexture(tex, uvs))
@@ -101,11 +93,15 @@ public abstract class DefaultTextureType extends TextureType
         }
         else
         {
-            return QuadModifier.of(srcQuad)
+            result = QuadModifier.of(srcQuad)
                     .apply(Modifiers.cutSideUpDown(up, .5F))
                     .apply(Modifiers.cutSideLeftRight(!right, .5F))
                     .apply(Modifiers.remapTexture(tex, uvs))
                     .export();
+        }
+        if (result != null)
+        {
+            output.accept(result);
         }
     }
 
