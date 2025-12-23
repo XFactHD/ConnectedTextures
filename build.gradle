@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.124'
+    id 'net.neoforged.moddev' version '2.0.131'
 }
 
 version = mod_version
@@ -84,7 +84,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("curse.maven:atlasviewer-633577:${atlasviewer_coord}")
+    implementation("curse.maven:atlasviewer-633577:${atlasviewer_coord}")
 }
 
 tasks.withType(ProcessResources).configureEach {
