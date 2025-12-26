@@ -3,6 +3,7 @@ package io.github.xfacthd.contex.client.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.xfacthd.contex.api.type.SpriteType;
 import net.minecraft.resources.Identifier;
 import io.github.xfacthd.contex.api.type.ConnectionPredicate;
 import io.github.xfacthd.contex.api.type.OcclusionMode;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public record MetaEntry(TextureType type, ConnectionPredicate predicate, OcclusionMode occlusionMode, Optional<StatePredicate> statePredicate, TextureEntry[] textures)
 {
@@ -27,6 +29,7 @@ public record MetaEntry(TextureType type, ConnectionPredicate predicate, Occlusi
     private MetaEntry(TextureType type, ConnectionPredicate predicate, OcclusionMode occlusionMode, Optional<StatePredicate> statePredicate, List<TextureEntry> textures)
     {
         this(type, predicate, occlusionMode, statePredicate, textures.toArray(TextureEntry[]::new));
+        textures.forEach(entry -> entry.resolve(type));
     }
 
     private List<TextureEntry> textureList()
@@ -64,6 +67,16 @@ public record MetaEntry(TextureType type, ConnectionPredicate predicate, Occlusi
             for (int texIdx = 0; texIdx < textures.length; texIdx++)
             {
                 TextureEntry texture = textures[texIdx];
+                Set<SpriteType> invalidTypes = texture.validateSpriteTypes(entry.type);
+                if (invalidTypes != null)
+                {
+                    int finalMetaIdx = metaIdx;
+                    int finalTexIdx = texIdx;
+                    return DataResult.error(() -> "Found CT unsupported texture keys in contex_meta[%d].textures[%d]: %s".formatted(
+                            finalMetaIdx, finalTexIdx, invalidTypes
+                    ));
+                }
+
                 Key key = new Key(texture.baseTexture(), entry.statePredicate);
                 MetaEntry lastEntry = uniqueTextures.put(key, entry);
                 if (lastEntry != null)

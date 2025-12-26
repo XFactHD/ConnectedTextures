@@ -1,7 +1,6 @@
 package io.github.xfacthd.contex.api.model;
 
 import com.google.common.base.Preconditions;
-import net.minecraft.client.renderer.block.model.BlockElementFace;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -180,30 +179,22 @@ public final class Modifiers
     }
 
     /**
-     * Map a different texture onto this quad with the given min and max UV coordinates being in relation to a full block face
+     * Map a different texture onto this quad. The target sprite must cover the block face in the
+     * same manner as the original sprite.
+     *
      * @param targetSprite The texture to apply to the quad, must be stitched to the block atlas
-     * @param uv The UV coordinates in the range 0-1
      */
-    public static QuadModifier.Modifier remapTexture(TextureAtlasSprite targetSprite, BlockElementFace.UVs uv)
+    public static QuadModifier.Modifier remapTexture(TextureAtlasSprite targetSprite)
     {
         return data ->
         {
             TextureAtlasSprite srcSprite = data.sprite;
 
-            float minU = uv.minU();
-            float minV = uv.minV();
-            float maxU = uv.maxU();
-            float maxV = uv.maxV();
-
             for (int i = 0; i < 4; i++)
             {
-                float uRelSrc = getRelUV(data, srcSprite, i, 0);
-                float uRelDest = Mth.lerp(uRelSrc, minU, maxU);
-
-                float vRelSrc = getRelUV(data, srcSprite, i, 1);
-                float vRelDest = Mth.lerp(vRelSrc, minV, maxV);
-
-                data.uv(i, targetSprite.getU(uRelDest), targetSprite.getV(vRelDest));
+                float uRel = getRelUV(data, srcSprite, i, 0);
+                float vRel = getRelUV(data, srcSprite, i, 1);
+                data.uv(i, targetSprite.getU(uRel), targetSprite.getV(vRel));
             }
 
             data.sprite(targetSprite);

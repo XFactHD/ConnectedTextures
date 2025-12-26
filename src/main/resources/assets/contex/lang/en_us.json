@@ -1,7 +1,6 @@
 {
     "label.contex.source_tooltip.ctm.texture": "Texture",
     "label.contex.source_tooltip.ctm.border": "Border",
-    "label.contex.source_tooltip.ctm.sprite": "Sprite",
     "label.contex.source_tooltip.ctm.mirror_parallel": "Mirror parallel",
     "label.contex.source_tooltip.ctm.mirror_perpendicular": "Mirror perpendicular",
     "value.contex.source_tooltip.ctm.border": "l: %s, r: %s, t: %s, b: %s",

@@ -1,40 +1,45 @@
 package io.github.xfacthd.contex.client.data;
 
+import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.xfacthd.contex.api.type.SpriteType;
+import io.github.xfacthd.contex.api.utils.Utils;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMaps;
 import net.minecraft.resources.Identifier;
 import io.github.xfacthd.contex.api.type.TextureType;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.Set;
 
-public record TextureEntry(Identifier baseTexture, Identifier auxTexture)
+public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteType, Identifier> textures)
 {
-    private static final Codec<TextureEntry> FULL_CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    public static final Codec<TextureEntry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Identifier.CODEC.fieldOf("main_texture").forGetter(TextureEntry::baseTexture),
-            Identifier.CODEC.optionalFieldOf("ct_texture").forGetter(TextureEntry::ctTex)
-    ).apply(inst, TextureEntry::of));
-    public static final Codec<TextureEntry> CODEC = Codec.withAlternative(
-            FULL_CODEC,
-            Identifier.CODEC.xmap(TextureEntry::new, TextureEntry::baseTexture)
-    );
+            Utils.ref2ObjMapCodec(SpriteType.CODEC, Identifier.CODEC).optionalFieldOf("ct_textures", Reference2ObjectMaps.emptyMap()).forGetter(TextureEntry::textures)
+    ).apply(inst, TextureEntry::new));
 
-    public TextureEntry(Identifier baseTexture)
+    public Identifier get(@Nullable SpriteType type)
     {
-        this(baseTexture, baseTexture.withSuffix("_ctm"));
+        return textures.getOrDefault(type, baseTexture);
     }
 
-    public Identifier get(TextureType type)
+    @Nullable
+    Set<SpriteType> validateSpriteTypes(TextureType type)
     {
-        return type.hasAdditionalTexture() ? auxTexture : baseTexture;
+        if (!type.getSpriteTypes().containsAll(textures.keySet()))
+        {
+            return Sets.difference(textures.keySet(), type.getSpriteTypes());
+        }
+        return null;
     }
 
-    private static TextureEntry of(Identifier baseTexture, Optional<Identifier> ctTexture)
+    void resolve(TextureType texType)
     {
-        return ctTexture.isPresent() ? new TextureEntry(baseTexture, ctTexture.get()) : new TextureEntry(baseTexture);
-    }
-
-    private Optional<Identifier> ctTex()
-    {
-        return auxTexture.equals(baseTexture.withSuffix("_ctm")) ? Optional.empty() : Optional.of(auxTexture);
+        for (SpriteType spriteType : texType.getSpriteTypes())
+        {
+            textures.computeIfAbsent(spriteType, (SpriteType type) -> baseTexture.withSuffix("_" + type.suffix()));
+        }
     }
 }

@@ -1,6 +1,6 @@
 package io.github.xfacthd.contex.client.type;
 
-import net.minecraft.client.renderer.block.model.BlockElementFace;
+import io.github.xfacthd.contex.api.type.SpriteType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -9,8 +9,10 @@ import io.github.xfacthd.contex.api.state.ConnectionDirection;
 import io.github.xfacthd.contex.api.type.ConnectionPredicate;
 import io.github.xfacthd.contex.api.type.DefaultTextureType;
 import io.github.xfacthd.contex.api.type.OcclusionMode;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 
 public sealed class FullTextureType extends DefaultTextureType permits SimpleTextureType, FullCarpetTextureType
 {
@@ -20,11 +22,12 @@ public sealed class FullTextureType extends DefaultTextureType permits SimpleTex
     private static final ConnectionDirection[] DIAGONAL_DIRECTIONS = Arrays.stream(ConnectionDirection.values())
             .filter(ConnectionDirection::isDiagonal)
             .toArray(ConnectionDirection[]::new);
-    private static final BlockElementFace.UVs UV_NONE = new BlockElementFace.UVs(0F, 0F, 1F, 1F);
-    private static final BlockElementFace.UVs UV_FULL = new BlockElementFace.UVs(0F, 0F, .5F, .5F);
-    private static final BlockElementFace.UVs UV_CARDINAL = new BlockElementFace.UVs(.5F, .5F, 1F, 1F);
-    private static final BlockElementFace.UVs UV_X_ONLY = new BlockElementFace.UVs(0F, .5F, .5F, 1F);
-    private static final BlockElementFace.UVs UV_Y_ONLY = new BlockElementFace.UVs(.5F, 0F, 1F, .5F);
+    private static final EnumSet<SpriteType> SPRITE_TYPES = EnumSet.of(
+            SpriteType.HORIZONTAL,
+            SpriteType.VERTICAL,
+            SpriteType.CROSS,
+            SpriteType.FULL
+    );
     public static final FullTextureType INSTANCE = new FullTextureType();
 
     protected FullTextureType() { }
@@ -55,24 +58,27 @@ public sealed class FullTextureType extends DefaultTextureType permits SimpleTex
     }
 
     @Override
-    public BlockElementFace.UVs getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
+    @Nullable
+    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
-        if (xCon && yCon && diagCon)
+        if (xCon && yCon)
         {
-            return UV_FULL;
-        }
-        else if (xCon && yCon)
-        {
-            return UV_CARDINAL;
+            return diagCon ? SpriteType.FULL : SpriteType.CROSS;
         }
         else if (xCon)
         {
-            return UV_X_ONLY;
+            return SpriteType.HORIZONTAL;
         }
         else if (yCon)
         {
-            return UV_Y_ONLY;
+            return SpriteType.VERTICAL;
         }
-        return UV_NONE;
+        return null;
+    }
+
+    @Override
+    public EnumSet<SpriteType> getSpriteTypes()
+    {
+        return SPRITE_TYPES;
     }
 }

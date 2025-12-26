@@ -2,6 +2,7 @@ package io.github.xfacthd.contex.client.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
+import io.github.xfacthd.contex.api.type.SpriteType;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
@@ -20,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import io.github.xfacthd.contex.api.texture.Border;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +29,7 @@ import java.util.Set;
 public record ConTexSpriteSupplier(
         Identifier srcLoc,
         Identifier outLoc,
+        SpriteType type,
         Resource imgResource,
         LazyLoadedImage image,
         Border border,
@@ -37,9 +38,9 @@ public record ConTexSpriteSupplier(
 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public ConTexSpriteSupplier(Identifier srcLoc, Identifier outLoc, Resource imgResource, Border border, Set<MetadataSectionType<?>> additionalMetadata)
+    public ConTexSpriteSupplier(Identifier srcLoc, Identifier outLoc, SpriteType outType, Resource imgResource, Border border, Set<MetadataSectionType<?>> additionalMetadata)
     {
-        this(srcLoc, outLoc, imgResource, new LazyLoadedImage(srcLoc, imgResource, 1), border, additionalMetadata);
+        this(srcLoc, outLoc, outType, imgResource, new LazyLoadedImage(srcLoc, imgResource, 1), border, additionalMetadata);
     }
 
     @Override
@@ -48,9 +49,9 @@ public record ConTexSpriteSupplier(
     {
         try
         {
-            return createTexture(srcLoc, outLoc, image.get(), imgResource.metadata(), border, additionalMetadata);
+            return createTexture(srcLoc, outLoc, type, image.get(), imgResource.metadata(), border, additionalMetadata);
         }
-        catch (IOException e)
+        catch (Throwable e)
         {
             LOGGER.error("Failed to generate CTM texture from texture '{}'", srcLoc, e);
             return null;
@@ -65,6 +66,7 @@ public record ConTexSpriteSupplier(
     public static SpriteContents createTexture(
             Identifier srcLoc,
             Identifier outLoc,
+            SpriteType type,
             NativeImage srcImage,
             ResourceMetadata metadata,
             Border border,
@@ -78,7 +80,7 @@ public record ConTexSpriteSupplier(
             return null;
         }
 
-        NativeImage destImage = new NativeImage(srcImage.format(), srcImage.getWidth() * 2, srcImage.getHeight() * 2, false);
+        NativeImage destImage = new NativeImage(srcImage.format(), srcImage.getWidth(), srcImage.getHeight(), false);
         FrameSize destSize = computeFrameSize(srcLoc, animMeta, destImage);
         if (destSize == null)
         {
@@ -89,7 +91,7 @@ public record ConTexSpriteSupplier(
         List<FrameInfo> frames = collectFrames(srcImage, srcSize, animMeta);
         for (FrameInfo frame : frames)
         {
-            OutputFrame.of(srcImage, destImage, border, frame, srcSize, destSize).build();
+            OutputFrame.of(srcImage, destImage, type, border, frame, srcSize, destSize).build();
         }
 
         List<MetadataSectionType.WithValue<?>> typedMetadata = metadata.getTypedSections(additionalMetadata);
@@ -147,6 +149,7 @@ public record ConTexSpriteSupplier(
     private record OutputFrame(
             NativeImage srcImage,
             NativeImage destImage,
+            SpriteType type,
             int srcWidth,
             int srcHeight,
             int srcX,
@@ -165,7 +168,7 @@ public record ConTexSpriteSupplier(
             boolean synthCorners
     )
     {
-        static OutputFrame of(NativeImage srcImage, NativeImage destImage, Border border, FrameInfo frame, FrameSize srcSize, FrameSize destSize)
+        static OutputFrame of(NativeImage srcImage, NativeImage destImage, SpriteType type, Border border, FrameInfo frame, FrameSize srcSize, FrameSize destSize)
         {
             int srcWidth = srcSize.width();
             int srcHeight = srcSize.height();
@@ -183,7 +186,7 @@ public record ConTexSpriteSupplier(
             boolean mirrorPerp = border.mirrorPerpendicular();
             boolean oppositeEdge = border.copyFromOppositeEdge();
             boolean synthCorners = border.synthesizeInnerCorners();
-            return new OutputFrame(srcImage, destImage, srcWidth, srcHeight, srcX, srcY, destX, destY, left, right, bottom, top, vertWidth, horHeight, mirrorPar, mirrorPerp, oppositeEdge, synthCorners);
+            return new OutputFrame(srcImage, destImage, type, srcWidth, srcHeight, srcX, srcY, destX, destY, left, right, bottom, top, vertWidth, horHeight, mirrorPar, mirrorPerp, oppositeEdge, synthCorners);
         }
 
         void build()
@@ -198,80 +201,89 @@ public record ConTexSpriteSupplier(
             int offYTop = oppositeEdge ? -(srcHeight - (bottom * 2)) : -top;
             int offYBottom = oppositeEdge ? (srcHeight - (bottom * 2)) : bottom;
 
-            // Fully connected (top left)
-            srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
-            // Top edge
-            copyRect(0, 0, left, srcYTop, 0, offYTop, vertWidth, top, mirrorPerp, mirrorPar);
-            // Bottom edge
-            copyRect(0, 0, left, srcYBottom, 0, offYBottom, vertWidth, bottom, mirrorPerp, mirrorPar);
-            // Left edge
-            copyRect(0, 0, srcXLeft, top, offXLeft, 0, left, horHeight, mirrorPar, mirrorPerp);
-            // Right edge
-            copyRect(0, 0, srcXRight, top, offXRight, 0, right, horHeight, mirrorPar, mirrorPerp);
-            // Top-left corner
-            copyRect(0, 0, srcXLeft, srcYTop, offXLeft, offYTop, left, top, mirrorPar, mirrorPar);
-            // Top-right corner
-            copyRect(0, 0, srcXRight, srcYTop, offXRight, offYTop, right, top, mirrorPar, mirrorPar);
-            // Bottom-left corner
-            copyRect(0, 0, srcXLeft, srcYBottom, offXLeft, offYBottom, left, bottom, mirrorPar, mirrorPar);
-            // Bottom-right corner
-            copyRect(0, 0, srcXRight, srcYBottom, offXRight, offYBottom, right, bottom, mirrorPar, mirrorPar);
-
-            int srcVertX = synthCorners ? 0 : left;
-            int srcVertWidth = synthCorners ? srcWidth : vertWidth;
-
-            // Vertically connected (top right)
-            srcImage.copyRect(destImage, srcX, srcY, destX + srcWidth, destY, srcWidth, srcHeight, false, false);
-            // Top edge
-            copyRect(1, 0, srcVertX, srcYTop, 0, offYTop, srcVertWidth, top, mirrorPerp, mirrorPar);
-            // Bottom edge
-            copyRect(1, 0, srcVertX, srcYBottom, 0, offYBottom, srcVertWidth, bottom, mirrorPerp, mirrorPar);
-
-            int srcHorY = synthCorners ? 0 : top;
-            int srcHorHeight = synthCorners ? srcHeight : horHeight;
-
-            // Horizontally connected (bottom left)
-            srcImage.copyRect(destImage, srcX, srcY, destX, destY + srcHeight, srcWidth, srcHeight, false, false);
-            // Left edge
-            copyRect(0, 1, srcXLeft, srcHorY, offXLeft, 0, left, srcHorHeight, mirrorPar, mirrorPerp);
-            // Right edge
-            copyRect(0, 1, srcXRight, srcHorY, offXRight, 0, right, srcHorHeight, mirrorPar, mirrorPerp);
-
-            // Horizontally and vertically connected (bottom right)
-            srcImage.copyRect(destImage, srcX, srcY, destX + srcWidth, destY + srcHeight, srcWidth, srcHeight, false, false);
-            // Top edge
-            copyRect(1, 1, left, srcYTop, 0, offYTop, vertWidth, top, mirrorPerp, mirrorPar);
-            // Bottom edge
-            copyRect(1, 1, left, srcYBottom, 0, offYBottom, vertWidth, bottom, mirrorPerp, mirrorPar);
-            // Left edge
-            copyRect(1, 1, srcXLeft, top, offXLeft, 0, left, horHeight, mirrorPar, mirrorPerp);
-            // Right edge
-            copyRect(1, 1, srcXRight, top, offXRight, 0, right, horHeight, mirrorPar, mirrorPerp);
-            if (synthCorners)
+            switch (type)
             {
-                // Top-left corner
-                buildInnerCorner(0, srcYTop, srcXRight, 0, 0, 0, left, top, false, false);
-                // Top-right corner
-                buildInnerCorner(srcWidth - right, srcYTop, srcXLeft, 0, srcWidth - right, 0, right, top, true, false);
-                // Bottom-left corner
-                buildInnerCorner(0, srcYBottom, srcXRight, srcHeight - bottom, 0, srcHeight - bottom, left, bottom, false, true);
-                // Bottom-right corner
-                buildInnerCorner(srcWidth - right, srcYBottom, srcXLeft, srcHeight - bottom, srcWidth - right, srcHeight - bottom, right, bottom, true, true);
+                case FULL ->
+                {
+                    // Fully connected (top left)
+                    srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
+                    // Top edge
+                    copyRect(left, srcYTop, 0, offYTop, vertWidth, top, mirrorPerp, mirrorPar);
+                    // Bottom edge
+                    copyRect(left, srcYBottom, 0, offYBottom, vertWidth, bottom, mirrorPerp, mirrorPar);
+                    // Left edge
+                    copyRect(srcXLeft, top, offXLeft, 0, left, horHeight, mirrorPar, mirrorPerp);
+                    // Right edge
+                    copyRect(srcXRight, top, offXRight, 0, right, horHeight, mirrorPar, mirrorPerp);
+                    // Top-left corner
+                    copyRect(srcXLeft, srcYTop, offXLeft, offYTop, left, top, mirrorPar, mirrorPar);
+                    // Top-right corner
+                    copyRect(srcXRight, srcYTop, offXRight, offYTop, right, top, mirrorPar, mirrorPar);
+                    // Bottom-left corner
+                    copyRect(srcXLeft, srcYBottom, offXLeft, offYBottom, left, bottom, mirrorPar, mirrorPar);
+                    // Bottom-right corner
+                    copyRect(srcXRight, srcYBottom, offXRight, offYBottom, right, bottom, mirrorPar, mirrorPar);
+                }
+                case VERTICAL ->
+                {
+                    int srcVertX = synthCorners ? 0 : left;
+                    int srcVertWidth = synthCorners ? srcWidth : vertWidth;
+
+                    // Vertically connected (top right)
+                    srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
+                    // Top edge
+                    copyRect(srcVertX, srcYTop, 0, offYTop, srcVertWidth, top, mirrorPerp, mirrorPar);
+                    // Bottom edge
+                    copyRect(srcVertX, srcYBottom, 0, offYBottom, srcVertWidth, bottom, mirrorPerp, mirrorPar);
+                }
+                case HORIZONTAL ->
+                {
+                    int srcHorY = synthCorners ? 0 : top;
+                    int srcHorHeight = synthCorners ? srcHeight : horHeight;
+
+                    // Horizontally connected (bottom left)
+                    srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
+                    // Left edge
+                    copyRect(srcXLeft, srcHorY, offXLeft, 0, left, srcHorHeight, mirrorPar, mirrorPerp);
+                    // Right edge
+                    copyRect(srcXRight, srcHorY, offXRight, 0, right, srcHorHeight, mirrorPar, mirrorPerp);
+                }
+                case CROSS ->
+                {
+                    // Horizontally and vertically connected (bottom right)
+                    srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
+                    // Top edge
+                    copyRect(left, srcYTop, 0, offYTop, vertWidth, top, mirrorPerp, mirrorPar);
+                    // Bottom edge
+                    copyRect(left, srcYBottom, 0, offYBottom, vertWidth, bottom, mirrorPerp, mirrorPar);
+                    // Left edge
+                    copyRect(srcXLeft, top, offXLeft, 0, left, horHeight, mirrorPar, mirrorPerp);
+                    // Right edge
+                    copyRect(srcXRight, top, offXRight, 0, right, horHeight, mirrorPar, mirrorPerp);
+                    if (synthCorners)
+                    {
+                        // Top-left corner
+                        buildInnerCorner(0, srcYTop, srcXRight, 0, 0, 0, left, top, false, false);
+                        // Top-right corner
+                        buildInnerCorner(srcWidth - right, srcYTop, srcXLeft, 0, srcWidth - right, 0, right, top, true, false);
+                        // Bottom-left corner
+                        buildInnerCorner(0, srcYBottom, srcXRight, srcHeight - bottom, 0, srcHeight - bottom, left, bottom, false, true);
+                        // Bottom-right corner
+                        buildInnerCorner(srcWidth - right, srcYBottom, srcXLeft, srcHeight - bottom, srcWidth - right, srcHeight - bottom, right, bottom, true, true);
+                    }
+                }
             }
         }
 
-        void copyRect(int quadrantX, int quadrantY, int srcX, int srcY, int offX, int offY, int width, int height, boolean mirrorX, boolean mirrorY)
+        void copyRect(int srcX, int srcY, int offX, int offY, int width, int height, boolean mirrorX, boolean mirrorY)
         {
-            int destX = this.destX + (quadrantX * srcWidth) + srcX + offX;
-            int destY = this.destY + (quadrantY * srcHeight) + srcY + offY;
+            int destX = this.destX + srcX + offX;
+            int destY = this.destY + srcY + offY;
             srcImage.copyRect(destImage, this.srcX + srcX, this.srcY + srcY, destX, destY, width, height, mirrorX, mirrorY);
         }
 
         void buildInnerCorner(int srcXVert, int srcYVert, int srcXHor, int srcYHor, int destX, int destY, int width, int height, boolean invX, boolean invY)
         {
-            destX += srcWidth;
-            destY += srcHeight;
-
             for (int y = 0; y < height; y++)
             {
                 int checkY = invY ? (width - y - 1) : y;

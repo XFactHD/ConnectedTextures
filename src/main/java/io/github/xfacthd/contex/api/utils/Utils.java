@@ -1,10 +1,14 @@
 package io.github.xfacthd.contex.api.utils;
 
+import com.mojang.serialization.Codec;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import java.util.Arrays;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 
 public final class Utils
@@ -70,6 +74,11 @@ public final class Utils
     {
         Arrays.setAll(array, generator);
         return array;
+    }
+
+    public static <K, V> Codec<Reference2ObjectMap<K, V>> ref2ObjMapCodec(Codec<K> keyCodec, Codec<V> valueCodec)
+    {
+        return Codec.unboundedMap(keyCodec, valueCodec).xmap(Reference2ObjectOpenHashMap::new, Function.identity());
     }
 
     private Utils() { }

@@ -16,23 +16,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 public final class MetaEntryBuilder
 {
-    @Nullable
-    private TextureType type;
+    private final TextureType type;
     @Nullable
     private ConnectionPredicate predicate;
     private OcclusionMode occlusionMode = OcclusionMode.SELF;
     private final Map<String, String> statePredicateProperties = new HashMap<>();
     private final List<TextureEntry> textures = new ArrayList<>();
 
-    MetaEntryBuilder() { }
-
-    public MetaEntryBuilder type(TextureType type)
+    MetaEntryBuilder(TextureType type)
     {
         this.type = type;
-        return this;
     }
 
     public MetaEntryBuilder predicate(ConnectionPredicate predicate)
@@ -55,12 +52,12 @@ public final class MetaEntryBuilder
 
     public MetaEntryBuilder addTexture(Identifier texture)
     {
-        return addTexture(texture, texture.withSuffix("_ctm"));
+        return addTexture(texture, UnaryOperator.identity());
     }
 
-    public MetaEntryBuilder addTexture(Identifier baseTexture, Identifier ctTexture)
+    public MetaEntryBuilder addTexture(Identifier baseTexture, UnaryOperator<TextureEntryBuilder> consumer)
     {
-        textures.add(new TextureEntry(baseTexture, ctTexture));
+        textures.add(consumer.apply(new TextureEntryBuilder(type, baseTexture)).build());
         return this;
     }
 

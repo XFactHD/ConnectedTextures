@@ -1,6 +1,6 @@
 package io.github.xfacthd.contex.client.type;
 
-import net.minecraft.client.renderer.block.model.BlockElementFace;
+import io.github.xfacthd.contex.api.type.SpriteType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -9,6 +9,9 @@ import io.github.xfacthd.contex.api.state.ConnectionDirection;
 import io.github.xfacthd.contex.api.type.ConnectionPredicate;
 import io.github.xfacthd.contex.api.type.DefaultTextureType;
 import io.github.xfacthd.contex.api.type.OcclusionMode;
+import org.jspecify.annotations.Nullable;
+
+import java.util.EnumSet;
 
 public final class OmniPillarTextureType extends DefaultTextureType
 {
@@ -25,6 +28,7 @@ public final class OmniPillarTextureType extends DefaultTextureType
     private static final int CON_MASK_DIAG_AXIS_X = ConnectionDirection.mask(ConnectionDirection.UP, ConnectionDirection.DOWN);
     private static final int CON_MASK_AXIS_X = ConnectionDirection.mask(ConnectionDirection.LEFT, ConnectionDirection.RIGHT);
     private static final int CON_MASK_DIAG_AXIS_Z = 0;
+    private static final EnumSet<SpriteType> SPRITE_TYPES = EnumSet.of(SpriteType.HORIZONTAL, SpriteType.VERTICAL);
     public static final OmniPillarTextureType INSTANCE = new OmniPillarTextureType();
 
     private OmniPillarTextureType() { }
@@ -101,12 +105,17 @@ public final class OmniPillarTextureType extends DefaultTextureType
     }
 
     @Override
-    public BlockElementFace.UVs getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
+    @Nullable
+    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
-        if (!xCon && !yCon)
-        {
-            return RotatingPillarTextureType.UV_NO_CON;
-        }
-        return yCon ? RotatingPillarTextureType.UV_Z_TOPBOTTOM : RotatingPillarTextureType.UV_Z_SIDE;
+        if (xCon) return SpriteType.HORIZONTAL;
+        if (yCon) return SpriteType.VERTICAL;
+        return null;
+    }
+
+    @Override
+    public EnumSet<SpriteType> getSpriteTypes()
+    {
+        return SPRITE_TYPES;
     }
 }

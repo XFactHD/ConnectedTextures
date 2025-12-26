@@ -1,6 +1,7 @@
 package io.github.xfacthd.contex.api.datagen;
 
 import com.google.common.base.Preconditions;
+import io.github.xfacthd.contex.api.type.TextureType;
 import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
@@ -13,7 +14,7 @@ import io.github.xfacthd.contex.client.model.ConTexBlockModelDefinition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 public class ConTexBlockModelDefinitionGenerator implements BlockModelDefinitionGenerator
 {
@@ -43,11 +44,9 @@ public class ConTexBlockModelDefinitionGenerator implements BlockModelDefinition
         return this;
     }
 
-    public ConTexBlockModelDefinitionGenerator metadata(Consumer<MetaEntryBuilder> consumer)
+    public ConTexBlockModelDefinitionGenerator metadata(TextureType type, UnaryOperator<MetaEntryBuilder> consumer)
     {
-        MetaEntryBuilder builder = new MetaEntryBuilder();
-        consumer.accept(builder);
-        this.metadata.add(builder.build());
+        this.metadata.add(consumer.apply(new MetaEntryBuilder(type)).build());
         return this;
     }
 

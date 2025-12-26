@@ -1,9 +1,9 @@
 package io.github.xfacthd.contex.api.type;
 
+import io.github.xfacthd.contex.client.data.TextureEntry;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,12 +15,9 @@ import java.util.function.Consumer;
 public abstract class TextureType
 {
     /**
-     * {@return true if this type needs additional textures}
+     * {@return an {@link EnumSet} containing all {@link SpriteType}s this texture type uses to compose connected faces}
      */
-    public boolean hasAdditionalTexture()
-    {
-        return true;
-    }
+    public abstract EnumSet<SpriteType> getSpriteTypes();
 
     /**
      * {@return an {@link EnumSet} containing all directions this type operates on}
@@ -59,13 +56,13 @@ public abstract class TextureType
      * Create the {@link BakedQuad}s making up the given {@linkplain Direction side} of the block with the given connection state.<br>
      * Must only be called for sides contained in the set returned by {@link TextureType#getAffectedFaces()}
      *
-     * @param srcQuad   The original quad on the given side
-     * @param side      The side of the block
-     * @param state     The calculated connection state
-     * @param ctTexture The additional texture to use for connections
-     * @param output    The output to pass the generated quads to
+     * @param srcQuad  The original quad on the given side
+     * @param side     The side of the block
+     * @param state    The calculated connection state
+     * @param textures The additional textures to use for connections
+     * @param output   The output to pass the generated quads to
      */
-    public abstract void makeConnectionQuads(BakedQuad srcQuad, Direction side, byte state, Identifier ctTexture, Consumer<BakedQuad> output);
+    public abstract void makeConnectionQuads(BakedQuad srcQuad, Direction side, byte state, TextureEntry textures, Consumer<BakedQuad> output);
 
     /**
      * Check whether the connection on the given side of the block being connected to is visible

@@ -16,7 +16,6 @@ public final class AtlasViewerCompat
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component LABEL_TEXTURE = Component.translatable("label.contex.source_tooltip.ctm.texture");
     private static final Component LABEL_BORDER = Component.translatable("label.contex.source_tooltip.ctm.border");
-    private static final Component LABEL_SPRITE = Component.translatable("label.contex.source_tooltip.ctm.sprite");
     private static final Component LABEL_MIRROR_PARALLEL = Component.translatable("label.contex.source_tooltip.ctm.mirror_parallel");
     private static final Component LABEL_MIRROR_PERPENDICULAR = Component.translatable("label.contex.source_tooltip.ctm.mirror_perpendicular");
     private static final String VALUE_BORDER = "value.contex.source_tooltip.ctm.border";
@@ -50,7 +49,6 @@ public final class AtlasViewerCompat
             event.registerSourceTooltipAppender(ConTexSpriteSource.class, (src, consumer) ->
             {
                 Identifier resource = src.texture();
-                Identifier sprite = src.sprite().orElse(resource);
                 Border border = src.border();
 
                 consumer.accept(AtlasViewerCompat.LABEL_TEXTURE, Component.literal(resource.toString()));
@@ -63,7 +61,6 @@ public final class AtlasViewerCompat
                 ));
                 consumer.accept(AtlasViewerCompat.LABEL_MIRROR_PARALLEL, Component.literal(Boolean.toString(border.mirrorParallel())));
                 consumer.accept(AtlasViewerCompat.LABEL_MIRROR_PERPENDICULAR, Component.literal(Boolean.toString(border.mirrorPerpendicular())));
-                consumer.accept(AtlasViewerCompat.LABEL_SPRITE, Component.literal(sprite.toString()));
             });
         }
 

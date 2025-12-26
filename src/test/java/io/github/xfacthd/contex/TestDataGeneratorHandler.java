@@ -1,5 +1,6 @@
 package io.github.xfacthd.contex;
 
+import io.github.xfacthd.contex.api.type.TextureType;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -44,9 +45,8 @@ import io.github.xfacthd.contex.client.type.OmniPillarTextureType;
 import io.github.xfacthd.contex.client.type.PillarTextureType;
 import io.github.xfacthd.contex.client.type.RotatingPillarTextureType;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
@@ -66,8 +66,6 @@ public final class TestDataGeneratorHandler
         generator.addProvider(true, new TestBlockModelProvider(output));
         generator.addProvider(true, new TestSpriteSourceProvider(output, lookupProvider));
     }
-
-
 
     private static final class TestBlockModelProvider extends ModelProvider
     {
@@ -95,14 +93,14 @@ public final class TestDataGeneratorHandler
         @Override
         protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels)
         {
-            variant(blockModels, Blocks.CHISELED_DEEPSLATE,           builder -> builder.type(RotatingPillarTextureType.X).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DEEPSLATE));
-            variant(blockModels, Blocks.CHISELED_POLISHED_BLACKSTONE, builder -> builder.type(RotatingPillarTextureType.Z).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_BLACKSTONE));
-            variant(blockModels, Blocks.CHISELED_STONE_BRICKS,        builder -> builder.type(RotatingPillarTextureType.Y).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONEBRICKS));
-            variant(blockModels, Blocks.GLASS,                        builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.SOLID_OR_SELF).addTexture(TEX_GLASS));
-            variant(blockModels, Blocks.POLISHED_DIORITE,             builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DIORITE));
-            variant(blockModels, Blocks.POLISHED_GRANITE,             builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
-            variant(blockModels, Blocks.REDSTONE_BLOCK,               builder -> builder.type(OmniPillarTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_REDSTONE));
-            variant(blockModels, Blocks.SEA_LANTERN,                  builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_SEA_LANTERN));
+            variant(blockModels, Blocks.CHISELED_DEEPSLATE, RotatingPillarTextureType.X,           builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DEEPSLATE));
+            variant(blockModels, Blocks.CHISELED_POLISHED_BLACKSTONE, RotatingPillarTextureType.Z, builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_BLACKSTONE));
+            variant(blockModels, Blocks.CHISELED_STONE_BRICKS, RotatingPillarTextureType.Y,        builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONEBRICKS));
+            variant(blockModels, Blocks.GLASS, FullTextureType.INSTANCE,                        builder -> builder.predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.SOLID_OR_SELF).addTexture(TEX_GLASS));
+            variant(blockModels, Blocks.POLISHED_DIORITE, FullTextureType.INSTANCE,             builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DIORITE));
+            variant(blockModels, Blocks.POLISHED_GRANITE, FullTextureType.INSTANCE,             builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
+            variant(blockModels, Blocks.REDSTONE_BLOCK, OmniPillarTextureType.INSTANCE,               builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_REDSTONE));
+            variant(blockModels, Blocks.SEA_LANTERN, FullTextureType.INSTANCE,                  builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_SEA_LANTERN));
 
             TextureMapping mapping = new TextureMapping()
                     .put(SLOT_REDSTONE, TEX_REDSTONE)
@@ -114,7 +112,7 @@ public final class TestDataGeneratorHandler
                     .renderType("cutout")
                     .build()
                     .create(Blocks.OAK_PLANKS, mapping, blockModels.modelOutput);
-            variant(blockModels, Blocks.OAK_PLANKS, builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GLASS));
+            variant(blockModels, Blocks.OAK_PLANKS, FullTextureType.INSTANCE, builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GLASS));
 
             ConTexBlockModelDefinitionGenerator slabGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.OAK_SLAB);
             TextureMapping slabTextures = TextureMapping.column(TEX_DIORITE, TEX_DIORITE);
@@ -127,44 +125,46 @@ public final class TestDataGeneratorHandler
                             .select(SlabType.TOP, BlockModelGenerators.plainVariant(topSlab))
                             .select(SlabType.DOUBLE, BlockModelGenerators.plainVariant(doubleSlab))
             ));
-            slabGenerator.metadata(builder -> builder.type(FullTextureType.INSTANCE).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_DIORITE));
+            slabGenerator.metadata(FullTextureType.INSTANCE, builder -> builder.predicate(SameStatePredicate.INSTANCE).addTexture(TEX_DIORITE));
             blockModels.blockStateOutput.accept(slabGenerator);
 
             TexturedModel.CARPET.get(Blocks.RED_WOOL).create(Blocks.RED_CARPET, blockModels.modelOutput);
-            variant(blockModels, Blocks.RED_CARPET, builder -> builder.type(FullCarpetTextureType.TYPES[Direction.DOWN.ordinal()]).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_RED_WOOL));
+            variant(blockModels, Blocks.RED_CARPET, FullCarpetTextureType.TYPES[Direction.DOWN.ordinal()], builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_RED_WOOL));
 
             ConTexBlockModelDefinitionGenerator logGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.OAK_LOG);
             MultiVariant logVariant = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(Blocks.OAK_LOG));
             MultiVariant logVariantHor = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(Blocks.OAK_LOG, "_horizontal"));
             logGenerator.variant((MultiVariantGenerator) BlockModelGenerators.createRotatedPillarWithHorizontalVariant(Blocks.OAK_LOG, logVariant, logVariantHor));
-            logGenerator.metadata(builder -> builder.type(PillarTextureType.X).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.X));
-            logGenerator.metadata(builder -> builder.type(PillarTextureType.Y).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.Y));
-            logGenerator.metadata(builder -> builder.type(PillarTextureType.Z).predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.Z));
+            logGenerator.metadata(PillarTextureType.X, builder -> builder.predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.X));
+            logGenerator.metadata(PillarTextureType.Y, builder -> builder.predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.Y));
+            logGenerator.metadata(PillarTextureType.Z, builder -> builder.predicate(SameStatePredicate.INSTANCE).addTexture(TEX_OAK_LOG).addStateFilter(BlockStateProperties.AXIS, Direction.Axis.Z));
             blockModels.blockStateOutput.accept(logGenerator);
 
             ConTexBlockModelDefinitionGenerator stoneGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.STONE);
             Variant stoneVariant = BlockModelGenerators.plainModel(ModelLocationUtils.getModelLocation(Blocks.STONE));
             Variant stoneMirroredVariant = BlockModelGenerators.plainModel(ModelLocationUtils.getModelLocation(Blocks.STONE, "_mirrored"));
             stoneGenerator.variant(MultiVariantGenerator.dispatch(Blocks.STONE, BlockModelGenerators.createRotatedVariants(stoneVariant, stoneMirroredVariant)));
-            stoneGenerator.metadata(builder -> builder.type(FullTextureType.INSTANCE).predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONE));
+            stoneGenerator.metadata(FullTextureType.INSTANCE, builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONE));
             blockModels.blockStateOutput.accept(stoneGenerator);
         }
 
-        private static void variant(BlockModelGenerators blockModels, Block block, Consumer<MetaEntryBuilder> metaBuilder)
+        private static void variant(BlockModelGenerators blockModels, Block block, TextureType type, UnaryOperator<MetaEntryBuilder> metaBuilder)
         {
             ConTexBlockModelDefinitionGenerator generator = new ConTexBlockModelDefinitionGenerator(block)
                     .variant(MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(block))))
-                    .metadata(metaBuilder);
+                    .metadata(type, metaBuilder);
             blockModels.blockStateOutput.accept(generator);
         }
 
         @Override
+        @SuppressWarnings("NullableProblems")
         protected Stream<? extends Holder<Block>> getKnownBlocks()
         {
             return Stream.empty();
         }
 
         @Override
+        @SuppressWarnings("NullableProblems")
         protected Stream<? extends Holder<Item>> getKnownItems()
         {
             return Stream.empty();
@@ -184,33 +184,27 @@ public final class TestDataGeneratorHandler
             atlas(AtlasIds.BLOCKS)
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/glass"),
-                            new Border(1),
-                            Optional.empty()
+                            new Border(1)
                     ))
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/polished_diorite"),
-                            new Border(2),
-                            Optional.empty()
+                            new Border(2)
                     ))
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/polished_granite"),
-                            new Border(2),
-                            Optional.empty()
+                            new Border(2)
                     ))
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/stone"),
-                            new Border(2),
-                            Optional.empty()
+                            new Border(2)
                     ))
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/sea_lantern"),
-                            new Border(2, true, true, false, false),
-                            Optional.empty()
+                            new Border(2, true, true, false, false)
                     ))
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/red_wool"),
-                            new Border(2, false, false, true, true),
-                            Optional.empty()
+                            new Border(2, false, false, true, true)
                     ));
         }
     }

@@ -9,6 +9,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import io.github.xfacthd.contex.api.type.SpriteType;
+import io.github.xfacthd.contex.client.type.FullTextureType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.commands.CommandSourceStack;
@@ -26,6 +28,8 @@ import io.github.xfacthd.contex.client.texture.ConTexSpriteSupplier;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public final class ConTexCommand
@@ -167,10 +171,16 @@ public final class ConTexCommand
             throw EX_INVALID_CORNER_SYNTH.create();
         }
 
-        SpriteContents ctmSprite = ConTexSpriteSupplier.createTexture(texture, outLoc, srcImage, metadata, border, Set.of());
-        if (ctmSprite == null)
+        Set<SpriteType> types = FullTextureType.INSTANCE.getSpriteTypes();
+        List<SpriteContents> ctmSprites = new ArrayList<>(types.size());
+        for (SpriteType type : types)
         {
-            throw EX_GEN_FAILED.create();
+            SpriteContents ctmSprite = ConTexSpriteSupplier.createTexture(texture, outLoc, type, srcImage, metadata, border, Set.of());
+            if (ctmSprite == null)
+            {
+                throw EX_GEN_FAILED.create();
+            }
+            ctmSprites.add(ctmSprite);
         }
 
         int lastSlash = outLoc.getPath().lastIndexOf('/');
@@ -182,7 +192,10 @@ public final class ConTexCommand
         try
         {
             Files.createDirectories(exportPath.getParent());
-            ctmSprite.getOriginalImage().writeToFile(exportPath);
+            for (SpriteContents sprite : ctmSprites)
+            {
+                sprite.getOriginalImage().writeToFile(exportPath);
+            }
         }
         catch (IOException e)
         {

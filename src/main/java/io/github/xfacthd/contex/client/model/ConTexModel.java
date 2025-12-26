@@ -1,5 +1,6 @@
 package io.github.xfacthd.contex.client.model;
 
+import io.github.xfacthd.contex.client.data.TextureEntry;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -9,7 +10,6 @@ import net.minecraft.client.renderer.block.model.SimpleModelWrapper;
 import net.minecraft.client.resources.model.QuadCollection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -82,7 +82,7 @@ public final class ConTexModel extends DelegateBlockStateModel
 
             MetaEntry meta = metadata[metaIdx];
             TextureType texType = meta.type();
-            Identifier ctTexture = meta.texture(texIdx).get(texType);
+            TextureEntry ctTextures = meta.texture(texIdx);
 
             ExtendedQuadCollectionBuilder quadsBuilder = new ExtendedQuadCollectionBuilder();
             for (Direction side : DIRECTIONS)
@@ -91,7 +91,7 @@ public final class ConTexModel extends DelegateBlockStateModel
                 byte states = ctStates.get(side, metaIdx);
                 for (BakedQuad quad : part.getQuads(side))
                 {
-                    texType.makeConnectionQuads(quad, side, states, ctTexture, quadsBuilder);
+                    texType.makeConnectionQuads(quad, side, states, ctTextures, quadsBuilder);
                 }
             }
             quadsBuilder.setCullFace(null);
@@ -99,7 +99,7 @@ public final class ConTexModel extends DelegateBlockStateModel
             {
                 Direction side = quad.direction();
                 byte states = ctStates.get(side, metaIdx);
-                texType.makeConnectionQuads(quad, side, states, ctTexture, quadsBuilder);
+                texType.makeConnectionQuads(quad, side, states, ctTextures, quadsBuilder);
             }
             outParts.add(new SimpleModelWrapper(quadsBuilder.build(), part.useAmbientOcclusion(), part.particleIcon(), part.chunkLayer()));
         }

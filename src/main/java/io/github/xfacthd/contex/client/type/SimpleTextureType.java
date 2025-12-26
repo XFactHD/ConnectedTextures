@@ -1,5 +1,6 @@
 package io.github.xfacthd.contex.client.type;
 
+import io.github.xfacthd.contex.api.type.SpriteType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -9,8 +10,15 @@ import io.github.xfacthd.contex.api.type.ConnectionPredicate;
 import io.github.xfacthd.contex.api.type.OcclusionMode;
 import io.github.xfacthd.contex.api.utils.Constants;
 
+import java.util.EnumSet;
+
 public sealed class SimpleTextureType extends FullTextureType permits SimpleCarpetTextureType
 {
+    private static final EnumSet<SpriteType> SPRITE_TYPES = EnumSet.of(
+            SpriteType.HORIZONTAL,
+            SpriteType.VERTICAL,
+            SpriteType.FULL
+    );
     public static final SimpleTextureType INSTANCE = new SimpleTextureType();
 
     protected SimpleTextureType() { }
@@ -57,5 +65,11 @@ public sealed class SimpleTextureType extends FullTextureType permits SimpleCarp
             }
             stateMap[side.ordinal()] = connections;
         }
+    }
+
+    @Override
+    public EnumSet<SpriteType> getSpriteTypes()
+    {
+        return SPRITE_TYPES;
     }
 }

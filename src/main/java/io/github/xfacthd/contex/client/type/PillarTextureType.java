@@ -1,6 +1,6 @@
 package io.github.xfacthd.contex.client.type;
 
-import net.minecraft.client.renderer.block.model.BlockElementFace;
+import io.github.xfacthd.contex.api.type.SpriteType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -9,15 +9,16 @@ import io.github.xfacthd.contex.api.state.ConnectionDirection;
 import io.github.xfacthd.contex.api.type.ConnectionPredicate;
 import io.github.xfacthd.contex.api.type.DefaultTextureType;
 import io.github.xfacthd.contex.api.type.OcclusionMode;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumSet;
 
 public sealed class PillarTextureType extends DefaultTextureType permits RotatingPillarTextureType
 {
-    private static final BlockElementFace.UVs UV = new BlockElementFace.UVs(0F, 0F, 1F, 1F);
     public static final PillarTextureType X = new PillarTextureType(Direction.Axis.X);
     public static final PillarTextureType Y = new PillarTextureType(Direction.Axis.Y);
     public static final PillarTextureType Z = new PillarTextureType(Direction.Axis.Z);
+    private static final EnumSet<SpriteType> SPRITE_TYPES = EnumSet.of(SpriteType.VERTICAL);
 
     private final Direction.Axis axis;
     private final Direction dirOne;
@@ -71,8 +72,15 @@ public sealed class PillarTextureType extends DefaultTextureType permits Rotatin
     }
 
     @Override
-    public BlockElementFace.UVs getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
+    @Nullable
+    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
-        return UV;
+        return xCon || yCon ? SpriteType.VERTICAL : null;
+    }
+
+    @Override
+    public EnumSet<SpriteType> getSpriteTypes()
+    {
+        return SPRITE_TYPES;
     }
 }

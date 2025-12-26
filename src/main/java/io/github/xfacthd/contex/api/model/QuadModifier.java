@@ -41,6 +41,11 @@ public final class QuadModifier
         return this;
     }
 
+    public QuadModifier applyIf(Modifier modifier, boolean condition)
+    {
+        return condition ? apply(modifier) : this;
+    }
+
     /**
      * Re-assemble a copy of the quad and export it to the given quad consumer. If any of the modifiers failed,
      * the quad will not be exported

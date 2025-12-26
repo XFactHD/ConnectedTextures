@@ -3,6 +3,8 @@ package io.github.xfacthd.contex.api.texture;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.xfacthd.contex.api.type.SpriteType;
+import io.github.xfacthd.contex.client.type.FullTextureType;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
@@ -13,12 +15,11 @@ import io.github.xfacthd.contex.client.texture.ConTexSpriteSupplier;
 import java.util.Optional;
 import java.util.Set;
 
-public record ConTexSpriteSource(Identifier texture, Border border, Optional<Identifier> sprite) implements SpriteSource
+public record ConTexSpriteSource(Identifier texture, Border border) implements SpriteSource
 {
     public static final MapCodec<ConTexSpriteSource> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Identifier.CODEC.fieldOf("texture").forGetter(ConTexSpriteSource::texture),
-            Border.CODEC.fieldOf("border").forGetter(ConTexSpriteSource::border),
-            Identifier.CODEC.optionalFieldOf("sprite").forGetter(ConTexSpriteSource::sprite)
+            Border.CODEC.fieldOf("border").forGetter(ConTexSpriteSource::border)
     ).apply(inst, ConTexSpriteSource::new));
 
     @Override
@@ -38,8 +39,11 @@ public record ConTexSpriteSource(Identifier texture, Border border, Optional<Ide
             return;
         }
 
-        Identifier outLoc = sprite.isPresent() ? sprite.get() : texture.withSuffix("_ctm");
-        output.add(outLoc, new ConTexSpriteSupplier(texture, outLoc, resource.get(), border, additionalMetadata));
+        for (SpriteType type : FullTextureType.INSTANCE.getSpriteTypes())
+        {
+            Identifier outLoc = texture.withSuffix("_" + type.suffix());
+            output.add(outLoc, new ConTexSpriteSupplier(texture, outLoc, type, resource.get(), border, additionalMetadata));
+        }
     }
 
     @Override

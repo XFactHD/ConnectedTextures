@@ -1,46 +1,52 @@
 package io.github.xfacthd.contex.client.type;
 
-import net.minecraft.client.renderer.block.model.BlockElementFace;
+import io.github.xfacthd.contex.api.type.SpriteType;
 import net.minecraft.core.Direction;
 import io.github.xfacthd.contex.api.utils.Utils;
+import org.jspecify.annotations.Nullable;
+
+import java.util.EnumSet;
 
 public final class RotatingPillarTextureType extends PillarTextureType
 {
-    static final BlockElementFace.UVs UV_NO_CON = new BlockElementFace.UVs(0F, 0F, 1F, 1F);
-    static final BlockElementFace.UVs UV_X = new BlockElementFace.UVs(0F, .5F, 1F, 1F);
-    static final BlockElementFace.UVs UV_Y = new BlockElementFace.UVs(0F, 0F, 1F, .5F);
-    static final BlockElementFace.UVs UV_Z_TOPBOTTOM = new BlockElementFace.UVs(0F, 0F, 1F, .5F);
-    static final BlockElementFace.UVs UV_Z_SIDE = new BlockElementFace.UVs(0F, .5F, 1F, 1F);
     public static final RotatingPillarTextureType X = new RotatingPillarTextureType(Direction.Axis.X);
     public static final RotatingPillarTextureType Y = new RotatingPillarTextureType(Direction.Axis.Y);
     public static final RotatingPillarTextureType Z = new RotatingPillarTextureType(Direction.Axis.Z);
+    private static final EnumSet<SpriteType> SPRITE_TYPES = EnumSet.of(SpriteType.HORIZONTAL, SpriteType.VERTICAL);
 
-    private final BlockElementFace.UVs uvHor;
-    private final BlockElementFace.UVs uvVert;
+    private final SpriteType spriteHor;
+    private final SpriteType spriteVert;
 
     private RotatingPillarTextureType(Direction.Axis axis)
     {
         super(axis);
         switch (axis)
         {
-            case X -> uvHor = uvVert = UV_X;
-            case Y -> uvHor = uvVert = UV_Y;
+            case X -> spriteHor = spriteVert = SpriteType.HORIZONTAL;
+            case Y -> spriteHor = spriteVert = SpriteType.VERTICAL;
             case Z ->
             {
-                uvHor = UV_Z_SIDE;
-                uvVert = UV_Z_TOPBOTTOM;
+                spriteHor = SpriteType.HORIZONTAL;
+                spriteVert = SpriteType.VERTICAL;
             }
             default -> throw new AssertionError();
         }
     }
 
     @Override
-    public BlockElementFace.UVs getConnectionUVs(boolean xCon, boolean yCon, boolean diagCon, Direction side)
+    @Nullable
+    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
-        if ((xCon || yCon))
+        if (xCon || yCon)
         {
-            return Utils.isY(side) ? uvVert : uvHor;
+            return Utils.isY(side) ? spriteVert : spriteHor;
         }
-        return UV_NO_CON;
+        return null;
+    }
+
+    @Override
+    public EnumSet<SpriteType> getSpriteTypes()
+    {
+        return SPRITE_TYPES;
     }
 }
