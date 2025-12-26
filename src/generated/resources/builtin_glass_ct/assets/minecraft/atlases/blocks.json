@@ -1,0 +1,14 @@
+{
+  "sources": [
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/glass"
+    }
+  ]
+}

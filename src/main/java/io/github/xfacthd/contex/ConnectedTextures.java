@@ -1,9 +1,15 @@
 package io.github.xfacthd.contex;
 
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.InitializeClientRegistriesEvent;
 import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
@@ -29,38 +35,44 @@ import io.github.xfacthd.contex.client.type.RotatingPillarTextureType;
 import io.github.xfacthd.contex.client.type.SimpleCarpetTextureType;
 import io.github.xfacthd.contex.client.type.SimpleTextureType;
 import io.github.xfacthd.contex.client.util.ConTexCommand;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 
 @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
+@SuppressWarnings("UtilityClassWithPublicConstructor")
 public final class ConnectedTextures
 {
+    public static final Identifier BUILTIN_RP_ID = Utils.rl("builtin_glass_ct");
+    public static final Component BUILTIN_RP_DESC = Component.literal("ConTex Built-In Connected Glass");
+
     public ConnectedTextures(IEventBus modBus)
     {
         modBus.addListener(ConnectedTextures::onRegisterBlockStateModels);
         modBus.addListener(ConnectedTextures::onRegisterSpriteSources);
         modBus.addListener(ConnectedTextures::onInitClientRegistries);
         modBus.addListener(ConnectedTextures::onRegisterMetadata);
+        modBus.addListener(ConnectedTextures::onAddPackFinders);
 
         NeoForge.EVENT_BUS.addListener(ConnectedTextures::onRegisterClientCommands);
 
         CompatHandler.init(modBus);
     }
 
-    private static void onRegisterBlockStateModels(final RegisterBlockStateModels event)
+    private static void onRegisterBlockStateModels(RegisterBlockStateModels event)
     {
         event.registerDefinition(Utils.rl("definition"), ConTexBlockModelDefinition.CODEC);
     }
 
-    private static void onRegisterSpriteSources(final RegisterSpriteSourcesEvent event)
+    private static void onRegisterSpriteSources(RegisterSpriteSourcesEvent event)
     {
         event.register(Utils.rl("ctm"), ConTexSpriteSource.CODEC);
     }
 
-    private static void onInitClientRegistries(final InitializeClientRegistriesEvent event)
+    private static void onInitClientRegistries(InitializeClientRegistriesEvent event)
     {
         MetadataRegistry.init();
     }
 
-    private static void onRegisterMetadata(final RegisterTextureMetaEvent event)
+    private static void onRegisterMetadata(RegisterTextureMetaEvent event)
     {
         event.registerType(Utils.rl("simple"), SimpleTextureType.INSTANCE);
         event.registerType(Utils.rl("full"), FullTextureType.INSTANCE);
@@ -91,7 +103,20 @@ public final class ConnectedTextures
         event.registerPredicate(Utils.rl("match_tag"), MatchTagPredicate.CODEC);
     }
 
-    private static void onRegisterClientCommands(final RegisterClientCommandsEvent event)
+    private static void onAddPackFinders(AddPackFindersEvent event)
+    {
+        boolean forceEnable = !FMLLoader.getCurrent().isProduction() && Boolean.getBoolean("contex.force_builtin");
+        event.addPackFinders(
+                BUILTIN_RP_ID,
+                PackType.CLIENT_RESOURCES,
+                BUILTIN_RP_DESC,
+                PackSource.DEFAULT,
+                forceEnable,
+                Pack.Position.TOP
+        );
+    }
+
+    private static void onRegisterClientCommands(RegisterClientCommandsEvent event)
     {
         ConTexCommand.register(event.getDispatcher());
     }

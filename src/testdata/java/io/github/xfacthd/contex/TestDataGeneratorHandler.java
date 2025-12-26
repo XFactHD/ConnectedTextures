@@ -1,6 +1,8 @@
 package io.github.xfacthd.contex;
 
 import io.github.xfacthd.contex.api.type.TextureType;
+import io.github.xfacthd.contex.api.utils.Utils;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -20,7 +22,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.metadata.PackMetadataGenerator;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -33,7 +41,6 @@ import net.neoforged.neoforge.client.data.SpriteSourceProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import io.github.xfacthd.contex.api.datagen.ConTexBlockModelDefinitionGenerator;
 import io.github.xfacthd.contex.api.datagen.MetaEntryBuilder;
-import io.github.xfacthd.contex.api.type.OcclusionMode;
 import io.github.xfacthd.contex.api.utils.Constants;
 import io.github.xfacthd.contex.client.predicate.SameBlockPredicate;
 import io.github.xfacthd.contex.client.predicate.SameStatePredicate;
@@ -44,6 +51,7 @@ import io.github.xfacthd.contex.client.type.FullTextureType;
 import io.github.xfacthd.contex.client.type.OmniPillarTextureType;
 import io.github.xfacthd.contex.client.type.PillarTextureType;
 import io.github.xfacthd.contex.client.type.RotatingPillarTextureType;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.UnaryOperator;
@@ -52,17 +60,39 @@ import java.util.stream.Stream;
 @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
 public final class TestDataGeneratorHandler
 {
+    private static final String TEST_PACK_ID = "test_ct";
+
     public TestDataGeneratorHandler(IEventBus modBus)
     {
         modBus.addListener(TestDataGeneratorHandler::onGatherData);
+        modBus.addListener(TestDataGeneratorHandler::onAddPackFinders);
+    }
+
+    private static void onAddPackFinders(AddPackFindersEvent event)
+    {
+        event.addPackFinders(
+                Utils.rl(TEST_PACK_ID),
+                PackType.CLIENT_RESOURCES,
+                Component.literal("ConTex Test Pack"),
+                PackSource.DEFAULT,
+                true,
+                Pack.Position.TOP
+        );
     }
 
     private static void onGatherData(final GatherDataEvent.Client event)
     {
         DataGenerator generator = event.getGenerator();
-        PackOutput output = generator.getPackOutput();
+        PackOutput output = generator.getPackOutput(TEST_PACK_ID);
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
+        generator.addProvider(true, new PackMetadataGenerator(output).add(
+                PackMetadataSection.CLIENT_TYPE,
+                new PackMetadataSection(
+                        ConnectedTextures.BUILTIN_RP_DESC,
+                        SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES).minorRange()
+                )
+        ));
         generator.addProvider(true, new TestBlockModelProvider(output));
         generator.addProvider(true, new TestSpriteSourceProvider(output, lookupProvider));
     }
@@ -96,7 +126,6 @@ public final class TestDataGeneratorHandler
             variant(blockModels, Blocks.CHISELED_DEEPSLATE, RotatingPillarTextureType.X,           builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DEEPSLATE));
             variant(blockModels, Blocks.CHISELED_POLISHED_BLACKSTONE, RotatingPillarTextureType.Z, builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_BLACKSTONE));
             variant(blockModels, Blocks.CHISELED_STONE_BRICKS, RotatingPillarTextureType.Y,        builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONEBRICKS));
-            variant(blockModels, Blocks.GLASS, FullTextureType.INSTANCE,                        builder -> builder.predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.SOLID_OR_SELF).addTexture(TEX_GLASS));
             variant(blockModels, Blocks.POLISHED_DIORITE, FullTextureType.INSTANCE,             builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DIORITE));
             variant(blockModels, Blocks.POLISHED_GRANITE, FullTextureType.INSTANCE,             builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
             variant(blockModels, Blocks.REDSTONE_BLOCK, OmniPillarTextureType.INSTANCE,               builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_REDSTONE));
@@ -182,10 +211,6 @@ public final class TestDataGeneratorHandler
         protected void gather()
         {
             atlas(AtlasIds.BLOCKS)
-                    .addSource(new ConTexSpriteSource(
-                            Identifier.withDefaultNamespace("block/glass"),
-                            new Border(1)
-                    ))
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/polished_diorite"),
                             new Border(2)

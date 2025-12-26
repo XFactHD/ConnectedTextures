@@ -14,6 +14,22 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
+sourceSets {
+    main.resources {
+        srcDir "src/generated/resources"
+    }
+    testdata {
+        java {
+            srcDir "src/testdata/java"
+            compileClasspath += main.output
+            runtimeClasspath += main.output
+        }
+        resources {
+            srcDir "src/testdata/resources"
+        }
+    }
+}
+
 neoForge {
     version = project.neoforge_version
 
@@ -27,8 +43,9 @@ neoForge {
             //systemProperty 'forge.logging.markers', 'REGISTRIES'
             logLevel = org.slf4j.event.Level.DEBUG
             systemProperty 'terminal.ansi', 'true'
+            systemProperty 'contex.force_builtin', 'true'
 
-            sourceSet = project.sourceSets.test
+            sourceSet = project.sourceSets.testdata
         }
 
         client {
@@ -50,7 +67,7 @@ neoForge {
             programArguments.addAll(
                     '--mod', 'contex',
                     '--all',
-                    '--output', file('src/test_generated/resources/').getAbsolutePath(),
+                    '--output', file('src/generated/resources/').getAbsolutePath(),
                     '--existing', file('src/main/resources/').getAbsolutePath()
             )
         }
@@ -59,18 +76,16 @@ neoForge {
     mods {
         contex {
             sourceSet(project.sourceSets.main)
-            sourceSet(project.sourceSets.test)
+            sourceSet(project.sourceSets.testdata)
         }
     }
 
-    addModdingDependenciesTo(project.sourceSets.test)
+    addModdingDependenciesTo(project.sourceSets.testdata)
 }
 
-sourceSets {
-    test.resources {
-        srcDir "src/test/resources"
-        srcDir "src/test_generated/resources"
-    }
+jar {
+    exclude("/.cache")
+    exclude('/test_ct')
 }
 
 repositories {
@@ -103,8 +118,8 @@ tasks.withType(ProcessResources).configureEach {
     }
 }
 
-processTestResources {
-    duplicatesStrategy(DuplicatesStrategy.INCLUDE)
+processTestdataResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 publishing {
@@ -115,7 +130,7 @@ publishing {
     }
     repositories {
         maven {
-            url "file://${project.projectDir}/mcmodsrepo"
+            url = "file://${project.projectDir}/mcmodsrepo"
         }
     }
 }
