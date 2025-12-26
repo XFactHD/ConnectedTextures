@@ -7,17 +7,22 @@ import io.github.xfacthd.contex.api.type.SpriteType;
 import io.github.xfacthd.contex.api.utils.Utils;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMaps;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.resources.Identifier;
 import io.github.xfacthd.contex.api.type.TextureType;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
+import java.util.function.Function;
 
 public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteType, Identifier> textures)
 {
     public static final Codec<TextureEntry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Identifier.CODEC.fieldOf("main_texture").forGetter(TextureEntry::baseTexture),
-            Utils.ref2ObjMapCodec(SpriteType.CODEC, Identifier.CODEC).optionalFieldOf("ct_textures", Reference2ObjectMaps.emptyMap()).forGetter(TextureEntry::textures)
+            Utils.ref2ObjMapCodec(SpriteType.CODEC, Identifier.CODEC)
+                    .optionalFieldOf("ct_textures", Reference2ObjectMaps.emptyMap())
+                    .xmap(TextureEntry::ensureMutable, Function.identity())
+                    .forGetter(TextureEntry::textures)
     ).apply(inst, TextureEntry::new));
 
     public Identifier get(@Nullable SpriteType type)
@@ -41,5 +46,10 @@ public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteTyp
         {
             textures.computeIfAbsent(spriteType, (SpriteType type) -> baseTexture.withSuffix("_" + type.suffix()));
         }
+    }
+
+    private static Reference2ObjectMap<SpriteType, Identifier> ensureMutable(Reference2ObjectMap<SpriteType, Identifier> map)
+    {
+        return map.isEmpty() ? new Reference2ObjectOpenHashMap<>() : map;
     }
 }
