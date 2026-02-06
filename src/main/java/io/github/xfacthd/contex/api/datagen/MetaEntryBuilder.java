@@ -1,14 +1,15 @@
 package io.github.xfacthd.contex.api.datagen;
 
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.block.state.properties.Property;
-import org.jspecify.annotations.Nullable;
 import io.github.xfacthd.contex.api.type.ConnectionPredicate;
 import io.github.xfacthd.contex.api.type.OcclusionMode;
+import io.github.xfacthd.contex.api.type.TextureStrategy;
 import io.github.xfacthd.contex.api.type.TextureType;
 import io.github.xfacthd.contex.client.data.MetaEntry;
 import io.github.xfacthd.contex.client.data.StatePredicate;
 import io.github.xfacthd.contex.client.data.TextureEntry;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.properties.Property;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,15 +22,17 @@ import java.util.function.UnaryOperator;
 public final class MetaEntryBuilder
 {
     private final TextureType type;
+    private final TextureStrategy strategy;
     @Nullable
     private ConnectionPredicate predicate;
     private OcclusionMode occlusionMode = OcclusionMode.SELF;
     private final Map<String, String> statePredicateProperties = new HashMap<>();
     private final List<TextureEntry> textures = new ArrayList<>();
 
-    MetaEntryBuilder(TextureType type)
+    MetaEntryBuilder(TextureType type, TextureStrategy strategy)
     {
         this.type = type;
+        this.strategy = strategy;
     }
 
     public MetaEntryBuilder predicate(ConnectionPredicate predicate)
@@ -57,7 +60,7 @@ public final class MetaEntryBuilder
 
     public MetaEntryBuilder addTexture(Identifier baseTexture, UnaryOperator<TextureEntryBuilder> consumer)
     {
-        textures.add(consumer.apply(new TextureEntryBuilder(type, baseTexture)).build());
+        textures.add(consumer.apply(new TextureEntryBuilder(type, strategy, baseTexture)).build());
         return this;
     }
 

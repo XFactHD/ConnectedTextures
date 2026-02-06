@@ -4,8 +4,8 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.world.level.block.state.BlockState;
 import io.github.xfacthd.contex.api.type.SimpleConnectionPredicate;
+import net.minecraft.world.level.block.state.BlockState;
 
 public final class MatchStatePredicate extends SimpleConnectionPredicate
 {

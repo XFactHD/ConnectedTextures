@@ -1,26 +1,34 @@
 package io.github.xfacthd.contex.api.texture;
 
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.xfacthd.contex.api.type.SpriteType;
-import io.github.xfacthd.contex.client.type.FullTextureType;
+import io.github.xfacthd.contex.client.strategy.FullTextureStrategy;
+import io.github.xfacthd.contex.client.texture.ConTexCompactSpriteSupplier;
+import io.github.xfacthd.contex.client.texture.ConTexFullSpriteSupplier;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import io.github.xfacthd.contex.client.texture.ConTexSpriteSupplier;
 
 import java.util.Optional;
 import java.util.Set;
 
-public record ConTexSpriteSource(Identifier texture, Border border) implements SpriteSource
+public record ConTexSpriteSource(Identifier texture, Border border, boolean compact) implements SpriteSource
 {
     public static final MapCodec<ConTexSpriteSource> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Identifier.CODEC.fieldOf("texture").forGetter(ConTexSpriteSource::texture),
-            Border.CODEC.fieldOf("border").forGetter(ConTexSpriteSource::border)
+            Border.CODEC.fieldOf("border").forGetter(ConTexSpriteSource::border),
+            Codec.BOOL.optionalFieldOf("compact", true).forGetter(ConTexSpriteSource::compact)
     ).apply(inst, ConTexSpriteSource::new));
+
+    public ConTexSpriteSource(Identifier texture, Border border)
+    {
+        this(texture, border, true);
+    }
 
     @Override
     public void run(ResourceManager resourceManager, Output output)
@@ -39,10 +47,26 @@ public record ConTexSpriteSource(Identifier texture, Border border) implements S
             return;
         }
 
-        for (SpriteType type : FullTextureType.INSTANCE.getSpriteTypes())
+        if (compact)
         {
-            Identifier outLoc = texture.withSuffix("_" + type.suffix());
-            output.add(outLoc, new ConTexSpriteSupplier(texture, outLoc, type, resource.get(), border, additionalMetadata));
+            for (SpriteType type : SpriteType.BASE_TYPES)
+            {
+                if (type == SpriteType.NONE) continue;
+
+                Identifier outLoc = texture.withSuffix("_" + type.suffix());
+                output.add(outLoc, new ConTexCompactSpriteSupplier(texture, outLoc, type, resource.get(), border, additionalMetadata));
+            }
+        }
+        else
+        {
+            ConTexFullSpriteSupplier.CompactImageCache imageCache = new ConTexFullSpriteSupplier.CompactImageCache(FullTextureStrategy.TYPES.size() - 1);
+            for (SpriteType type : FullTextureStrategy.TYPES)
+            {
+                if (type == SpriteType.NONE) continue;
+
+                Identifier outLoc = texture.withSuffix("_" + type.suffix());
+                output.add(outLoc, new ConTexFullSpriteSupplier(texture, outLoc, type, resource.get(), border, imageCache, additionalMetadata));
+            }
         }
     }
 

@@ -12,12 +12,18 @@ public final class RegisterTextureMetaEvent extends Event implements IModBusEven
 {
     private final Registrar<TextureType> typeRegistrar;
     private final Registrar<MapCodec<? extends ConnectionPredicate>> predicateRegistrar;
+    private final Registrar<TextureStrategy> strategyRegistrar;
 
     @ApiStatus.Internal
-    public RegisterTextureMetaEvent(Registrar<TextureType> typeRegistrar, Registrar<MapCodec<? extends ConnectionPredicate>> predicateRegistrar)
+    public RegisterTextureMetaEvent(
+            Registrar<TextureType> typeRegistrar,
+            Registrar<MapCodec<? extends ConnectionPredicate>> predicateRegistrar,
+            Registrar<TextureStrategy> strategyRegistrar
+    )
     {
         this.typeRegistrar = typeRegistrar;
         this.predicateRegistrar = predicateRegistrar;
+        this.strategyRegistrar = strategyRegistrar;
     }
 
     public void registerType(Identifier name, TextureType type)
@@ -30,7 +36,10 @@ public final class RegisterTextureMetaEvent extends Event implements IModBusEven
         predicateRegistrar.accept(name, predicate);
     }
 
-
+    public void registerStrategy(Identifier name, TextureStrategy strategy)
+    {
+        strategyRegistrar.accept(name, strategy);
+    }
 
     public interface Registrar<T> extends BiConsumer<Identifier, T>
     {

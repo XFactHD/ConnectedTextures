@@ -2,6 +2,7 @@ package io.github.xfacthd.contex.client.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
+import io.github.xfacthd.contex.api.texture.Border;
 import io.github.xfacthd.contex.api.type.SpriteType;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
@@ -19,14 +20,13 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
-import io.github.xfacthd.contex.api.texture.Border;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public record ConTexSpriteSupplier(
+public record ConTexCompactSpriteSupplier(
         Identifier srcLoc,
         Identifier outLoc,
         SpriteType type,
@@ -38,7 +38,7 @@ public record ConTexSpriteSupplier(
 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public ConTexSpriteSupplier(Identifier srcLoc, Identifier outLoc, SpriteType outType, Resource imgResource, Border border, Set<MetadataSectionType<?>> additionalMetadata)
+    public ConTexCompactSpriteSupplier(Identifier srcLoc, Identifier outLoc, SpriteType outType, Resource imgResource, Border border, Set<MetadataSectionType<?>> additionalMetadata)
     {
         this(srcLoc, outLoc, outType, imgResource, new LazyLoadedImage(srcLoc, imgResource, 1), border, additionalMetadata);
     }
@@ -53,7 +53,7 @@ public record ConTexSpriteSupplier(
         }
         catch (Throwable e)
         {
-            LOGGER.error("Failed to generate CTM texture from texture '{}'", srcLoc, e);
+            LOGGER.error("Failed to generate CTM texture from texture '{}' for sprite type '{}'", srcLoc, type, e);
             return null;
         }
         finally
@@ -73,30 +73,50 @@ public record ConTexSpriteSupplier(
             Set<MetadataSectionType<?>> additionalMetadata
     )
     {
+        Image image = createImage(srcLoc, type, srcImage, metadata, border);
+        if (image == null) return null;
+
+        Optional<AnimationMetadataSection> animMeta = metadata.getSection(AnimationMetadataSection.TYPE);
+        List<MetadataSectionType.WithValue<?>> typedMetadata = metadata.getTypedSections(additionalMetadata);
+        Optional<TextureMetadataSection> texMeta = metadata.getSection(TextureMetadataSection.TYPE);
+        return new SpriteContents(outLoc, image.size, image.image, animMeta, typedMetadata, texMeta);
+    }
+
+    @Nullable
+    static Image createImage(
+            Identifier srcLoc,
+            SpriteType type,
+            NativeImage srcImage,
+            ResourceMetadata metadata,
+            Border border
+    )
+    {
         Optional<AnimationMetadataSection> animMeta = metadata.getSection(AnimationMetadataSection.TYPE);
         FrameSize srcSize = computeFrameSize(srcLoc, animMeta, srcImage);
         if (srcSize == null || !border.canApplyTo(srcSize))
         {
             return null;
         }
-
-        NativeImage destImage = new NativeImage(srcImage.format(), srcImage.getWidth(), srcImage.getHeight(), false);
-        FrameSize destSize = computeFrameSize(srcLoc, animMeta, destImage);
+        FrameSize destSize = computeFrameSize(srcLoc, animMeta, srcImage);
         if (destSize == null)
         {
-            destImage.close();
             return null;
         }
 
+        NativeImage destImage = new NativeImage(srcImage.format(), srcImage.getWidth(), srcImage.getHeight(), false);
         List<FrameInfo> frames = collectFrames(srcImage, srcSize, animMeta);
-        for (FrameInfo frame : frames)
+        if (type == SpriteType.NONE)
         {
-            OutputFrame.of(srcImage, destImage, type, border, frame, srcSize, destSize).build();
+            destImage.copyFrom(srcImage);
         }
-
-        List<MetadataSectionType.WithValue<?>> typedMetadata = metadata.getTypedSections(additionalMetadata);
-        Optional<TextureMetadataSection> texMeta = metadata.getSection(TextureMetadataSection.TYPE);
-        return new SpriteContents(outLoc, destSize, destImage, animMeta, typedMetadata, texMeta);
+        else
+        {
+            for (FrameInfo frame : frames)
+            {
+                OutputFrame.of(srcImage, destImage, type, border, frame, srcSize, destSize).build();
+            }
+        }
+        return new Image(destImage, destSize, frames);
     }
 
     @Nullable
@@ -145,6 +165,8 @@ public record ConTexSpriteSupplier(
         }
         return frames;
     }
+
+    record Image(NativeImage image, FrameSize size, List<FrameInfo> frames) { }
 
     private record OutputFrame(
             NativeImage srcImage,
@@ -203,7 +225,7 @@ public record ConTexSpriteSupplier(
 
             switch (type)
             {
-                case FULL ->
+                case SpriteType spriteType when spriteType == SpriteType.FULL ->
                 {
                     // Fully connected (top left)
                     srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
@@ -224,7 +246,7 @@ public record ConTexSpriteSupplier(
                     // Bottom-right corner
                     copyRect(srcXRight, srcYBottom, offXRight, offYBottom, right, bottom, mirrorPar, mirrorPar);
                 }
-                case VERTICAL ->
+                case SpriteType spriteType when spriteType == SpriteType.VERTICAL ->
                 {
                     int srcVertX = synthCorners ? 0 : left;
                     int srcVertWidth = synthCorners ? srcWidth : vertWidth;
@@ -236,7 +258,7 @@ public record ConTexSpriteSupplier(
                     // Bottom edge
                     copyRect(srcVertX, srcYBottom, 0, offYBottom, srcVertWidth, bottom, mirrorPerp, mirrorPar);
                 }
-                case HORIZONTAL ->
+                case SpriteType spriteType when spriteType == SpriteType.HORIZONTAL ->
                 {
                     int srcHorY = synthCorners ? 0 : top;
                     int srcHorHeight = synthCorners ? srcHeight : horHeight;
@@ -248,7 +270,7 @@ public record ConTexSpriteSupplier(
                     // Right edge
                     copyRect(srcXRight, srcHorY, offXRight, 0, right, srcHorHeight, mirrorPar, mirrorPerp);
                 }
-                case CROSS ->
+                case SpriteType spriteType when spriteType == SpriteType.CROSS ->
                 {
                     // Horizontally and vertically connected (bottom right)
                     srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
@@ -272,6 +294,7 @@ public record ConTexSpriteSupplier(
                         buildInnerCorner(srcWidth - right, srcYBottom, srcXLeft, srcHeight - bottom, srcWidth - right, srcHeight - bottom, right, bottom, true, true);
                     }
                 }
+                default -> throw new IllegalArgumentException("Unsupported SpriteType: " + type);
             }
         }
 
@@ -318,7 +341,7 @@ public record ConTexSpriteSupplier(
         image.release();
     }
 
-    private record FrameInfo(int idx, int xIdx, int yIdx)
+    record FrameInfo(int idx, int xIdx, int yIdx)
     {
         private static final FrameInfo ZERO = new FrameInfo(0, 0, 0);
 

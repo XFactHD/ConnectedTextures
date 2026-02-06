@@ -1,19 +1,18 @@
 package io.github.xfacthd.contex.client.type;
 
-import io.github.xfacthd.contex.api.type.SpriteType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.state.BlockState;
 import io.github.xfacthd.contex.api.state.ConnectionDirection;
 import io.github.xfacthd.contex.api.type.ConnectionPredicate;
-import io.github.xfacthd.contex.api.type.DefaultTextureType;
 import io.github.xfacthd.contex.api.type.OcclusionMode;
-import org.jspecify.annotations.Nullable;
+import io.github.xfacthd.contex.api.type.SpriteType;
+import io.github.xfacthd.contex.api.type.TextureType;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.EnumSet;
+import java.util.Set;
 
-public final class OmniPillarTextureType extends DefaultTextureType
+public final class OmniPillarTextureType extends TextureType
 {
     private static final ConnectionDirection[] DIRECTIONS = ConnectionDirection.values();
     private static final Direction[] DIR_AXIS_Y = new Direction[] { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
@@ -28,7 +27,7 @@ public final class OmniPillarTextureType extends DefaultTextureType
     private static final int CON_MASK_DIAG_AXIS_X = ConnectionDirection.mask(ConnectionDirection.UP, ConnectionDirection.DOWN);
     private static final int CON_MASK_AXIS_X = ConnectionDirection.mask(ConnectionDirection.LEFT, ConnectionDirection.RIGHT);
     private static final int CON_MASK_DIAG_AXIS_Z = 0;
-    private static final EnumSet<SpriteType> SPRITE_TYPES = EnumSet.of(SpriteType.HORIZONTAL, SpriteType.VERTICAL);
+    private static final Set<SpriteType> SPRITE_TYPES = Set.of(SpriteType.HORIZONTAL, SpriteType.VERTICAL);
     public static final OmniPillarTextureType INSTANCE = new OmniPillarTextureType();
 
     private OmniPillarTextureType() { }
@@ -105,16 +104,15 @@ public final class OmniPillarTextureType extends DefaultTextureType
     }
 
     @Override
-    @Nullable
     public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
         if (xCon) return SpriteType.HORIZONTAL;
         if (yCon) return SpriteType.VERTICAL;
-        return null;
+        return SpriteType.NONE;
     }
 
     @Override
-    public EnumSet<SpriteType> getSpriteTypes()
+    public Set<SpriteType> getSpriteTypes()
     {
         return SPRITE_TYPES;
     }

@@ -9,7 +9,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import io.github.xfacthd.contex.api.texture.Border;
 import io.github.xfacthd.contex.api.type.SpriteType;
+import io.github.xfacthd.contex.api.utils.Utils;
+import io.github.xfacthd.contex.client.texture.ConTexCompactSpriteSupplier;
 import io.github.xfacthd.contex.client.type.FullTextureType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SpriteContents;
@@ -21,9 +24,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceMetadata;
 import net.neoforged.fml.loading.FMLPaths;
-import io.github.xfacthd.contex.api.model.ModelUtils;
-import io.github.xfacthd.contex.api.texture.Border;
-import io.github.xfacthd.contex.client.texture.ConTexSpriteSupplier;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -151,7 +151,7 @@ public final class ConTexCommand
             boolean synthesizeInnerCorners
     ) throws CommandSyntaxException
     {
-        SpriteContents srcSprite = ModelUtils.getSprite(texture).contents();
+        SpriteContents srcSprite = Utils.getSprite(texture).contents();
         if (srcSprite.name().equals(MissingTextureAtlasSprite.getLocation()))
         {
             throw EX_NO_SUCH_TEXTURE.create(texture);
@@ -175,7 +175,7 @@ public final class ConTexCommand
         List<SpriteContents> ctmSprites = new ArrayList<>(types.size());
         for (SpriteType type : types)
         {
-            SpriteContents ctmSprite = ConTexSpriteSupplier.createTexture(texture, outLoc, type, srcImage, metadata, border, Set.of());
+            SpriteContents ctmSprite = ConTexCompactSpriteSupplier.createTexture(texture, outLoc, type, srcImage, metadata, border, Set.of());
             if (ctmSprite == null)
             {
                 throw EX_GEN_FAILED.create();

@@ -1,20 +1,19 @@
 package io.github.xfacthd.contex.client.type;
 
-import io.github.xfacthd.contex.api.type.SpriteType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.state.BlockState;
 import io.github.xfacthd.contex.api.state.ConnectionDirection;
 import io.github.xfacthd.contex.api.type.ConnectionPredicate;
-import io.github.xfacthd.contex.api.type.DefaultTextureType;
 import io.github.xfacthd.contex.api.type.OcclusionMode;
-import org.jspecify.annotations.Nullable;
+import io.github.xfacthd.contex.api.type.SpriteType;
+import io.github.xfacthd.contex.api.type.TextureType;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.Set;
 
-public sealed class FullTextureType extends DefaultTextureType permits SimpleTextureType, FullCarpetTextureType
+public sealed class FullTextureType extends TextureType permits SimpleTextureType, FullCarpetTextureType
 {
     protected static final ConnectionDirection[] CARDINAL_DIRECTIONS = Arrays.stream(ConnectionDirection.values())
             .filter(dir -> !dir.isDiagonal())
@@ -22,7 +21,7 @@ public sealed class FullTextureType extends DefaultTextureType permits SimpleTex
     private static final ConnectionDirection[] DIAGONAL_DIRECTIONS = Arrays.stream(ConnectionDirection.values())
             .filter(ConnectionDirection::isDiagonal)
             .toArray(ConnectionDirection[]::new);
-    private static final EnumSet<SpriteType> SPRITE_TYPES = EnumSet.of(
+    private static final Set<SpriteType> SPRITE_TYPES = Set.of(
             SpriteType.HORIZONTAL,
             SpriteType.VERTICAL,
             SpriteType.CROSS,
@@ -58,7 +57,6 @@ public sealed class FullTextureType extends DefaultTextureType permits SimpleTex
     }
 
     @Override
-    @Nullable
     public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
         if (xCon && yCon)
@@ -73,11 +71,11 @@ public sealed class FullTextureType extends DefaultTextureType permits SimpleTex
         {
             return SpriteType.VERTICAL;
         }
-        return null;
+        return SpriteType.NONE;
     }
 
     @Override
-    public EnumSet<SpriteType> getSpriteTypes()
+    public Set<SpriteType> getSpriteTypes()
     {
         return SPRITE_TYPES;
     }

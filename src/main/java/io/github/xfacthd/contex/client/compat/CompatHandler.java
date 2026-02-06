@@ -1,7 +1,7 @@
 package io.github.xfacthd.contex.client.compat;
 
-import net.neoforged.bus.api.IEventBus;
 import io.github.xfacthd.contex.client.compat.atlasviewer.AtlasViewerCompat;
+import net.neoforged.bus.api.IEventBus;
 
 public final class CompatHandler
 {

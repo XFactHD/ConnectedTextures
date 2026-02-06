@@ -3,13 +3,17 @@ package io.github.xfacthd.contex.client.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.xfacthd.contex.api.type.SpriteType;
-import net.minecraft.resources.Identifier;
 import io.github.xfacthd.contex.api.type.ConnectionPredicate;
 import io.github.xfacthd.contex.api.type.OcclusionMode;
+import io.github.xfacthd.contex.api.type.SpriteType;
+import io.github.xfacthd.contex.api.type.TextureStrategy;
 import io.github.xfacthd.contex.api.type.TextureType;
 import io.github.xfacthd.contex.client.predicate.SameBlockPredicate;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.sprite.MaterialBaker;
+import net.minecraft.resources.Identifier;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +33,6 @@ public record MetaEntry(TextureType type, ConnectionPredicate predicate, Occlusi
     private MetaEntry(TextureType type, ConnectionPredicate predicate, OcclusionMode occlusionMode, Optional<StatePredicate> statePredicate, List<TextureEntry> textures)
     {
         this(type, predicate, occlusionMode, statePredicate, textures.toArray(TextureEntry[]::new));
-        textures.forEach(entry -> entry.resolve(type));
     }
 
     private List<TextureEntry> textureList()
@@ -37,25 +40,14 @@ public record MetaEntry(TextureType type, ConnectionPredicate predicate, Occlusi
         return List.of(textures);
     }
 
-    public TextureEntry texture(int texIdx)
+    public Baked bake(MaterialBaker baker, TextureStrategy strategy)
     {
-        return textures[texIdx];
+        TextureEntry.Baked[] bakedTextures = new TextureEntry.Baked[textures.length];
+        Arrays.setAll(bakedTextures, i -> textures[i].bake(baker, type, strategy));
+        return new Baked(type, predicate, occlusionMode, bakedTextures);
     }
 
-    public int findTexture(Identifier tex)
-    {
-        for (int i = 0; i < textures.length; i++)
-        {
-            TextureEntry texture = textures[i];
-            if (texture.baseTexture().equals(tex))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public static DataResult<List<MetaEntry>> validate(List<MetaEntry> metadata)
+    public static DataResult<List<MetaEntry>> validate(List<MetaEntry> metadata, TextureStrategy strategy)
     {
         record Key(Identifier texture, Optional<StatePredicate> statePredicate) { }
 
@@ -67,7 +59,7 @@ public record MetaEntry(TextureType type, ConnectionPredicate predicate, Occlusi
             for (int texIdx = 0; texIdx < textures.length; texIdx++)
             {
                 TextureEntry texture = textures[texIdx];
-                Set<SpriteType> invalidTypes = texture.validateSpriteTypes(entry.type);
+                Set<SpriteType> invalidTypes = texture.validateSpriteTypes(entry.type, strategy);
                 if (invalidTypes != null)
                 {
                     int finalMetaIdx = metaIdx;
@@ -90,5 +82,26 @@ public record MetaEntry(TextureType type, ConnectionPredicate predicate, Occlusi
             }
         }
         return DataResult.success(metadata);
+    }
+
+    public record Baked(TextureType type, ConnectionPredicate predicate, OcclusionMode occlusionMode, TextureEntry.Baked[] textures)
+    {
+        public TextureEntry.Baked texture(int texIdx)
+        {
+            return textures[texIdx];
+        }
+
+        public int findTexture(TextureAtlasSprite sprite)
+        {
+            for (int i = 0; i < textures.length; i++)
+            {
+                TextureEntry.Baked texture = textures[i];
+                if (texture.baseSprite() == sprite)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
     }
 }

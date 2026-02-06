@@ -3,17 +3,22 @@ package io.github.xfacthd.contex.client.data;
 import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.xfacthd.contex.api.model.SpriteLookup;
 import io.github.xfacthd.contex.api.type.SpriteType;
+import io.github.xfacthd.contex.api.type.TextureStrategy;
+import io.github.xfacthd.contex.api.type.TextureType;
 import io.github.xfacthd.contex.api.utils.Utils;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceSet;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.client.resources.model.sprite.MaterialBaker;
 import net.minecraft.resources.Identifier;
-import io.github.xfacthd.contex.api.type.TextureType;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
-import java.util.function.Function;
 
 public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteType, Identifier> textures)
 {
@@ -21,35 +26,53 @@ public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteTyp
             Identifier.CODEC.fieldOf("main_texture").forGetter(TextureEntry::baseTexture),
             Utils.ref2ObjMapCodec(SpriteType.CODEC, Identifier.CODEC)
                     .optionalFieldOf("ct_textures", Reference2ObjectMaps.emptyMap())
-                    .xmap(TextureEntry::ensureMutable, Function.identity())
                     .forGetter(TextureEntry::textures)
     ).apply(inst, TextureEntry::new));
 
-    public Identifier get(@Nullable SpriteType type)
+    public Baked bake(MaterialBaker baker, TextureType type, TextureStrategy strategy)
     {
-        return textures.getOrDefault(type, baseTexture);
+        Set<SpriteType> spriteTypes = strategy.computePermittedTypes(type.getSpriteTypes());
+        Reference2ObjectMap<SpriteType, TextureAtlasSprite> sprites = new Reference2ObjectOpenHashMap<>(spriteTypes.size());
+        for (SpriteType spriteType : spriteTypes)
+        {
+            Identifier texture = textures.get(spriteType);
+            //noinspection ConstantValue
+            if (texture == null)
+            {
+                texture = baseTexture.withSuffix("_" + spriteType.suffix());
+            }
+            sprites.put(spriteType, bakeSprite(baker, texture));
+        }
+        return new Baked(bakeSprite(baker, baseTexture), sprites);
+    }
+
+    private static TextureAtlasSprite bakeSprite(MaterialBaker baker, Identifier texture)
+    {
+        return baker.get(new Material(texture), () -> "").sprite();
     }
 
     @Nullable
-    Set<SpriteType> validateSpriteTypes(TextureType type)
+    Set<SpriteType> validateSpriteTypes(TextureType type, TextureStrategy strategy)
     {
-        if (!type.getSpriteTypes().containsAll(textures.keySet()))
+        ReferenceSet<SpriteType> usedTypes = textures.keySet();
+        if (usedTypes.contains(SpriteType.NONE))
         {
-            return Sets.difference(textures.keySet(), type.getSpriteTypes());
+            return Set.of(SpriteType.NONE);
+        }
+        Set<SpriteType> permittedTypes = strategy.computePermittedTypes(type.getSpriteTypes());
+        if (!permittedTypes.containsAll(usedTypes))
+        {
+            return Sets.difference(usedTypes, permittedTypes);
         }
         return null;
     }
 
-    void resolve(TextureType texType)
+    public record Baked(TextureAtlasSprite baseSprite, Reference2ObjectMap<SpriteType, TextureAtlasSprite> sprites) implements SpriteLookup
     {
-        for (SpriteType spriteType : texType.getSpriteTypes())
+        @Override
+        public TextureAtlasSprite get(SpriteType type)
         {
-            textures.computeIfAbsent(spriteType, (SpriteType type) -> baseTexture.withSuffix("_" + type.suffix()));
+            return sprites.getOrDefault(type, baseSprite);
         }
-    }
-
-    private static Reference2ObjectMap<SpriteType, Identifier> ensureMutable(Reference2ObjectMap<SpriteType, Identifier> map)
-    {
-        return map.isEmpty() ? new Reference2ObjectOpenHashMap<>() : map;
     }
 }

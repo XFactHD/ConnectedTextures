@@ -53,6 +53,17 @@
         "top": 2
       },
       "texture": "minecraft:block/red_wool"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "compact": false,
+      "texture": "minecraft:block/yellow_stained_glass"
     }
   ]
 }

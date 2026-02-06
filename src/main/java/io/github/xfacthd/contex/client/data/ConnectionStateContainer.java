@@ -1,8 +1,8 @@
 package io.github.xfacthd.contex.client.data;
 
+import io.github.xfacthd.contex.client.model.ConTexModel;
 import net.minecraft.core.Direction;
 import org.jspecify.annotations.Nullable;
-import io.github.xfacthd.contex.client.model.ConTexModel;
 
 import java.util.Arrays;
 import java.util.Objects;

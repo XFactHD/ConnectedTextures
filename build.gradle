@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.134'
+    id 'net.neoforged.moddev' version '2.0.140'
 }
 
 version = mod_version
@@ -12,7 +12,7 @@ base {
     archivesName = 'ConnectedTextures'
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 sourceSets {
     main.resources {
@@ -32,11 +32,6 @@ sourceSets {
 
 neoForge {
     version = project.neoforge_version
-
-    parchment {
-        minecraftVersion = project.parchment_minecraft_version
-        mappingsVersion = project.parchment_mappings_version
-    }
 
     runs {
         configureEach {
@@ -98,8 +93,19 @@ repositories {
     }
 }
 
+// Sets up a dependency configuration called 'localRuntime'.
+// This configuration should be used instead of 'runtimeOnly' to declare
+// a dependency that will be present for runtime testing but that is
+// "optional", meaning it will not be pulled by dependents of this mod.
+// The dependency is so local that the used classpath must be from the
+// sourceset specified in the run config and not a parent thereof
+configurations {
+    testRuntimeClasspath.extendsFrom localRuntime
+}
+
 dependencies {
-    implementation("curse.maven:atlasviewer-633577:${atlasviewer_coord}")
+    compileOnly("curse.maven:atlasviewer-633577:${atlasviewer_coord}")
+    localRuntime("curse.maven:atlasviewer-633577:${atlasviewer_coord}")
 }
 
 tasks.withType(ProcessResources).configureEach {

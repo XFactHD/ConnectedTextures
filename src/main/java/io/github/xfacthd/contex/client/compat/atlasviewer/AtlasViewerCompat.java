@@ -1,15 +1,16 @@
 package io.github.xfacthd.contex.client.compat.atlasviewer;
 
 import com.mojang.logging.LogUtils;
+import io.github.xfacthd.contex.api.texture.Border;
+import io.github.xfacthd.contex.api.texture.ConTexSpriteSource;
+import io.github.xfacthd.contex.client.texture.ConTexCompactSpriteSupplier;
+import io.github.xfacthd.contex.client.texture.ConTexFullSpriteSupplier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import org.slf4j.Logger;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
-import io.github.xfacthd.contex.api.texture.Border;
-import io.github.xfacthd.contex.api.texture.ConTexSpriteSource;
-import io.github.xfacthd.contex.client.texture.ConTexSpriteSupplier;
 
 public final class AtlasViewerCompat
 {
@@ -44,7 +45,8 @@ public final class AtlasViewerCompat
 
         private static void onRegisterSpriteSourceDetails(final RegisterSpriteSourceDetailsEvent event)
         {
-            event.registerPrimaryResourceGetter(ConTexSpriteSupplier.class, ConTexSpriteSupplier::imgResource);
+            event.registerPrimaryResourceGetter(ConTexCompactSpriteSupplier.class, ConTexCompactSpriteSupplier::imgResource);
+            event.registerPrimaryResourceGetter(ConTexFullSpriteSupplier.class, ConTexFullSpriteSupplier::imgResource);
 
             event.registerSourceTooltipAppender(ConTexSpriteSource.class, (src, consumer) ->
             {

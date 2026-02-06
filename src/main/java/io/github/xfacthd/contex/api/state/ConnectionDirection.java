@@ -2,7 +2,7 @@ package io.github.xfacthd.contex.api.state;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import io.github.xfacthd.contex.api.utils.Constants;
+import org.jspecify.annotations.Nullable;
 
 public enum ConnectionDirection
 {
@@ -15,12 +15,15 @@ public enum ConnectionDirection
     LEFT(3),
     UP_LEFT(-1);
 
-    private static final int CON_DIR_COUNT = values().length;
-    private static final int DIR_COUNT = Direction.values().length;
-    private static final ConnectionDirection[] DIRECTIONS = makeDirectionsTable();
-    private static final ConnectionDirection[] DIAGONALS = makeDiagonalsTable();
+    private static final ConnectionDirection[] VALUES = values();
+    private static final int CON_DIR_COUNT = VALUES.length;
+    private static final Direction[] DIRECTIONS = Direction.values();
+    private static final int DIR_COUNT = DIRECTIONS.length;
+    private static final @Nullable ConnectionDirection[] BY_DIRECTION = makeByDirectionTable();
+    private static final @Nullable ConnectionDirection[] DIAGONALS = makeDiagonalsTable();
     private static final ConnectionDirection[] OPPOSITES = makeOppositesTable();
     private static final Vec3i[] OFFSETS = makeOffsetsTable();
+    private static final Direction[] CUT_EDGES = makeCutEdgesTable();
 
     private final int cardinalIdx;
 
@@ -93,9 +96,18 @@ public enum ConnectionDirection
         return cardinalIdx == -1;
     }
 
+    public Direction toCutEdge(Direction quadDir)
+    {
+        if (isDiagonal())
+        {
+            throw new IllegalArgumentException("Cannot get cutting direction of diagonal ConnectionDirection");
+        }
+        return CUT_EDGES[quadDir.ordinal() << 2 | cardinalIdx];
+    }
+
     public static ConnectionDirection from(Direction side, Direction dir)
     {
-        ConnectionDirection conDir = DIRECTIONS[side.ordinal() * DIR_COUNT + dir.ordinal()];
+        ConnectionDirection conDir = BY_DIRECTION[side.ordinal() * DIR_COUNT + dir.ordinal()];
         if (conDir == null)
         {
             throw new IllegalArgumentException("Invalid side-dir combination: side=" + side + ", dir=" + dir);
@@ -126,7 +138,7 @@ public enum ConnectionDirection
 
 
     @SuppressWarnings("ConstantValue")
-    private static ConnectionDirection[] makeDirectionsTable()
+    private static ConnectionDirection[] makeByDirectionTable()
     {
         ConnectionDirection[] directions = new ConnectionDirection[DIR_COUNT * DIR_COUNT];
 
@@ -239,12 +251,11 @@ public enum ConnectionDirection
 
     private static Vec3i[] makeOffsetsTable()
     {
-        ConnectionDirection[] values = values();
-        Vec3i[] offsets = new Vec3i[values.length * DIR_COUNT];
-        for (ConnectionDirection conDir : values)
+        Vec3i[] offsets = new Vec3i[VALUES.length * DIR_COUNT];
+        for (ConnectionDirection conDir : VALUES)
         {
             int baseIdx = conDir.ordinal() * DIR_COUNT;
-            for (Direction side : Constants.DIRECTIONS)
+            for (Direction side : DIRECTIONS)
             {
                 offsets[baseIdx + side.ordinal()] = switch (conDir)
                 {
@@ -298,5 +309,45 @@ public enum ConnectionDirection
             }
         }
         return offsets;
+    }
+
+    private static Direction[] makeCutEdgesTable()
+    {
+        Direction[] directions = new Direction[24];
+        for (Direction side : DIRECTIONS)
+        {
+            for (ConnectionDirection conDir : VALUES)
+            {
+                if (conDir.isDiagonal()) continue;
+
+                directions[side.ordinal() << 2 | conDir.cardinalIdx] = switch (conDir)
+                {
+                    case UP -> switch (side)
+                    {
+                        case DOWN -> Direction.SOUTH;
+                        case UP -> Direction.NORTH;
+                        default -> Direction.DOWN;
+                    };
+                    case DOWN -> switch (side)
+                    {
+                        case DOWN -> Direction.NORTH;
+                        case UP -> Direction.SOUTH;
+                        default -> Direction.UP;
+                    };
+                    case LEFT -> switch (side)
+                    {
+                        case DOWN, UP -> Direction.EAST;
+                        default -> side.getClockWise();
+                    };
+                    case RIGHT -> switch (side)
+                    {
+                        case DOWN, UP -> Direction.WEST;
+                        default -> side.getCounterClockWise();
+                    };
+                    default -> throw new IllegalStateException();
+                };
+            }
+        }
+        return directions;
     }
 }

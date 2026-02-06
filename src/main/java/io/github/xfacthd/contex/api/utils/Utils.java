@@ -3,7 +3,10 @@ package io.github.xfacthd.contex.api.utils;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
@@ -13,9 +16,14 @@ import java.util.function.IntFunction;
 
 public final class Utils
 {
-    public static Identifier rl(String path)
+    public static Identifier id(String path)
     {
         return Identifier.fromNamespaceAndPath(Constants.MOD_ID, path);
+    }
+
+    public static TextureAtlasSprite getSprite(Identifier loc)
+    {
+        return Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS).getSprite(loc);
     }
 
     /**

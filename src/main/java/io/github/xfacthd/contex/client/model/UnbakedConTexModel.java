@@ -1,10 +1,11 @@
 package io.github.xfacthd.contex.client.model;
 
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import io.github.xfacthd.contex.api.type.TextureStrategy;
+import io.github.xfacthd.contex.client.data.MetaEntry;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
-import io.github.xfacthd.contex.client.data.MetaEntry;
 
 import java.util.List;
 import java.util.Objects;
@@ -13,15 +14,17 @@ final class UnbakedConTexModel implements BlockStateModel.UnbakedRoot
 {
     private final BlockState state;
     private final BlockStateModel.UnbakedRoot baseModel;
+    private final TextureStrategy strategy;
     private final List<MetaEntry> metadata;
     private final Object bakingLock = new Object();
     @Nullable
     private volatile BlockStateModel cachedBakingResult = null;
 
-    public UnbakedConTexModel(BlockState state, BlockStateModel.UnbakedRoot baseModel, List<MetaEntry> metadata)
+    public UnbakedConTexModel(BlockState state, BlockStateModel.UnbakedRoot baseModel, TextureStrategy strategy, List<MetaEntry> metadata)
     {
         this.state = state;
         this.baseModel = baseModel;
+        this.strategy = strategy;
         this.metadata = metadata;
     }
 
@@ -36,7 +39,17 @@ final class UnbakedConTexModel implements BlockStateModel.UnbakedRoot
                 if (cachedBakingResult == null)
                 {
                     BlockStateModel bakedBase = baseModel.bake(state, baker);
-                    cachedBakingResult = metadata.isEmpty() ? bakedBase : new ConTexModel(bakedBase, state, metadata);
+                    if (metadata.isEmpty())
+                    {
+                        cachedBakingResult = bakedBase;
+                    }
+                    else
+                    {
+                        List<MetaEntry.Baked> bakedMetadata = metadata.stream()
+                                .map(entry -> entry.bake(baker.materials(), strategy))
+                                .toList();
+                        cachedBakingResult = new ConTexModel(bakedBase, state, strategy, bakedMetadata);
+                    }
                 }
             }
         }

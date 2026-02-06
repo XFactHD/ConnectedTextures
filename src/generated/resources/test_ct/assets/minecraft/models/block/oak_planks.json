@@ -79,7 +79,6 @@
       ]
     }
   ],
-  "render_type": "minecraft:cutout",
   "textures": {
     "glass": "minecraft:block/glass",
     "particle": "minecraft:block/redstone_block",

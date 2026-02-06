@@ -1,18 +1,17 @@
 package io.github.xfacthd.contex.client.type;
 
 import io.github.xfacthd.contex.api.type.SpriteType;
-import net.minecraft.core.Direction;
 import io.github.xfacthd.contex.api.utils.Utils;
-import org.jspecify.annotations.Nullable;
+import net.minecraft.core.Direction;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 public final class RotatingPillarTextureType extends PillarTextureType
 {
     public static final RotatingPillarTextureType X = new RotatingPillarTextureType(Direction.Axis.X);
     public static final RotatingPillarTextureType Y = new RotatingPillarTextureType(Direction.Axis.Y);
     public static final RotatingPillarTextureType Z = new RotatingPillarTextureType(Direction.Axis.Z);
-    private static final EnumSet<SpriteType> SPRITE_TYPES = EnumSet.of(SpriteType.HORIZONTAL, SpriteType.VERTICAL);
+    private static final Set<SpriteType> SPRITE_TYPES = Set.of(SpriteType.HORIZONTAL, SpriteType.VERTICAL);
 
     private final SpriteType spriteHor;
     private final SpriteType spriteVert;
@@ -34,18 +33,17 @@ public final class RotatingPillarTextureType extends PillarTextureType
     }
 
     @Override
-    @Nullable
     public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
     {
         if (xCon || yCon)
         {
             return Utils.isY(side) ? spriteVert : spriteHor;
         }
-        return null;
+        return SpriteType.NONE;
     }
 
     @Override
-    public EnumSet<SpriteType> getSpriteTypes()
+    public Set<SpriteType> getSpriteTypes()
     {
         return SPRITE_TYPES;
     }

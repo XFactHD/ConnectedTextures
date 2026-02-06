@@ -1,7 +1,7 @@
 package io.github.xfacthd.contex.client.util;
 
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.QuadCollection;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
 import net.minecraft.core.Direction;
 import org.jspecify.annotations.Nullable;
 

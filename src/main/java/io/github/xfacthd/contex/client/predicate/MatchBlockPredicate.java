@@ -4,10 +4,10 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import io.github.xfacthd.contex.api.type.SimpleConnectionPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import io.github.xfacthd.contex.api.type.SimpleConnectionPredicate;
 
 public final class MatchBlockPredicate extends SimpleConnectionPredicate
 {

@@ -4,12 +4,12 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import io.github.xfacthd.contex.api.type.ConnectionPredicate;
+import io.github.xfacthd.contex.api.type.SimpleConnectionPredicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import io.github.xfacthd.contex.api.type.ConnectionPredicate;
-import io.github.xfacthd.contex.api.type.SimpleConnectionPredicate;
 
 public final class MatchTagPredicate extends SimpleConnectionPredicate
 {

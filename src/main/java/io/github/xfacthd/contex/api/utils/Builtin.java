@@ -1,16 +1,15 @@
 package io.github.xfacthd.contex.api.utils;
 
-import net.minecraft.core.Direction;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import io.github.xfacthd.contex.api.type.ConnectionPredicate;
+import io.github.xfacthd.contex.api.type.TextureStrategy;
 import io.github.xfacthd.contex.api.type.TextureType;
 import io.github.xfacthd.contex.client.predicate.MatchBlockPredicate;
 import io.github.xfacthd.contex.client.predicate.MatchStatePredicate;
 import io.github.xfacthd.contex.client.predicate.MatchTagPredicate;
 import io.github.xfacthd.contex.client.predicate.SameBlockPredicate;
 import io.github.xfacthd.contex.client.predicate.SameStatePredicate;
+import io.github.xfacthd.contex.client.strategy.CompactTextureStrategy;
+import io.github.xfacthd.contex.client.strategy.FullTextureStrategy;
 import io.github.xfacthd.contex.client.type.FullCarpetTextureType;
 import io.github.xfacthd.contex.client.type.FullTextureType;
 import io.github.xfacthd.contex.client.type.OmniPillarTextureType;
@@ -18,7 +17,12 @@ import io.github.xfacthd.contex.client.type.PillarTextureType;
 import io.github.xfacthd.contex.client.type.RotatingPillarTextureType;
 import io.github.xfacthd.contex.client.type.SimpleCarpetTextureType;
 import io.github.xfacthd.contex.client.type.SimpleTextureType;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
+@SuppressWarnings("unused")
 public final class Builtin
 {
     public static final class Types
@@ -114,6 +118,21 @@ public final class Builtin
         }
 
         private Predicates() { }
+    }
+
+    public static final class Strategies
+    {
+        public static TextureStrategy compact()
+        {
+            return CompactTextureStrategy.INSTANCE;
+        }
+
+        public static TextureStrategy full()
+        {
+            return FullTextureStrategy.INSTANCE;
+        }
+
+        private Strategies() { }
     }
 
     private Builtin() { }

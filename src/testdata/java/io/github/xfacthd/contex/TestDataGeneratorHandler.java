@@ -1,7 +1,23 @@
 package io.github.xfacthd.contex;
 
+import io.github.xfacthd.contex.api.datagen.ConTexBlockModelDefinitionGenerator;
+import io.github.xfacthd.contex.api.datagen.MetaEntryBuilder;
+import io.github.xfacthd.contex.api.texture.Border;
+import io.github.xfacthd.contex.api.texture.ConTexSpriteSource;
+import io.github.xfacthd.contex.api.type.OcclusionMode;
+import io.github.xfacthd.contex.api.type.TextureStrategy;
 import io.github.xfacthd.contex.api.type.TextureType;
+import io.github.xfacthd.contex.api.utils.Constants;
 import io.github.xfacthd.contex.api.utils.Utils;
+import io.github.xfacthd.contex.client.predicate.SameBlockPredicate;
+import io.github.xfacthd.contex.client.predicate.SameStatePredicate;
+import io.github.xfacthd.contex.client.strategy.CompactTextureStrategy;
+import io.github.xfacthd.contex.client.strategy.FullTextureStrategy;
+import io.github.xfacthd.contex.client.type.FullCarpetTextureType;
+import io.github.xfacthd.contex.client.type.FullTextureType;
+import io.github.xfacthd.contex.client.type.OmniPillarTextureType;
+import io.github.xfacthd.contex.client.type.PillarTextureType;
+import io.github.xfacthd.contex.client.type.RotatingPillarTextureType;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -15,7 +31,8 @@ import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
-import net.minecraft.client.renderer.block.model.Variant;
+import net.minecraft.client.renderer.block.dispatch.Variant;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -39,18 +56,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.data.SpriteSourceProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
-import io.github.xfacthd.contex.api.datagen.ConTexBlockModelDefinitionGenerator;
-import io.github.xfacthd.contex.api.datagen.MetaEntryBuilder;
-import io.github.xfacthd.contex.api.utils.Constants;
-import io.github.xfacthd.contex.client.predicate.SameBlockPredicate;
-import io.github.xfacthd.contex.client.predicate.SameStatePredicate;
-import io.github.xfacthd.contex.api.texture.Border;
-import io.github.xfacthd.contex.api.texture.ConTexSpriteSource;
-import io.github.xfacthd.contex.client.type.FullCarpetTextureType;
-import io.github.xfacthd.contex.client.type.FullTextureType;
-import io.github.xfacthd.contex.client.type.OmniPillarTextureType;
-import io.github.xfacthd.contex.client.type.PillarTextureType;
-import io.github.xfacthd.contex.client.type.RotatingPillarTextureType;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 
 import java.util.concurrent.CompletableFuture;
@@ -71,7 +76,7 @@ public final class TestDataGeneratorHandler
     private static void onAddPackFinders(AddPackFindersEvent event)
     {
         event.addPackFinders(
-                Utils.rl(TEST_PACK_ID),
+                Utils.id(TEST_PACK_ID),
                 PackType.CLIENT_RESOURCES,
                 Component.literal("ConTex Test Pack"),
                 PackSource.DEFAULT,
@@ -107,6 +112,7 @@ public final class TestDataGeneratorHandler
         private final Identifier TEX_BLACKSTONE = mcLocation("block/chiseled_polished_blackstone");
         private final Identifier TEX_STONEBRICKS = mcLocation("block/chiseled_stone_bricks");
         private final Identifier TEX_GLASS = mcLocation("block/glass");
+        private final Identifier TEX_YELLOW_GLASS = mcLocation("block/yellow_stained_glass");
         private final Identifier TEX_DIORITE = mcLocation("block/polished_diorite");
         private final Identifier TEX_GRANITE = mcLocation("block/polished_granite");
         private final Identifier TEX_REDSTONE = mcLocation("block/redstone_block");
@@ -130,21 +136,21 @@ public final class TestDataGeneratorHandler
             variant(blockModels, Blocks.POLISHED_GRANITE, FullTextureType.INSTANCE,             builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
             variant(blockModels, Blocks.REDSTONE_BLOCK, OmniPillarTextureType.INSTANCE,               builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_REDSTONE));
             variant(blockModels, Blocks.SEA_LANTERN, FullTextureType.INSTANCE,                  builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_SEA_LANTERN));
+            variant(blockModels, Blocks.YELLOW_STAINED_GLASS, FullTextureType.INSTANCE, FullTextureStrategy.INSTANCE, builder -> builder.predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.SOLID_OR_SELF).addTexture(TEX_YELLOW_GLASS));
 
             TextureMapping mapping = new TextureMapping()
-                    .put(SLOT_REDSTONE, TEX_REDSTONE)
-                    .put(SLOT_GLASS, TEX_GLASS)
-                    .put(TextureSlot.PARTICLE, TEX_REDSTONE);
+                    .put(SLOT_REDSTONE, new Material(TEX_REDSTONE))
+                    .put(SLOT_GLASS, new Material(TEX_GLASS))
+                    .put(TextureSlot.PARTICLE, new Material(TEX_REDSTONE));
             TEMPLATE_BLOCK.extend()
                     .element(elem -> elem.allFaces((dir, face) -> face.texture(SLOT_REDSTONE).cullface(dir)).lightEmission(15))
                     .element(elem -> elem.allFaces((dir, face) -> face.texture(SLOT_GLASS).cullface(dir)))
-                    .renderType("cutout")
                     .build()
                     .create(Blocks.OAK_PLANKS, mapping, blockModels.modelOutput);
             variant(blockModels, Blocks.OAK_PLANKS, FullTextureType.INSTANCE, builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GLASS));
 
             ConTexBlockModelDefinitionGenerator slabGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.OAK_SLAB);
-            TextureMapping slabTextures = TextureMapping.column(TEX_DIORITE, TEX_DIORITE);
+            TextureMapping slabTextures = TextureMapping.column(new Material(TEX_DIORITE), new Material(TEX_DIORITE));
             Identifier bottomSlab = ModelTemplates.SLAB_BOTTOM.create(Blocks.OAK_SLAB, slabTextures, blockModels.modelOutput);
             Identifier topSlab = ModelTemplates.SLAB_TOP.create(Blocks.OAK_SLAB, slabTextures, blockModels.modelOutput);
             Identifier doubleSlab = ModelTemplates.CUBE_COLUMN.createWithOverride(Blocks.OAK_SLAB, "_double", slabTextures, blockModels.modelOutput);
@@ -179,7 +185,12 @@ public final class TestDataGeneratorHandler
 
         private static void variant(BlockModelGenerators blockModels, Block block, TextureType type, UnaryOperator<MetaEntryBuilder> metaBuilder)
         {
-            ConTexBlockModelDefinitionGenerator generator = new ConTexBlockModelDefinitionGenerator(block)
+            variant(blockModels, block, type, CompactTextureStrategy.INSTANCE, metaBuilder);
+        }
+
+        private static void variant(BlockModelGenerators blockModels, Block block, TextureType type, TextureStrategy strategy, UnaryOperator<MetaEntryBuilder> metaBuilder)
+        {
+            ConTexBlockModelDefinitionGenerator generator = new ConTexBlockModelDefinitionGenerator(block, strategy)
                     .variant(MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(block))))
                     .metadata(type, metaBuilder);
             blockModels.blockStateOutput.accept(generator);
@@ -230,6 +241,11 @@ public final class TestDataGeneratorHandler
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/red_wool"),
                             new Border(2, false, false, true, true)
+                    ))
+                    .addSource(new ConTexSpriteSource(
+                            Identifier.withDefaultNamespace("block/yellow_stained_glass"),
+                            new Border(1),
+                            false
                     ));
         }
     }

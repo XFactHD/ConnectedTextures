@@ -1,8 +1,8 @@
 package io.github.xfacthd.contex.client.predicate;
 
 import com.mojang.serialization.MapCodec;
-import net.minecraft.world.level.block.state.BlockState;
 import io.github.xfacthd.contex.api.type.SimpleConnectionPredicate;
+import net.minecraft.world.level.block.state.BlockState;
 
 public final class SameBlockPredicate extends SimpleConnectionPredicate
 {

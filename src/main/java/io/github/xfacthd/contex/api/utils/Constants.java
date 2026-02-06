@@ -10,7 +10,5 @@ public final class Constants
     public static final EnumSet<Direction> DIRECTIONS = EnumSet.allOf(Direction.class);
     public static final EnumSet<Direction> HORIZONTAL_DIRECTIONS = EnumSet.range(Direction.NORTH, Direction.EAST);
 
-
-
     private Constants() { }
 }
