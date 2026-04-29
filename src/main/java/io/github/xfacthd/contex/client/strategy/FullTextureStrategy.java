@@ -19,18 +19,15 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public final class FullTextureStrategy implements TextureStrategy
-{
+public final class FullTextureStrategy implements TextureStrategy {
     private static final Map<SpriteType, SpriteTypeTuple> PART_TYPES_BY_TYPE = new IdentityHashMap<>();
     private static final @Nullable SpriteType[] TYPE_MAPPING = makeTypeMapping();
     public static final Set<SpriteType> TYPES = Set.copyOf(Arrays.stream(TYPE_MAPPING).filter(Objects::nonNull).toList());
     public static final FullTextureStrategy INSTANCE = new FullTextureStrategy();
 
     @Override
-    public void makeConnectionQuads(TextureType type, BakedQuad srcQuad, Direction side, byte state, SpriteLookup sprites, Consumer<BakedQuad> output)
-    {
-        if (state == 0)
-        {
+    public void makeConnectionQuads(TextureType type, BakedQuad srcQuad, Direction side, byte state, SpriteLookup sprites, Consumer<BakedQuad> output) {
+        if (state == 0) {
             output.accept(srcQuad);
             return;
         }
@@ -43,14 +40,10 @@ public final class FullTextureStrategy implements TextureStrategy
         QuadRebaker.processRemapOnly(srcQuad, sprites.get(fullType), output);
     }
 
-    private static SpriteType computeCornerType(TextureType type, byte state, ConnectionDirection uDir, ConnectionDirection vDir, Direction side)
-    {
-        if (Utils.isY(side))
-        {
+    private static SpriteType computeCornerType(TextureType type, byte state, ConnectionDirection uDir, ConnectionDirection vDir, Direction side) {
+        if (Utils.isY(side)) {
             vDir = vDir.getOpposite();
-        }
-        else
-        {
+        } else {
             uDir = uDir.getOpposite();
         }
 
@@ -61,28 +54,21 @@ public final class FullTextureStrategy implements TextureStrategy
     }
 
     @Override
-    public void makeNonCtQuads(BakedQuad srcQuad, Consumer<BakedQuad> output)
-    {
+    public void makeNonCtQuads(BakedQuad srcQuad, Consumer<BakedQuad> output) {
         output.accept(srcQuad);
     }
 
     @Override
-    public Set<SpriteType> computePermittedTypes(Set<SpriteType> spriteTypes)
-    {
+    public Set<SpriteType> computePermittedTypes(Set<SpriteType> spriteTypes) {
         spriteTypes = new HashSet<>(spriteTypes);
         spriteTypes.add(SpriteType.NONE);
         Set<SpriteType> fullTypes = new HashSet<>();
-        for (SpriteType topLeft : spriteTypes)
-        {
-            for (SpriteType topRight : spriteTypes)
-            {
-                for (SpriteType bottomLeft : spriteTypes)
-                {
-                    for (SpriteType bottomRight : spriteTypes)
-                    {
+        for (SpriteType topLeft : spriteTypes) {
+            for (SpriteType topRight : spriteTypes) {
+                for (SpriteType bottomLeft : spriteTypes) {
+                    for (SpriteType bottomRight : spriteTypes) {
                         SpriteType type = tryGetType(topLeft, topRight, bottomLeft, bottomRight);
-                        if (type != null)
-                        {
+                        if (type != null) {
                             fullTypes.add(type);
                         }
                     }
@@ -93,40 +79,42 @@ public final class FullTextureStrategy implements TextureStrategy
     }
 
     @Nullable
-    private static SpriteType tryGetType(SpriteType topLeft, SpriteType topRight, SpriteType bottomLeft, SpriteType bottomRight)
-    {
+    private static SpriteType tryGetType(SpriteType topLeft, SpriteType topRight, SpriteType bottomLeft, SpriteType bottomRight) {
         return TYPE_MAPPING[makeIndex(topLeft, topRight, bottomLeft, bottomRight)];
     }
 
-    public static SpriteTypeTuple getPartTypes(SpriteType type)
-    {
+    public static SpriteTypeTuple getPartTypes(SpriteType type) {
         return Objects.requireNonNull(PART_TYPES_BY_TYPE.get(type));
     }
 
-    private static int makeIndex(SpriteType topLeft, SpriteType topRight, SpriteType bottomLeft, SpriteType bottomRight)
-    {
+    private static int makeIndex(SpriteType topLeft, SpriteType topRight, SpriteType bottomLeft, SpriteType bottomRight) {
         return topLeft.getBaseIndex() | (topRight.getBaseIndex() << 3) | (bottomLeft.getBaseIndex() << 6) | (bottomRight.getBaseIndex() << 9);
     }
 
-    private static SpriteType[] makeTypeMapping()
-    {
+    private static SpriteType[] makeTypeMapping() {
         SpriteType[] fullTypes = new SpriteType[4096];
         fullTypes[0] = SpriteType.NONE;
-        for (SpriteType topLeft : SpriteType.BASE_TYPES)
-        {
-            for (SpriteType topRight : SpriteType.BASE_TYPES)
-            {
-                for (SpriteType bottomLeft : SpriteType.BASE_TYPES)
-                {
-                    for (SpriteType bottomRight : SpriteType.BASE_TYPES)
-                    {
-                        if (topLeft.connectsVertical() != topRight.connectsVertical()) continue;
-                        if (bottomLeft.connectsVertical() != bottomRight.connectsVertical()) continue;
-                        if (topLeft.connectsHorizontal() != bottomLeft.connectsHorizontal()) continue;
-                        if (topRight.connectsHorizontal() != bottomRight.connectsHorizontal()) continue;
+        for (SpriteType topLeft : SpriteType.BASE_TYPES) {
+            for (SpriteType topRight : SpriteType.BASE_TYPES) {
+                for (SpriteType bottomLeft : SpriteType.BASE_TYPES) {
+                    for (SpriteType bottomRight : SpriteType.BASE_TYPES) {
+                        if (topLeft.connectsVertical() != topRight.connectsVertical()) {
+                            continue;
+                        }
+                        if (bottomLeft.connectsVertical() != bottomRight.connectsVertical()) {
+                            continue;
+                        }
+                        if (topLeft.connectsHorizontal() != bottomLeft.connectsHorizontal()) {
+                            continue;
+                        }
+                        if (topRight.connectsHorizontal() != bottomRight.connectsHorizontal()) {
+                            continue;
+                        }
 
                         int index = makeIndex(topLeft, topRight, bottomLeft, bottomRight);
-                        if (index == 0) continue;
+                        if (index == 0) {
+                            continue;
+                        }
 
                         SpriteType fullType = new SpriteType("full", topLeft.suffix() + "_" + topRight.suffix() + "_" + bottomLeft.suffix() + "_" + bottomRight.suffix());
                         fullTypes[index] = fullType;

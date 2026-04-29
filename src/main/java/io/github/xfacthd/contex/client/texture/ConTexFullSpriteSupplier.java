@@ -35,21 +35,16 @@ public record ConTexFullSpriteSupplier(
         Border border,
         CompactImageCache imageCache,
         Set<MetadataSectionType<?>> additionalMetadata
-) implements SpriteSource.DiscardableLoader
-{
+) implements SpriteSource.DiscardableLoader {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public ConTexFullSpriteSupplier(Identifier srcLoc, Identifier outLoc, SpriteType outType, Resource imgResource, Border border, CompactImageCache imageCache, Set<MetadataSectionType<?>> additionalMetadata)
-    {
+    public ConTexFullSpriteSupplier(Identifier srcLoc, Identifier outLoc, SpriteType outType, Resource imgResource, Border border, CompactImageCache imageCache, Set<MetadataSectionType<?>> additionalMetadata) {
         this(srcLoc, outLoc, outType, imgResource, new LazyLoadedImage(srcLoc, imgResource, 1), border, imageCache, additionalMetadata);
     }
 
     @Override
-    @Nullable
-    public SpriteContents get(SpriteResourceLoader loader)
-    {
-        try
-        {
+    public @Nullable SpriteContents get(SpriteResourceLoader loader) {
+        try {
             NativeImage srcImg = image.get();
             ResourceMetadata metadata = imgResource.metadata();
 
@@ -58,8 +53,7 @@ public record ConTexFullSpriteSupplier(
             ConTexCompactSpriteSupplier.Image topRight = imageCache.get(partTypes.topRight(), srcLoc, srcImg, metadata, border);
             ConTexCompactSpriteSupplier.Image bottomLeft = imageCache.get(partTypes.bottomLeft(), srcLoc, srcImg, metadata, border);
             ConTexCompactSpriteSupplier.Image bottomRight = imageCache.get(partTypes.bottomRight(), srcLoc, srcImg, metadata, border);
-            if (topLeft == null || topRight == null || bottomLeft == null || bottomRight == null)
-            {
+            if (topLeft == null || topRight == null || bottomLeft == null || bottomRight == null) {
                 return null;
             }
 
@@ -67,8 +61,7 @@ public record ConTexFullSpriteSupplier(
             int halfWidth = size.width() / 2;
             int halfHeight = size.height() / 2;
             NativeImage destImage = new NativeImage(srcImg.format(), srcImg.getWidth(), srcImg.getHeight(), false);
-            for (ConTexCompactSpriteSupplier.FrameInfo frame : topLeft.frames())
-            {
+            for (ConTexCompactSpriteSupplier.FrameInfo frame : topLeft.frames()) {
                 int x = size.width() * frame.xIdx();
                 int y = size.height() * frame.yIdx();
                 topLeft.image().copyRect(destImage, x, y, x, y, halfWidth, halfHeight, false, false);
@@ -81,48 +74,37 @@ public record ConTexFullSpriteSupplier(
             List<MetadataSectionType.WithValue<?>> typedMetadata = metadata.getTypedSections(additionalMetadata);
             Optional<TextureMetadataSection> texMeta = metadata.getSection(TextureMetadataSection.TYPE);
             return new SpriteContents(outLoc, size, destImage, animMeta, typedMetadata, texMeta);
-        }
-        catch (Throwable e)
-        {
+        } catch (Throwable e) {
             LOGGER.error("Failed to generate CTM texture from texture '{}' for sprite type '{}'", srcLoc, type, e);
             return null;
-        }
-        finally
-        {
+        } finally {
             image.release();
             imageCache.release();
         }
     }
 
     @Override
-    public void discard()
-    {
+    public void discard() {
         image.release();
         imageCache.release();
     }
 
-    public static final class CompactImageCache
-    {
+    public static final class CompactImageCache {
         private final Map<SpriteType, ConTexCompactSpriteSupplier.Image> images = new ConcurrentHashMap<>();
         private final AtomicInteger refCount;
 
-        public CompactImageCache(int refCount)
-        {
+        public CompactImageCache(int refCount) {
             this.refCount = new AtomicInteger(refCount);
         }
 
-        ConTexCompactSpriteSupplier.@Nullable Image get(SpriteType type, Identifier srcLoc, NativeImage srcImage, ResourceMetadata metadata, Border border)
-        {
+        ConTexCompactSpriteSupplier.@Nullable Image get(SpriteType type, Identifier srcLoc, NativeImage srcImage, ResourceMetadata metadata, Border border) {
             return images.computeIfAbsent(type, key -> ConTexCompactSpriteSupplier.createImage(srcLoc, key, srcImage, metadata, border));
         }
 
-        void release()
-        {
+        void release() {
             int references = refCount.decrementAndGet();
-            if (references <= 0)
-            {
-                images.values().removeIf(img ->
-                {
+            if (references <= 0) {
+                images.values().removeIf(img -> {
                     img.image().close();
                     return true;
                 });

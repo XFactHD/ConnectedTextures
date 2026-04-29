@@ -15,24 +15,20 @@ record ConnectedBlockStateModelPart(
         Material.Baked particleMaterial,
         int metaIdx,
         int texIdx
-) implements BlockStateModelPart
-{
+) implements BlockStateModelPart {
     @Override
-    public List<BakedQuad> getQuads(@Nullable Direction side)
-    {
+    public List<BakedQuad> getQuads(@Nullable Direction side) {
         return quads.getQuads(side);
     }
 
     @Override
     @BakedQuad.MaterialFlags
-    public int materialFlags()
-    {
+    public int materialFlags() {
         return quads.materialFlags();
     }
 
     @SuppressWarnings("deprecation")
-    public static ConnectedBlockStateModelPart of(BlockStateModelPart srcPart, QuadCollection quads, int metaIdx, int texIdx)
-    {
+    public static ConnectedBlockStateModelPart of(BlockStateModelPart srcPart, QuadCollection quads, int metaIdx, int texIdx) {
         return new ConnectedBlockStateModelPart(quads, srcPart.useAmbientOcclusion(), srcPart.particleMaterial(), metaIdx, texIdx);
     }
 }

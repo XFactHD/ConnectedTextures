@@ -5,8 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class SimpleConnectionPredicate implements ConnectionPredicate
-{
+public abstract class SimpleConnectionPredicate implements ConnectionPredicate {
     @Override
     public final boolean test(
             BlockAndTintGetter level,
@@ -15,8 +14,7 @@ public abstract class SimpleConnectionPredicate implements ConnectionPredicate
             BlockState state,
             Direction side,
             Direction otherSide
-    )
-    {
+    ) {
         BlockState otherState = level.getBlockState(otherPos);
 
         BlockState actualState = state.getAppearance(level, pos, side, otherState, otherPos);

@@ -4,8 +4,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import org.jspecify.annotations.Nullable;
 
-public enum ConnectionDirection
-{
+public enum ConnectionDirection {
     UP(0),
     UP_RIGHT(-1),
     RIGHT(1),
@@ -27,20 +26,16 @@ public enum ConnectionDirection
 
     private final int cardinalIdx;
 
-    ConnectionDirection(int cardinalIdx)
-    {
+    ConnectionDirection(int cardinalIdx) {
         this.cardinalIdx = cardinalIdx;
     }
 
-    public Vec3i getOffset(Direction side)
-    {
+    public Vec3i getOffset(Direction side) {
         return OFFSETS[ordinal() * DIR_COUNT + side.ordinal()];
     }
 
-    public ConnectionDirection getOpposite()
-    {
-        return switch (this)
-        {
+    public ConnectionDirection getOpposite() {
+        return switch (this) {
             case UP -> DOWN;
             case UP_RIGHT -> DOWN_LEFT;
             case RIGHT -> LEFT;
@@ -55,34 +50,29 @@ public enum ConnectionDirection
     /**
      * {@return the {@link ConnectionDirection} pointing in the same absolute direction for the opposite of the given face}
      */
-    public ConnectionDirection mapToOppositeFace(Direction face)
-    {
+    public ConnectionDirection mapToOppositeFace(Direction face) {
         return OPPOSITES[this.ordinal() * DIR_COUNT + face.ordinal()];
     }
 
     /**
      * Check whether this {@link ConnectionDirection} is set on the given connection state
      */
-    public boolean isSet(byte connections)
-    {
+    public boolean isSet(byte connections) {
         return (connections & (1 << ordinal())) != 0;
     }
 
     /**
      * Set this {@link ConnectionDirection} on the given connection state
      */
-    public byte set(byte connections)
-    {
+    public byte set(byte connections) {
         return (byte) (connections | (byte) (1 << ordinal()));
     }
 
     /**
      * Check whether both cardinal neighbors of this diagonal {@link ConnectionDirection} are set on the given connection state
      */
-    public boolean areCardinalNeighborsSet(byte connections)
-    {
-        return switch (this)
-        {
+    public boolean areCardinalNeighborsSet(byte connections) {
+        return switch (this) {
             case UP_RIGHT -> UP.isSet(connections) && RIGHT.isSet(connections);
             case DOWN_RIGHT -> DOWN.isSet(connections) && RIGHT.isSet(connections);
             case DOWN_LEFT -> DOWN.isSet(connections) && LEFT.isSet(connections);
@@ -91,55 +81,44 @@ public enum ConnectionDirection
         };
     }
 
-    public boolean isDiagonal()
-    {
+    public boolean isDiagonal() {
         return cardinalIdx == -1;
     }
 
-    public Direction toCutEdge(Direction quadDir)
-    {
-        if (isDiagonal())
-        {
+    public Direction toCutEdge(Direction quadDir) {
+        if (isDiagonal()) {
             throw new IllegalArgumentException("Cannot get cutting direction of diagonal ConnectionDirection");
         }
         return CUT_EDGES[quadDir.ordinal() << 2 | cardinalIdx];
     }
 
-    public static ConnectionDirection from(Direction side, Direction dir)
-    {
+    public static ConnectionDirection from(Direction side, Direction dir) {
         ConnectionDirection conDir = BY_DIRECTION[side.ordinal() * DIR_COUNT + dir.ordinal()];
-        if (conDir == null)
-        {
+        if (conDir == null) {
             throw new IllegalArgumentException("Invalid side-dir combination: side=" + side + ", dir=" + dir);
         }
         return conDir;
     }
 
-    public static ConnectionDirection diagonal(ConnectionDirection xDir, ConnectionDirection yDir)
-    {
+    public static ConnectionDirection diagonal(ConnectionDirection xDir, ConnectionDirection yDir) {
         ConnectionDirection conDir = DIAGONALS[xDir.cardinalIdx * CON_DIR_COUNT + yDir.cardinalIdx];
-        if (conDir == null)
-        {
+        if (conDir == null) {
             throw new IllegalArgumentException("Invalid xDir-yDir combination: xDir=" + xDir + ", yDir=" + yDir);
         }
         return conDir;
     }
 
-    public static int mask(ConnectionDirection... directions)
-    {
+    public static int mask(ConnectionDirection... directions) {
         byte value = 0;
-        for (ConnectionDirection dir : directions)
-        {
+        for (ConnectionDirection dir : directions) {
             value = dir.set(value);
         }
         return value & 0xFF;
     }
 
 
-
     @SuppressWarnings("ConstantValue")
-    private static ConnectionDirection[] makeByDirectionTable()
-    {
+    private static ConnectionDirection[] makeByDirectionTable() {
         ConnectionDirection[] directions = new ConnectionDirection[DIR_COUNT * DIR_COUNT];
 
         directions[Direction.UP.ordinal() * DIR_COUNT + Direction.NORTH.ordinal()] = DOWN;
@@ -175,8 +154,7 @@ public enum ConnectionDirection
         return directions;
     }
 
-    private static ConnectionDirection[] makeDiagonalsTable()
-    {
+    private static ConnectionDirection[] makeDiagonalsTable() {
         ConnectionDirection[] diagonals = new ConnectionDirection[CON_DIR_COUNT * CON_DIR_COUNT];
         diagonals[LEFT.cardinalIdx * CON_DIR_COUNT + UP.cardinalIdx] = UP_LEFT;
         diagonals[RIGHT.cardinalIdx * CON_DIR_COUNT + UP.cardinalIdx] = UP_RIGHT;
@@ -186,8 +164,7 @@ public enum ConnectionDirection
     }
 
     @SuppressWarnings("ConstantValue")
-    private static ConnectionDirection[] makeOppositesTable()
-    {
+    private static ConnectionDirection[] makeOppositesTable() {
         ConnectionDirection[] directions = new ConnectionDirection[CON_DIR_COUNT * DIR_COUNT];
 
         directions[ConnectionDirection.UP.ordinal() * DIR_COUNT + Direction.UP.ordinal()] = ConnectionDirection.DOWN;
@@ -249,58 +226,46 @@ public enum ConnectionDirection
         return directions;
     }
 
-    private static Vec3i[] makeOffsetsTable()
-    {
+    private static Vec3i[] makeOffsetsTable() {
         Vec3i[] offsets = new Vec3i[VALUES.length * DIR_COUNT];
-        for (ConnectionDirection conDir : VALUES)
-        {
+        for (ConnectionDirection conDir : VALUES) {
             int baseIdx = conDir.ordinal() * DIR_COUNT;
-            for (Direction side : DIRECTIONS)
-            {
-                offsets[baseIdx + side.ordinal()] = switch (conDir)
-                {
-                    case UP -> switch (side)
-                    {
+            for (Direction side : DIRECTIONS) {
+                offsets[baseIdx + side.ordinal()] = switch (conDir) {
+                    case UP -> switch (side) {
                         case DOWN -> new Vec3i(0, 0, -1);
                         case UP -> new Vec3i(0, 0, 1);
                         case NORTH, SOUTH, WEST, EAST -> new Vec3i(0, 1, 0);
                     };
-                    case UP_RIGHT -> switch (side)
-                    {
+                    case UP_RIGHT -> switch (side) {
                         case DOWN -> new Vec3i(1, 0, -1);
                         case UP -> new Vec3i(1, 0, 1);
                         case NORTH, SOUTH, WEST, EAST -> side.getClockWise().getUnitVec3i().above();
                     };
-                    case RIGHT -> switch (side)
-                    {
+                    case RIGHT -> switch (side) {
                         case DOWN, UP -> new Vec3i(1, 0, 0);
                         case NORTH, SOUTH, WEST, EAST -> side.getClockWise().getUnitVec3i();
                     };
-                    case DOWN_RIGHT -> switch (side)
-                    {
+                    case DOWN_RIGHT -> switch (side) {
                         case DOWN -> new Vec3i(1, 0, 1);
                         case UP -> new Vec3i(1, 0, -1);
                         case NORTH, SOUTH, WEST, EAST -> side.getClockWise().getUnitVec3i().below();
                     };
-                    case DOWN -> switch (side)
-                    {
+                    case DOWN -> switch (side) {
                         case DOWN -> new Vec3i(0, 0, 1);
                         case UP -> new Vec3i(0, 0, -1);
                         case NORTH, SOUTH, WEST, EAST -> new Vec3i(0, -1, 0);
                     };
-                    case DOWN_LEFT -> switch (side)
-                    {
+                    case DOWN_LEFT -> switch (side) {
                         case DOWN -> new Vec3i(-1, 0, 1);
                         case UP -> new Vec3i(-1, 0, -1);
                         case NORTH, SOUTH, WEST, EAST -> side.getCounterClockWise().getUnitVec3i().below();
                     };
-                    case LEFT -> switch (side)
-                    {
+                    case LEFT -> switch (side) {
                         case DOWN, UP -> new Vec3i(-1, 0, 0);
                         case NORTH, SOUTH, WEST, EAST -> side.getCounterClockWise().getUnitVec3i();
                     };
-                    case UP_LEFT -> switch (side)
-                    {
+                    case UP_LEFT -> switch (side) {
                         case DOWN -> new Vec3i(-1, 0, -1);
                         case UP -> new Vec3i(-1, 0, 1);
                         case NORTH, SOUTH, WEST, EAST -> side.getCounterClockWise().getUnitVec3i().above();
@@ -311,36 +276,30 @@ public enum ConnectionDirection
         return offsets;
     }
 
-    private static Direction[] makeCutEdgesTable()
-    {
+    private static Direction[] makeCutEdgesTable() {
         Direction[] directions = new Direction[24];
-        for (Direction side : DIRECTIONS)
-        {
-            for (ConnectionDirection conDir : VALUES)
-            {
-                if (conDir.isDiagonal()) continue;
+        for (Direction side : DIRECTIONS) {
+            for (ConnectionDirection conDir : VALUES) {
+                if (conDir.isDiagonal()) {
+                    continue;
+                }
 
-                directions[side.ordinal() << 2 | conDir.cardinalIdx] = switch (conDir)
-                {
-                    case UP -> switch (side)
-                    {
+                directions[side.ordinal() << 2 | conDir.cardinalIdx] = switch (conDir) {
+                    case UP -> switch (side) {
                         case DOWN -> Direction.SOUTH;
                         case UP -> Direction.NORTH;
                         default -> Direction.DOWN;
                     };
-                    case DOWN -> switch (side)
-                    {
+                    case DOWN -> switch (side) {
                         case DOWN -> Direction.NORTH;
                         case UP -> Direction.SOUTH;
                         default -> Direction.UP;
                     };
-                    case LEFT -> switch (side)
-                    {
+                    case LEFT -> switch (side) {
                         case DOWN, UP -> Direction.EAST;
                         default -> side.getClockWise();
                     };
-                    case RIGHT -> switch (side)
-                    {
+                    case RIGHT -> switch (side) {
                         case DOWN, UP -> Direction.WEST;
                         default -> side.getCounterClockWise();
                     };

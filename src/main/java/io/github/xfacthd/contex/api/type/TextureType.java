@@ -11,8 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.EnumSet;
 import java.util.Set;
 
-public abstract class TextureType
-{
+public abstract class TextureType {
     /// Returns a [Set] containing all [SpriteType]s this texture type uses to compose connected faces.
     /// All types returned by this method must be [SpriteType#BASE_TYPES].
     ///
@@ -22,8 +21,7 @@ public abstract class TextureType
     /**
      * {@return an {@link EnumSet} containing all directions this type operates on}
      */
-    public EnumSet<Direction> getAffectedFaces()
-    {
+    public EnumSet<Direction> getAffectedFaces() {
         return Constants.DIRECTIONS;
     }
 
@@ -71,16 +69,13 @@ public abstract class TextureType
             Direction side,
             ConnectionPredicate predicate,
             OcclusionMode occlusionMode
-    )
-    {
+    ) {
         BlockPos otherPos = pos.offset(dir.getOffset(side));
-        if (!predicate.test(level, pos, otherPos, state, side, side))
-        {
+        if (!predicate.test(level, pos, otherPos, state, side, side)) {
             return connections;
         }
 
-        if (isConnectionVisible(level, otherPos, side, predicate, occlusionMode))
-        {
+        if (isConnectionVisible(level, otherPos, side, predicate, occlusionMode)) {
             return dir.set(connections);
         }
         return connections;
@@ -101,18 +96,13 @@ public abstract class TextureType
             Direction side,
             ConnectionPredicate predicate,
             OcclusionMode occlusionMode
-    )
-    {
-        if (occlusionMode != OcclusionMode.NONE)
-        {
+    ) {
+        if (occlusionMode != OcclusionMode.NONE) {
             BlockPos occludePos = conPos.relative(side);
             BlockState state = level.getBlockState(conPos);
-            if (occlusionMode.isOccludedBySelf() && predicate.test(level, conPos, occludePos, state, side, side.getOpposite()))
-            {
+            if (occlusionMode.isOccludedBySelf() && predicate.test(level, conPos, occludePos, state, side, side.getOpposite())) {
                 return false;
-            }
-            else if (occlusionMode.isOccludedBySolid())
-            {
+            } else if (occlusionMode.isOccludedBySolid()) {
                 return Block.shouldRenderFace(level, conPos, state, level.getBlockState(occludePos), side);
             }
         }

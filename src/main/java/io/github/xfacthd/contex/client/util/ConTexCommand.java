@@ -32,8 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public final class ConTexCommand
-{
+public final class ConTexCommand {
     private static final DynamicCommandExceptionType EX_NO_SUCH_TEXTURE = new DynamicCommandExceptionType(
             tex -> Component.translatable("msg.contex.gen_ctm_tex.no_such_texture", tex)
     );
@@ -51,8 +50,7 @@ public final class ConTexCommand
     );
     private static final String MSG_GEN_SUCCESS = "msg.contex.gen_ctm_tex.success";
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
-    {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("contex")
                         .then(Commands.literal("gen_ctm_tex")
@@ -92,16 +90,14 @@ public final class ConTexCommand
         );
     }
 
-    private static int generateTextureSimpleBorder(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
-    {
+    private static int generateTextureSimpleBorder(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
         Identifier texture = IdentifierArgument.getId(ctx, "src_texture");
         int border = IntegerArgumentType.getInteger(ctx, "border");
         return generateTexture(source, texture, border, border, border, border, false, false, false, false);
     }
 
-    private static int generateTextureSimpleBorderMirror(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
-    {
+    private static int generateTextureSimpleBorderMirror(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
         Identifier texture = IdentifierArgument.getId(ctx, "src_texture");
         int border = IntegerArgumentType.getInteger(ctx, "border");
@@ -112,8 +108,7 @@ public final class ConTexCommand
         return generateTexture(source, texture, border, border, border, border, mirrorParallel, mirrorPerpendicular, copyFromOppositeEdge, synthesizeInnerCorners);
     }
 
-    private static int generateTextureFullBorder(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
-    {
+    private static int generateTextureFullBorder(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
         Identifier texture = IdentifierArgument.getId(ctx, "src_texture");
         int borderLeft = IntegerArgumentType.getInteger(ctx, "border_left");
@@ -123,8 +118,7 @@ public final class ConTexCommand
         return generateTexture(source, texture, borderLeft, borderRight, borderTop, borderBottom, false, false, false, false);
     }
 
-    private static int generateTextureFullBorderMirror(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException
-    {
+    private static int generateTextureFullBorderMirror(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         CommandSourceStack source = ctx.getSource();
         Identifier texture = IdentifierArgument.getId(ctx, "src_texture");
         int borderLeft = IntegerArgumentType.getInteger(ctx, "border_left");
@@ -149,15 +143,12 @@ public final class ConTexCommand
             boolean mirrorPerpendicular,
             boolean copyFromOppositeEdge,
             boolean synthesizeInnerCorners
-    ) throws CommandSyntaxException
-    {
+    ) throws CommandSyntaxException {
         SpriteContents srcSprite = Utils.getSprite(texture).contents();
-        if (srcSprite.name().equals(MissingTextureAtlasSprite.getLocation()))
-        {
+        if (srcSprite.name().equals(MissingTextureAtlasSprite.getLocation())) {
             throw EX_NO_SUCH_TEXTURE.create(texture);
         }
-        if (srcSprite.isAnimated())
-        {
+        if (srcSprite.isAnimated()) {
             throw EX_TEXTURE_ANIMATED.create();
         }
 
@@ -166,18 +157,15 @@ public final class ConTexCommand
         Identifier outLoc = texture.withSuffix("_ctm");
         Border border = new Border(borderLeft, borderTop, borderRight, borderBottom, mirrorParallel, mirrorPerpendicular, copyFromOppositeEdge, synthesizeInnerCorners);
 
-        if (synthesizeInnerCorners && !border.canSynthesizeCorners())
-        {
+        if (synthesizeInnerCorners && !border.canSynthesizeCorners()) {
             throw EX_INVALID_CORNER_SYNTH.create();
         }
 
         Set<SpriteType> types = FullTextureType.INSTANCE.getSpriteTypes();
         List<SpriteContents> ctmSprites = new ArrayList<>(types.size());
-        for (SpriteType type : types)
-        {
+        for (SpriteType type : types) {
             SpriteContents ctmSprite = ConTexCompactSpriteSupplier.createTexture(texture, outLoc, type, srcImage, metadata, border, Set.of());
-            if (ctmSprite == null)
-            {
+            if (ctmSprite == null) {
                 throw EX_GEN_FAILED.create();
             }
             ctmSprites.add(ctmSprite);
@@ -189,21 +177,16 @@ public final class ConTexCommand
                 .resolve("contex/export/")
                 .resolve(fileName);
 
-        try
-        {
+        try {
             Files.createDirectories(exportPath.getParent());
-            for (SpriteContents sprite : ctmSprites)
-            {
+            for (SpriteContents sprite : ctmSprites) {
                 sprite.getOriginalImage().writeToFile(exportPath);
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw EX_EXPORT_FAILED.create(e.toString());
         }
 
-        source.sendSuccess(() ->
-        {
+        source.sendSuccess(() -> {
             Component path = Component.literal(exportPath.toAbsolutePath().normalize().toString())
                     .withStyle(style -> style.withClickEvent(new ClickEvent.OpenFile(exportPath)));
             return Component.translatable(MSG_GEN_SUCCESS, path);

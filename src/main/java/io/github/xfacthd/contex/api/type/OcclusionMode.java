@@ -10,8 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Locale;
 
-public enum OcclusionMode implements StringRepresentable
-{
+public enum OcclusionMode implements StringRepresentable {
     /**
      * Connections will never be occluded
      */
@@ -37,30 +36,25 @@ public enum OcclusionMode implements StringRepresentable
     private final boolean occludedBySelf;
     private final boolean occludedBySolid;
 
-    OcclusionMode(boolean occludedBySelf, boolean occludedBySolid)
-    {
+    OcclusionMode(boolean occludedBySelf, boolean occludedBySolid) {
         this.occludedBySelf = occludedBySelf;
         this.occludedBySolid = occludedBySolid;
     }
 
-    public boolean isOccludedBySelf()
-    {
+    public boolean isOccludedBySelf() {
         return occludedBySelf;
     }
 
-    public boolean isOccludedBySolid()
-    {
+    public boolean isOccludedBySolid() {
         return occludedBySolid;
     }
 
-    public OcclusionMode except(OcclusionMode excluded)
-    {
+    public OcclusionMode except(OcclusionMode excluded) {
         return MODES[ordinal() & ~excluded.ordinal()];
     }
 
     @Override
-    public String getSerializedName()
-    {
+    public String getSerializedName() {
         return name;
     }
 }

@@ -9,24 +9,19 @@ import net.minecraft.world.level.block.state.properties.Property;
 import java.util.Map;
 import java.util.Optional;
 
-public record StatePredicate(Map<String, String> properties)
-{
+public record StatePredicate(Map<String, String> properties) {
     public static final Codec<StatePredicate> CODEC = Codec.unboundedMap(Codec.STRING, Codec.STRING)
             .xmap(StatePredicate::new, StatePredicate::properties);
 
-    public boolean matches(BlockState state)
-    {
+    public boolean matches(BlockState state) {
         StateDefinition<Block, BlockState> definition = state.getBlock().getStateDefinition();
-        for (Map.Entry<String, String> entry : properties.entrySet())
-        {
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
             Property<?> property = definition.getProperty(entry.getKey());
-            if (property == null)
-            {
+            if (property == null) {
                 return false;
             }
             Optional<?> value = property.getValue(entry.getValue());
-            if (value.isEmpty() || value.get() != state.getValue(property))
-            {
+            if (value.isEmpty() || value.get() != state.getValue(property)) {
                 return false;
             }
         }

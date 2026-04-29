@@ -28,8 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class ConTexModel extends DelegateBlockStateModel
-{
+public final class ConTexModel extends DelegateBlockStateModel {
     private static final Direction[] DIRECTIONS = Direction.values();
     /// Placeholder for `null` return values from [BlockStateModel#createGeometryKey(BlockAndTintGetter, BlockPos, BlockState, RandomSource)]
     /// due to [ConcurrentHashMap] not supporting `null` keys
@@ -41,8 +40,7 @@ public final class ConTexModel extends DelegateBlockStateModel
     private final MetaEntry.Baked[] metadata;
     private final Map<Object, List<ConnectedBlockStateModelPart>> decomposedPartsPerKey = new ConcurrentHashMap<>();
 
-    ConTexModel(BlockStateModel baseModel, BlockState state, TextureStrategy strategy, List<MetaEntry.Baked> metadata)
-    {
+    ConTexModel(BlockStateModel baseModel, BlockState state, TextureStrategy strategy, List<MetaEntry.Baked> metadata) {
         super(baseModel);
         this.state = state;
         this.strategy = strategy;
@@ -50,16 +48,13 @@ public final class ConTexModel extends DelegateBlockStateModel
     }
 
     @Override
-    public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockStateModelPart> parts)
-    {
+    public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockStateModelPart> parts) {
         Object delegateGeometryKey = Objects.requireNonNullElse(delegate.createGeometryKey(level, pos, state, random), NULL_KEY_DUMMY);
         ConnectionStateContainer ctStates = computeConnectionState(delegateGeometryKey, level, pos, state);
         List<BlockStateModelPart> ctParts = ctPartCache.get(ctStates);
-        if (ctParts == null)
-        {
+        if (ctParts == null) {
             List<ConnectedBlockStateModelPart> decomposedParts = decomposedPartsPerKey.get(delegateGeometryKey);
-            if (decomposedParts == null)
-            {
+            if (decomposedParts == null) {
                 random.setSeed(state.getSeed(pos));
                 decomposedParts = decomposeBaseModel(level, pos, random);
                 decomposedPartsPerKey.put(delegateGeometryKey, decomposedParts);
@@ -71,15 +66,12 @@ public final class ConTexModel extends DelegateBlockStateModel
         parts.addAll(ctParts);
     }
 
-    private List<BlockStateModelPart> generateConnectionQuads(ConnectionStateContainer ctStates, List<ConnectedBlockStateModelPart> srcParts)
-    {
+    private List<BlockStateModelPart> generateConnectionQuads(ConnectionStateContainer ctStates, List<ConnectedBlockStateModelPart> srcParts) {
         List<BlockStateModelPart> outParts = new ObjectArrayList<>(srcParts.size());
-        for (ConnectedBlockStateModelPart part : srcParts)
-        {
+        for (ConnectedBlockStateModelPart part : srcParts) {
             int metaIdx = part.metaIdx();
             int texIdx = part.texIdx();
-            if (metaIdx == -1 || texIdx == -1)
-            {
+            if (metaIdx == -1 || texIdx == -1) {
                 outParts.add(part);
                 continue;
             }
@@ -89,18 +81,15 @@ public final class ConTexModel extends DelegateBlockStateModel
             TextureEntry.Baked ctTextures = meta.texture(texIdx);
 
             ExtendedQuadCollectionBuilder quadsBuilder = new ExtendedQuadCollectionBuilder();
-            for (Direction side : DIRECTIONS)
-            {
+            for (Direction side : DIRECTIONS) {
                 quadsBuilder.setCullFace(side);
                 byte states = ctStates.get(side, metaIdx);
-                for (BakedQuad quad : part.getQuads(side))
-                {
+                for (BakedQuad quad : part.getQuads(side)) {
                     strategy.makeConnectionQuads(texType, quad, side, states, ctTextures, quadsBuilder);
                 }
             }
             quadsBuilder.setCullFace(null);
-            for (BakedQuad quad : part.getQuads(null))
-            {
+            for (BakedQuad quad : part.getQuads(null)) {
                 Direction side = quad.direction();
                 byte states = ctStates.get(side, metaIdx);
                 strategy.makeConnectionQuads(texType, quad, side, states, ctTextures, quadsBuilder);
@@ -111,8 +100,7 @@ public final class ConTexModel extends DelegateBlockStateModel
     }
 
     @Override
-    public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random)
-    {
+    public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random) {
         Object delegateGeometryKey = delegate.createGeometryKey(level, pos, state, random);
         return computeConnectionState(delegateGeometryKey, level, pos, state);
     }
@@ -122,67 +110,52 @@ public final class ConTexModel extends DelegateBlockStateModel
             BlockAndTintGetter level,
             BlockPos pos,
             BlockState state
-    )
-    {
+    ) {
         ConnectionStateContainer ctState = new ConnectionStateContainer(this, metadata.length, delegateGeometryKey);
         byte[] stateMap = new byte[6];
-        for (int i = 0; i < metadata.length; i++)
-        {
+        for (int i = 0; i < metadata.length; i++) {
             Arrays.fill(stateMap, (byte) 0);
             MetaEntry.Baked entry = metadata[i];
             TextureType type = entry.type();
-            for (Direction side : type.getAffectedFaces())
-            {
+            for (Direction side : type.getAffectedFaces()) {
                 stateMap[side.ordinal()] = type.getConnectionState(level, pos, state, side, entry.predicate(), entry.occlusionMode());
             }
             type.postProcessConnections(stateMap);
-            for (Direction side : type.getAffectedFaces())
-            {
+            for (Direction side : type.getAffectedFaces()) {
                 ctState.put(side, i, stateMap[side.ordinal()]);
             }
         }
         return ctState;
     }
 
-    private List<ConnectedBlockStateModelPart> decomposeBaseModel(BlockAndTintGetter level, BlockPos pos, RandomSource random)
-    {
+    private List<ConnectedBlockStateModelPart> decomposeBaseModel(BlockAndTintGetter level, BlockPos pos, RandomSource random) {
         int affectedFaces = 0;
-        for (MetaEntry.Baked meta : metadata)
-        {
-            for (Direction face : meta.type().getAffectedFaces())
-            {
+        for (MetaEntry.Baked meta : metadata) {
+            for (Direction face : meta.type().getAffectedFaces()) {
                 affectedFaces |= 1 << face.ordinal();
             }
         }
         List<ConnectedBlockStateModelPart> outParts = new ObjectArrayList<>();
         List<BlockStateModelPart> srcParts = new ObjectArrayList<>();
         delegate.collectParts(level, pos, state, random, srcParts);
-        for (BlockStateModelPart part : srcParts)
-        {
+        for (BlockStateModelPart part : srcParts) {
             ExtendedQuadCollectionBuilder preNonCtQuads = new ExtendedQuadCollectionBuilder();
             Map<MetaPair, QuadCollection.Builder> ctQuads = new Object2ObjectLinkedOpenHashMap<>();
             ExtendedQuadCollectionBuilder postNonCtQuads = new ExtendedQuadCollectionBuilder();
             int ctQuadsFound = 0;
 
-            for (Direction side : DIRECTIONS)
-            {
+            for (Direction side : DIRECTIONS) {
                 preNonCtQuads.setCullFace(side);
                 postNonCtQuads.setCullFace(side);
                 int mask = 1 << side.ordinal();
-                for (BakedQuad quad : part.getQuads(side))
-                {
+                for (BakedQuad quad : part.getQuads(side)) {
                     MetaPair meta = findCtEntry(quad);
-                    if ((affectedFaces & mask) == 0)
-                    {
+                    if ((affectedFaces & mask) == 0) {
                         preNonCtQuads.addCulledFace(side, quad);
-                    }
-                    else if (meta != null && meta.affectedFaces.contains(side))
-                    {
+                    } else if (meta != null && meta.affectedFaces.contains(side)) {
                         ctQuadsFound |= mask;
                         ctQuads.computeIfAbsent(meta, _ -> new QuadCollection.Builder()).addCulledFace(side, quad);
-                    }
-                    else
-                    {
+                    } else {
                         boolean foundCt = (ctQuadsFound & mask) != 0;
                         strategy.makeNonCtQuads(quad, foundCt ? postNonCtQuads : preNonCtQuads);
                     }
@@ -190,41 +163,34 @@ public final class ConTexModel extends DelegateBlockStateModel
             }
             preNonCtQuads.setCullFace(null);
             postNonCtQuads.setCullFace(null);
-            for (BakedQuad quad : part.getQuads(null))
-            {
+            for (BakedQuad quad : part.getQuads(null)) {
                 MetaPair meta = findCtEntry(quad);
-                if ((affectedFaces & (1 << quad.direction().ordinal())) == 0)
-                {
+                if ((affectedFaces & (1 << quad.direction().ordinal())) == 0) {
                     preNonCtQuads.addUnculledFace(quad);
-                }
-                else if (meta != null && meta.affectedFaces.contains(quad.direction()))
-                {
+                } else if (meta != null && meta.affectedFaces.contains(quad.direction())) {
                     ctQuadsFound |= 0b01000000;
                     ctQuads.computeIfAbsent(meta, _ -> new QuadCollection.Builder()).addUnculledFace(quad);
-                }
-                else
-                {
+                } else {
                     boolean foundCt = (ctQuadsFound & 0b01000000) != 0;
                     strategy.makeNonCtQuads(quad, foundCt ? postNonCtQuads : preNonCtQuads);
                 }
             }
 
             QuadCollection preQuads = preNonCtQuads.build();
-            if (!preQuads.getAll().isEmpty())
-            {
+            if (!preQuads.getAll().isEmpty()) {
                 outParts.add(ConnectedBlockStateModelPart.of(part, preQuads, -1, -1));
             }
-            for (Map.Entry<MetaPair, QuadCollection.Builder> entry : ctQuads.entrySet())
-            {
+            for (Map.Entry<MetaPair, QuadCollection.Builder> entry : ctQuads.entrySet()) {
                 QuadCollection quads = entry.getValue().build();
-                if (quads.getAll().isEmpty()) continue;
+                if (quads.getAll().isEmpty()) {
+                    continue;
+                }
 
                 MetaPair meta = entry.getKey();
                 outParts.add(ConnectedBlockStateModelPart.of(part, quads, meta.metaIdx, meta.texIdx));
             }
             QuadCollection postQuads = postNonCtQuads.build();
-            if (!postQuads.getAll().isEmpty())
-            {
+            if (!postQuads.getAll().isEmpty()) {
                 outParts.add(ConnectedBlockStateModelPart.of(part, postQuads, -1, -1));
             }
         }
@@ -232,13 +198,10 @@ public final class ConTexModel extends DelegateBlockStateModel
     }
 
     @Nullable
-    private MetaPair findCtEntry(BakedQuad quad)
-    {
-        for (int i = 0; i < metadata.length; i++)
-        {
+    private MetaPair findCtEntry(BakedQuad quad) {
+        for (int i = 0; i < metadata.length; i++) {
             int tex = metadata[i].findTexture(quad.materialInfo().sprite());
-            if (tex != -1)
-            {
+            if (tex != -1) {
                 return new MetaPair(i, tex, metadata[i].type().getAffectedFaces());
             }
         }

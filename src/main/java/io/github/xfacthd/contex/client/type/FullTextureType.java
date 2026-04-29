@@ -13,8 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Arrays;
 import java.util.Set;
 
-public sealed class FullTextureType extends TextureType permits SimpleTextureType, FullCarpetTextureType
-{
+public sealed class FullTextureType extends TextureType permits SimpleTextureType, FullCarpetTextureType {
     protected static final ConnectionDirection[] CARDINAL_DIRECTIONS = Arrays.stream(ConnectionDirection.values())
             .filter(dir -> !dir.isDiagonal())
             .toArray(ConnectionDirection[]::new);
@@ -39,17 +38,13 @@ public sealed class FullTextureType extends TextureType permits SimpleTextureTyp
             Direction side,
             ConnectionPredicate predicate,
             OcclusionMode occlusionMode
-    )
-    {
+    ) {
         byte connections = 0;
-        for (ConnectionDirection dir : CARDINAL_DIRECTIONS)
-        {
+        for (ConnectionDirection dir : CARDINAL_DIRECTIONS) {
             connections = testDirection(dir, connections, level, pos, state, side, predicate, occlusionMode);
         }
-        for (ConnectionDirection dir : DIAGONAL_DIRECTIONS)
-        {
-            if (dir.areCardinalNeighborsSet(connections))
-            {
+        for (ConnectionDirection dir : DIAGONAL_DIRECTIONS) {
+            if (dir.areCardinalNeighborsSet(connections)) {
                 connections = testDirection(dir, connections, level, pos, state, side, predicate, occlusionMode);
             }
         }
@@ -57,26 +52,19 @@ public sealed class FullTextureType extends TextureType permits SimpleTextureTyp
     }
 
     @Override
-    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
-    {
-        if (xCon && yCon)
-        {
+    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side) {
+        if (xCon && yCon) {
             return diagCon ? SpriteType.FULL : SpriteType.CROSS;
-        }
-        else if (xCon)
-        {
+        } else if (xCon) {
             return SpriteType.HORIZONTAL;
-        }
-        else if (yCon)
-        {
+        } else if (yCon) {
             return SpriteType.VERTICAL;
         }
         return SpriteType.NONE;
     }
 
     @Override
-    public Set<SpriteType> getSpriteTypes()
-    {
+    public Set<SpriteType> getSpriteTypes() {
         return SPRITE_TYPES;
     }
 }

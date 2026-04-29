@@ -11,8 +11,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public final class MatchTagPredicate extends SimpleConnectionPredicate
-{
+public final class MatchTagPredicate extends SimpleConnectionPredicate {
     private static final Codec<TagKey<Block>> TAG_CODEC = TagKey.codec(Registries.BLOCK);
     public static final MapCodec<MatchTagPredicate> CODEC = Codec.mapEither(
             TAG_CODEC.fieldOf("tag"),
@@ -22,31 +21,26 @@ public final class MatchTagPredicate extends SimpleConnectionPredicate
     private final TagKey<Block> selfTag;
     private final TagKey<Block> otherTag;
 
-    public MatchTagPredicate(TagKey<Block> selfTag, TagKey<Block> otherTag)
-    {
+    public MatchTagPredicate(TagKey<Block> selfTag, TagKey<Block> otherTag) {
         this.selfTag = selfTag;
         this.otherTag = otherTag;
     }
 
     @Override
-    protected boolean compare(BlockState state, BlockState adjState)
-    {
+    protected boolean compare(BlockState state, BlockState adjState) {
         return state.is(selfTag) && adjState.is(otherTag);
     }
 
-    private Either<TagKey<Block>, Pair<TagKey<Block>, TagKey<Block>>> toEither()
-    {
+    private Either<TagKey<Block>, Pair<TagKey<Block>, TagKey<Block>>> toEither() {
         return selfTag == otherTag ? Either.left(selfTag) : Either.right(Pair.of(selfTag, otherTag));
     }
 
     @Override
-    public MapCodec<? extends ConnectionPredicate> codec()
-    {
+    public MapCodec<? extends ConnectionPredicate> codec() {
         return CODEC;
     }
 
-    private static MatchTagPredicate ofEither(Either<TagKey<Block>, Pair<TagKey<Block>, TagKey<Block>>> either)
-    {
+    private static MatchTagPredicate ofEither(Either<TagKey<Block>, Pair<TagKey<Block>, TagKey<Block>>> either) {
         return either.map(
                 tag -> new MatchTagPredicate(tag, tag),
                 pair -> new MatchTagPredicate(pair.getFirst(), pair.getSecond())

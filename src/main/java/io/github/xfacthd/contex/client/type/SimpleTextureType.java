@@ -12,8 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Set;
 
-public sealed class SimpleTextureType extends FullTextureType permits SimpleCarpetTextureType
-{
+public sealed class SimpleTextureType extends FullTextureType permits SimpleCarpetTextureType {
     private static final Set<SpriteType> SPRITE_TYPES = Set.of(
             SpriteType.HORIZONTAL,
             SpriteType.VERTICAL,
@@ -31,36 +30,28 @@ public sealed class SimpleTextureType extends FullTextureType permits SimpleCarp
             Direction side,
             ConnectionPredicate predicate,
             OcclusionMode occlusionMode
-    )
-    {
+    ) {
         byte connections = 0;
-        for (ConnectionDirection dir : CARDINAL_DIRECTIONS)
-        {
+        for (ConnectionDirection dir : CARDINAL_DIRECTIONS) {
             connections = testDirection(dir, connections, level, pos, state, side, predicate, occlusionMode);
         }
         return connections;
     }
 
     @Override
-    public void postProcessConnections(byte[] stateMap)
-    {
-        for (Direction side : Constants.DIRECTIONS)
-        {
+    public void postProcessConnections(byte[] stateMap) {
+        for (Direction side : Constants.DIRECTIONS) {
             byte connections = stateMap[side.ordinal()];
-            if (ConnectionDirection.UP.isSet(connections) && ConnectionDirection.LEFT.isSet(connections))
-            {
+            if (ConnectionDirection.UP.isSet(connections) && ConnectionDirection.LEFT.isSet(connections)) {
                 connections = ConnectionDirection.UP_LEFT.set(connections);
             }
-            if (ConnectionDirection.DOWN.isSet(connections) && ConnectionDirection.LEFT.isSet(connections))
-            {
+            if (ConnectionDirection.DOWN.isSet(connections) && ConnectionDirection.LEFT.isSet(connections)) {
                 connections = ConnectionDirection.DOWN_LEFT.set(connections);
             }
-            if (ConnectionDirection.UP.isSet(connections) && ConnectionDirection.RIGHT.isSet(connections))
-            {
+            if (ConnectionDirection.UP.isSet(connections) && ConnectionDirection.RIGHT.isSet(connections)) {
                 connections = ConnectionDirection.UP_RIGHT.set(connections);
             }
-            if (ConnectionDirection.DOWN.isSet(connections) && ConnectionDirection.RIGHT.isSet(connections))
-            {
+            if (ConnectionDirection.DOWN.isSet(connections) && ConnectionDirection.RIGHT.isSet(connections)) {
                 connections = ConnectionDirection.DOWN_RIGHT.set(connections);
             }
             stateMap[side.ordinal()] = connections;
@@ -68,8 +59,7 @@ public sealed class SimpleTextureType extends FullTextureType permits SimpleCarp
     }
 
     @Override
-    public Set<SpriteType> getSpriteTypes()
-    {
+    public Set<SpriteType> getSpriteTypes() {
         return SPRITE_TYPES;
     }
 }

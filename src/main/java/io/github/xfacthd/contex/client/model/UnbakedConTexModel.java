@@ -10,8 +10,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-final class UnbakedConTexModel implements BlockStateModel.UnbakedRoot
-{
+final class UnbakedConTexModel implements BlockStateModel.UnbakedRoot {
     private final BlockState state;
     private final BlockStateModel.UnbakedRoot baseModel;
     private final TextureStrategy strategy;
@@ -20,8 +19,7 @@ final class UnbakedConTexModel implements BlockStateModel.UnbakedRoot
     @Nullable
     private volatile BlockStateModel cachedBakingResult = null;
 
-    public UnbakedConTexModel(BlockState state, BlockStateModel.UnbakedRoot baseModel, TextureStrategy strategy, List<MetaEntry> metadata)
-    {
+    public UnbakedConTexModel(BlockState state, BlockStateModel.UnbakedRoot baseModel, TextureStrategy strategy, List<MetaEntry> metadata) {
         this.state = state;
         this.baseModel = baseModel;
         this.strategy = strategy;
@@ -29,22 +27,15 @@ final class UnbakedConTexModel implements BlockStateModel.UnbakedRoot
     }
 
     @Override
-    public BlockStateModel bake(BlockState ignoredState, ModelBaker baker)
-    {
+    public BlockStateModel bake(BlockState ignoredState, ModelBaker baker) {
         // This cannot be converted to ModelBaker.SharedOperationKey due to the wrapped model potentially also using that
-        if (cachedBakingResult == null)
-        {
-            synchronized (bakingLock)
-            {
-                if (cachedBakingResult == null)
-                {
+        if (cachedBakingResult == null) {
+            synchronized (bakingLock) {
+                if (cachedBakingResult == null) {
                     BlockStateModel bakedBase = baseModel.bake(state, baker);
-                    if (metadata.isEmpty())
-                    {
+                    if (metadata.isEmpty()) {
                         cachedBakingResult = bakedBase;
-                    }
-                    else
-                    {
+                    } else {
                         List<MetaEntry.Baked> bakedMetadata = metadata.stream()
                                 .map(entry -> entry.bake(baker.materials(), strategy))
                                 .toList();
@@ -57,14 +48,12 @@ final class UnbakedConTexModel implements BlockStateModel.UnbakedRoot
     }
 
     @Override
-    public void resolveDependencies(Resolver resolver)
-    {
+    public void resolveDependencies(Resolver resolver) {
         baseModel.resolveDependencies(resolver);
     }
 
     @Override
-    public Object visualEqualityGroup(BlockState state)
-    {
+    public Object visualEqualityGroup(BlockState state) {
         return this;
     }
 }

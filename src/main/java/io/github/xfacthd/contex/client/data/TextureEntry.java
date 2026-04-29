@@ -22,8 +22,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Set;
 import java.util.function.Function;
 
-public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteType, Identifier> textures)
-{
+public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteType, Identifier> textures) {
     private static final Codec<TextureEntry> FULL_CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Identifier.CODEC.fieldOf("main_texture").forGetter(TextureEntry::baseTexture),
             Utils.ref2ObjMapCodec(SpriteType.CODEC, Identifier.CODEC)
@@ -35,21 +34,17 @@ public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteTyp
             entry -> entry.textures.isEmpty() ? Either.left(entry.baseTexture) : Either.right(entry)
     );
 
-    private TextureEntry(Identifier baseTexture)
-    {
+    private TextureEntry(Identifier baseTexture) {
         this(baseTexture, Reference2ObjectMaps.emptyMap());
     }
 
-    public Baked bake(MaterialBaker baker, TextureType type, TextureStrategy strategy)
-    {
+    public Baked bake(MaterialBaker baker, TextureType type, TextureStrategy strategy) {
         Set<SpriteType> spriteTypes = strategy.computePermittedTypes(type.getSpriteTypes());
         Reference2ObjectMap<SpriteType, TextureAtlasSprite> sprites = new Reference2ObjectOpenHashMap<>(spriteTypes.size());
-        for (SpriteType spriteType : spriteTypes)
-        {
+        for (SpriteType spriteType : spriteTypes) {
             Identifier texture = textures.get(spriteType);
             //noinspection ConstantValue
-            if (texture == null)
-            {
+            if (texture == null) {
                 texture = baseTexture.withSuffix("_" + spriteType.suffix());
             }
             sprites.put(spriteType, bakeSprite(baker, texture));
@@ -57,32 +52,26 @@ public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteTyp
         return new Baked(bakeSprite(baker, baseTexture), sprites);
     }
 
-    private static TextureAtlasSprite bakeSprite(MaterialBaker baker, Identifier texture)
-    {
+    private static TextureAtlasSprite bakeSprite(MaterialBaker baker, Identifier texture) {
         return baker.get(new Material(texture), () -> "").sprite();
     }
 
     @Nullable
-    Set<SpriteType> validateSpriteTypes(TextureType type, TextureStrategy strategy)
-    {
+    Set<SpriteType> validateSpriteTypes(TextureType type, TextureStrategy strategy) {
         ReferenceSet<SpriteType> usedTypes = textures.keySet();
-        if (usedTypes.contains(SpriteType.NONE))
-        {
+        if (usedTypes.contains(SpriteType.NONE)) {
             return Set.of(SpriteType.NONE);
         }
         Set<SpriteType> permittedTypes = strategy.computePermittedTypes(type.getSpriteTypes());
-        if (!permittedTypes.containsAll(usedTypes))
-        {
+        if (!permittedTypes.containsAll(usedTypes)) {
             return Sets.difference(usedTypes, permittedTypes);
         }
         return null;
     }
 
-    public record Baked(TextureAtlasSprite baseSprite, Reference2ObjectMap<SpriteType, TextureAtlasSprite> sprites) implements SpriteLookup
-    {
+    public record Baked(TextureAtlasSprite baseSprite, Reference2ObjectMap<SpriteType, TextureAtlasSprite> sprites) implements SpriteLookup {
         @Override
-        public TextureAtlasSprite get(SpriteType type)
-        {
+        public TextureAtlasSprite get(SpriteType type) {
             return sprites.getOrDefault(type, baseSprite);
         }
     }

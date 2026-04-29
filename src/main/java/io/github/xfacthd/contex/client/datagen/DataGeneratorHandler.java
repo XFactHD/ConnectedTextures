@@ -32,15 +32,12 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import java.util.concurrent.CompletableFuture;
 
 @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
-public final class DataGeneratorHandler
-{
-    public DataGeneratorHandler(IEventBus modBus)
-    {
+public final class DataGeneratorHandler {
+    public DataGeneratorHandler(IEventBus modBus) {
         modBus.addListener(DataGeneratorHandler::onGatherData);
     }
 
-    private static void onGatherData(final GatherDataEvent.Client event)
-    {
+    private static void onGatherData(final GatherDataEvent.Client event) {
         DataGenerator generator = event.getGenerator();
         DataGenerator.PackGenerator packGen = generator.getPackGenerator(true, "builtin_glass_ct", ConnectedTextures.BUILTIN_RP_ID.getPath());
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
@@ -56,18 +53,15 @@ public final class DataGeneratorHandler
         packGen.addProvider(output -> new BuiltinCtSpriteSourceProvider(output, lookupProvider));
     }
 
-    private static final class BuiltinCtBlockModelProvider extends ModelProvider
-    {
+    private static final class BuiltinCtBlockModelProvider extends ModelProvider {
         private final Identifier TEX_GLASS = mcLocation("block/glass");
 
-        public BuiltinCtBlockModelProvider(PackOutput output)
-        {
+        public BuiltinCtBlockModelProvider(PackOutput output) {
             super(output, Constants.MOD_ID);
         }
 
         @Override
-        protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels)
-        {
+        protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
             ConTexBlockModelDefinitionGenerator generator = new ConTexBlockModelDefinitionGenerator(Blocks.GLASS)
                     .variant(MultiVariantGenerator.dispatch(
                             Blocks.GLASS,
@@ -84,16 +78,13 @@ public final class DataGeneratorHandler
         }
     }
 
-    private static final class BuiltinCtSpriteSourceProvider extends SpriteSourceProvider
-    {
-        public BuiltinCtSpriteSourceProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider)
-        {
+    private static final class BuiltinCtSpriteSourceProvider extends SpriteSourceProvider {
+        public BuiltinCtSpriteSourceProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
             super(output, lookupProvider, Constants.MOD_ID);
         }
 
         @Override
-        protected void gather()
-        {
+        protected void gather() {
             atlas(AtlasIds.BLOCKS)
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/glass"),

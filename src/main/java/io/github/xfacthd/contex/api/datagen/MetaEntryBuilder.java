@@ -19,8 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
-public final class MetaEntryBuilder
-{
+public final class MetaEntryBuilder {
     private final TextureType type;
     private final TextureStrategy strategy;
     @Nullable
@@ -29,48 +28,40 @@ public final class MetaEntryBuilder
     private final Map<String, String> statePredicateProperties = new HashMap<>();
     private final List<TextureEntry> textures = new ArrayList<>();
 
-    MetaEntryBuilder(TextureType type, TextureStrategy strategy)
-    {
+    MetaEntryBuilder(TextureType type, TextureStrategy strategy) {
         this.type = type;
         this.strategy = strategy;
     }
 
-    public MetaEntryBuilder predicate(ConnectionPredicate predicate)
-    {
+    public MetaEntryBuilder predicate(ConnectionPredicate predicate) {
         this.predicate = predicate;
         return this;
     }
 
-    public MetaEntryBuilder occlusionMode(OcclusionMode occlusionMode)
-    {
+    public MetaEntryBuilder occlusionMode(OcclusionMode occlusionMode) {
         this.occlusionMode = occlusionMode;
         return this;
     }
 
-    public <T extends Comparable<T>> MetaEntryBuilder addStateFilter(Property<T> property, T value)
-    {
+    public <T extends Comparable<T>> MetaEntryBuilder addStateFilter(Property<T> property, T value) {
         statePredicateProperties.put(property.getName(), property.getName(value));
         return this;
     }
 
-    public MetaEntryBuilder addTexture(Identifier texture)
-    {
+    public MetaEntryBuilder addTexture(Identifier texture) {
         return addTexture(texture, UnaryOperator.identity());
     }
 
-    public MetaEntryBuilder addTexture(Identifier baseTexture, UnaryOperator<TextureEntryBuilder> consumer)
-    {
+    public MetaEntryBuilder addTexture(Identifier baseTexture, UnaryOperator<TextureEntryBuilder> consumer) {
         textures.add(consumer.apply(new TextureEntryBuilder(type, strategy, baseTexture)).build());
         return this;
     }
 
-    MetaEntry build()
-    {
+    MetaEntry build() {
         Objects.requireNonNull(type, "No TextureType specified");
         Objects.requireNonNull(predicate, "No ConnectionPredicate specified");
         Optional<StatePredicate> statePredicate = Optional.empty();
-        if (!statePredicateProperties.isEmpty())
-        {
+        if (!statePredicateProperties.isEmpty()) {
             statePredicate = Optional.of(new StatePredicate(statePredicateProperties));
         }
         return new MetaEntry(type, predicate, occlusionMode, statePredicate, textures.toArray(TextureEntry[]::new));

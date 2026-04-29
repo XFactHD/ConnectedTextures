@@ -63,18 +63,15 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
-public final class TestDataGeneratorHandler
-{
+public final class TestDataGeneratorHandler {
     private static final String TEST_PACK_ID = "test_ct";
 
-    public TestDataGeneratorHandler(IEventBus modBus)
-    {
+    public TestDataGeneratorHandler(IEventBus modBus) {
         modBus.addListener(TestDataGeneratorHandler::onGatherData);
         modBus.addListener(TestDataGeneratorHandler::onAddPackFinders);
     }
 
-    private static void onAddPackFinders(AddPackFindersEvent event)
-    {
+    private static void onAddPackFinders(AddPackFindersEvent event) {
         event.addPackFinders(
                 Utils.id(TEST_PACK_ID),
                 PackType.CLIENT_RESOURCES,
@@ -85,8 +82,7 @@ public final class TestDataGeneratorHandler
         );
     }
 
-    private static void onGatherData(final GatherDataEvent.Client event)
-    {
+    private static void onGatherData(final GatherDataEvent.Client event) {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput(TEST_PACK_ID);
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
@@ -102,8 +98,7 @@ public final class TestDataGeneratorHandler
         generator.addProvider(true, new TestSpriteSourceProvider(output, lookupProvider));
     }
 
-    private static final class TestBlockModelProvider extends ModelProvider
-    {
+    private static final class TestBlockModelProvider extends ModelProvider {
         private static final TextureSlot SLOT_REDSTONE = TextureSlot.create("redstone");
         private static final TextureSlot SLOT_GLASS = TextureSlot.create("glass");
         private static final ModelTemplate TEMPLATE_BLOCK = ModelTemplates.create("block", SLOT_REDSTONE, SLOT_GLASS, TextureSlot.PARTICLE);
@@ -121,14 +116,12 @@ public final class TestDataGeneratorHandler
         private final Identifier TEX_OAK_LOG = mcLocation("block/oak_log");
         private final Identifier TEX_STONE = mcLocation("block/stone");
 
-        public TestBlockModelProvider(PackOutput output)
-        {
+        public TestBlockModelProvider(PackOutput output) {
             super(output, Constants.MOD_ID);
         }
 
         @Override
-        protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels)
-        {
+        protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
             variant(blockModels, Blocks.CHISELED_DEEPSLATE, RotatingPillarTextureType.X,           builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_DEEPSLATE));
             variant(blockModels, Blocks.CHISELED_POLISHED_BLACKSTONE, RotatingPillarTextureType.Z, builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_BLACKSTONE));
             variant(blockModels, Blocks.CHISELED_STONE_BRICKS, RotatingPillarTextureType.Y,        builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_STONEBRICKS));
@@ -183,13 +176,11 @@ public final class TestDataGeneratorHandler
             blockModels.blockStateOutput.accept(stoneGenerator);
         }
 
-        private static void variant(BlockModelGenerators blockModels, Block block, TextureType type, UnaryOperator<MetaEntryBuilder> metaBuilder)
-        {
+        private static void variant(BlockModelGenerators blockModels, Block block, TextureType type, UnaryOperator<MetaEntryBuilder> metaBuilder) {
             variant(blockModels, block, type, CompactTextureStrategy.INSTANCE, metaBuilder);
         }
 
-        private static void variant(BlockModelGenerators blockModels, Block block, TextureType type, TextureStrategy strategy, UnaryOperator<MetaEntryBuilder> metaBuilder)
-        {
+        private static void variant(BlockModelGenerators blockModels, Block block, TextureType type, TextureStrategy strategy, UnaryOperator<MetaEntryBuilder> metaBuilder) {
             ConTexBlockModelDefinitionGenerator generator = new ConTexBlockModelDefinitionGenerator(block, strategy)
                     .variant(MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(block))))
                     .metadata(type, metaBuilder);
@@ -198,29 +189,24 @@ public final class TestDataGeneratorHandler
 
         @Override
         @SuppressWarnings("NullableProblems")
-        protected Stream<? extends Holder<Block>> getKnownBlocks()
-        {
+        protected Stream<? extends Holder<Block>> getKnownBlocks() {
             return Stream.empty();
         }
 
         @Override
         @SuppressWarnings("NullableProblems")
-        protected Stream<? extends Holder<Item>> getKnownItems()
-        {
+        protected Stream<? extends Holder<Item>> getKnownItems() {
             return Stream.empty();
         }
     }
 
-    private static final class TestSpriteSourceProvider extends SpriteSourceProvider
-    {
-        public TestSpriteSourceProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider)
-        {
+    private static final class TestSpriteSourceProvider extends SpriteSourceProvider {
+        public TestSpriteSourceProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
             super(output, lookupProvider, Constants.MOD_ID);
         }
 
         @Override
-        protected void gather()
-        {
+        protected void gather() {
             atlas(AtlasIds.BLOCKS)
                     .addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/polished_diorite"),

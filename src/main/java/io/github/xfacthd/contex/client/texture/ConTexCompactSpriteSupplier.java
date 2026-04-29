@@ -34,36 +34,26 @@ public record ConTexCompactSpriteSupplier(
         LazyLoadedImage image,
         Border border,
         Set<MetadataSectionType<?>> additionalMetadata
-) implements SpriteSource.DiscardableLoader
-{
+) implements SpriteSource.DiscardableLoader {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public ConTexCompactSpriteSupplier(Identifier srcLoc, Identifier outLoc, SpriteType outType, Resource imgResource, Border border, Set<MetadataSectionType<?>> additionalMetadata)
-    {
+    public ConTexCompactSpriteSupplier(Identifier srcLoc, Identifier outLoc, SpriteType outType, Resource imgResource, Border border, Set<MetadataSectionType<?>> additionalMetadata) {
         this(srcLoc, outLoc, outType, imgResource, new LazyLoadedImage(srcLoc, imgResource, 1), border, additionalMetadata);
     }
 
     @Override
-    @Nullable
-    public SpriteContents get(SpriteResourceLoader loader)
-    {
-        try
-        {
+    public @Nullable SpriteContents get(SpriteResourceLoader loader) {
+        try {
             return createTexture(srcLoc, outLoc, type, image.get(), imgResource.metadata(), border, additionalMetadata);
-        }
-        catch (Throwable e)
-        {
+        } catch (Throwable e) {
             LOGGER.error("Failed to generate CTM texture from texture '{}' for sprite type '{}'", srcLoc, type, e);
             return null;
-        }
-        finally
-        {
+        } finally {
             image.release();
         }
     }
 
-    @Nullable
-    public static SpriteContents createTexture(
+    public static @Nullable SpriteContents createTexture(
             Identifier srcLoc,
             Identifier outLoc,
             SpriteType type,
@@ -71,10 +61,11 @@ public record ConTexCompactSpriteSupplier(
             ResourceMetadata metadata,
             Border border,
             Set<MetadataSectionType<?>> additionalMetadata
-    )
-    {
+    ) {
         Image image = createImage(srcLoc, type, srcImage, metadata, border);
-        if (image == null) return null;
+        if (image == null) {
+            return null;
+        }
 
         Optional<AnimationMetadataSection> animMeta = metadata.getSection(AnimationMetadataSection.TYPE);
         List<MetadataSectionType.WithValue<?>> typedMetadata = metadata.getTypedSections(additionalMetadata);
@@ -82,64 +73,50 @@ public record ConTexCompactSpriteSupplier(
         return new SpriteContents(outLoc, image.size, image.image, animMeta, typedMetadata, texMeta);
     }
 
-    @Nullable
-    static Image createImage(
+    static @Nullable Image createImage(
             Identifier srcLoc,
             SpriteType type,
             NativeImage srcImage,
             ResourceMetadata metadata,
             Border border
-    )
-    {
+    ) {
         Optional<AnimationMetadataSection> animMeta = metadata.getSection(AnimationMetadataSection.TYPE);
         FrameSize srcSize = computeFrameSize(srcLoc, animMeta, srcImage);
-        if (srcSize == null || !border.canApplyTo(srcSize))
-        {
+        if (srcSize == null || !border.canApplyTo(srcSize)) {
             return null;
         }
         FrameSize destSize = computeFrameSize(srcLoc, animMeta, srcImage);
-        if (destSize == null)
-        {
+        if (destSize == null) {
             return null;
         }
 
         NativeImage destImage = new NativeImage(srcImage.format(), srcImage.getWidth(), srcImage.getHeight(), false);
         List<FrameInfo> frames = collectFrames(srcImage, srcSize, animMeta);
-        if (type == SpriteType.NONE)
-        {
+        if (type == SpriteType.NONE) {
             destImage.copyFrom(srcImage);
-        }
-        else
-        {
-            for (FrameInfo frame : frames)
-            {
+        } else {
+            for (FrameInfo frame : frames) {
                 OutputFrame.of(srcImage, destImage, type, border, frame, srcSize, destSize).build();
             }
         }
         return new Image(destImage, destSize, frames);
     }
 
-    @Nullable
-    private static FrameSize computeFrameSize(Identifier srcLoc, Optional<AnimationMetadataSection> animMeta, NativeImage image)
-    {
-        if (animMeta.isEmpty())
-        {
+    private static @Nullable FrameSize computeFrameSize(Identifier srcLoc, Optional<AnimationMetadataSection> animMeta, NativeImage image) {
+        if (animMeta.isEmpty()) {
             return new FrameSize(image.getWidth(), image.getHeight());
         }
 
         FrameSize size = animMeta.get().calculateFrameSize(image.getWidth(), image.getHeight());
-        if (!Mth.isMultipleOf(image.getWidth(), size.width()) || !Mth.isMultipleOf(image.getHeight(), size.height()))
-        {
+        if (!Mth.isMultipleOf(image.getWidth(), size.width()) || !Mth.isMultipleOf(image.getHeight(), size.height())) {
             LOGGER.error("Image '{}' size {}x{} is not multiple of frame size {}x{}", srcLoc, image.getWidth(), image.getHeight(), size.width(), size.height());
             return null;
         }
         return size;
     }
 
-    private static List<FrameInfo> collectFrames(NativeImage image, FrameSize size, Optional<AnimationMetadataSection> anim)
-    {
-        if (anim.isEmpty())
-        {
+    private static List<FrameInfo> collectFrames(NativeImage image, FrameSize size, Optional<AnimationMetadataSection> anim) {
+        if (anim.isEmpty()) {
             return List.of(FrameInfo.ZERO);
         }
 
@@ -147,19 +124,15 @@ public record ConTexCompactSpriteSupplier(
         int rowCount = image.getWidth() / size.width();
         // Collect explicitly specified frames
         Optional<List<AnimationFrame>> srcFrames = anim.get().frames();
-        if (srcFrames.isPresent())
-        {
-            for (AnimationFrame frame : srcFrames.get())
-            {
+        if (srcFrames.isPresent()) {
+            for (AnimationFrame frame : srcFrames.get()) {
                 frames.add(FrameInfo.of(frame.index(), rowCount));
             }
         }
         // Collect implicit frames if no explicit ones are specified in the animation
-        if (frames.isEmpty())
-        {
+        if (frames.isEmpty()) {
             int frameCount = rowCount * (image.getHeight() / size.height());
-            for (int idx = 0; idx < frameCount; idx++)
-            {
+            for (int idx = 0; idx < frameCount; idx++) {
                 frames.add(FrameInfo.of(idx, rowCount));
             }
         }
@@ -188,10 +161,8 @@ public record ConTexCompactSpriteSupplier(
             boolean mirrorPerp,
             boolean oppositeEdge,
             boolean synthCorners
-    )
-    {
-        static OutputFrame of(NativeImage srcImage, NativeImage destImage, SpriteType type, Border border, FrameInfo frame, FrameSize srcSize, FrameSize destSize)
-        {
+    ) {
+        static OutputFrame of(NativeImage srcImage, NativeImage destImage, SpriteType type, Border border, FrameInfo frame, FrameSize srcSize, FrameSize destSize) {
             int srcWidth = srcSize.width();
             int srcHeight = srcSize.height();
             int srcX = srcWidth * frame.xIdx;
@@ -211,8 +182,7 @@ public record ConTexCompactSpriteSupplier(
             return new OutputFrame(srcImage, destImage, type, srcWidth, srcHeight, srcX, srcY, destX, destY, left, right, bottom, top, vertWidth, horHeight, mirrorPar, mirrorPerp, oppositeEdge, synthCorners);
         }
 
-        void build()
-        {
+        void build() {
             int srcXLeft = oppositeEdge ? (srcWidth - (right * 2)) : left;
             int srcXRight = oppositeEdge ? left : (srcWidth - (right * 2));
             int srcYTop = oppositeEdge ? (srcHeight - (bottom * 2)) : top;
@@ -223,10 +193,8 @@ public record ConTexCompactSpriteSupplier(
             int offYTop = oppositeEdge ? -(srcHeight - (bottom * 2)) : -top;
             int offYBottom = oppositeEdge ? (srcHeight - (bottom * 2)) : bottom;
 
-            switch (type)
-            {
-                case SpriteType spriteType when spriteType == SpriteType.FULL ->
-                {
+            switch (type) {
+                case SpriteType spriteType when spriteType == SpriteType.FULL -> {
                     // Fully connected (top left)
                     srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
                     // Top edge
@@ -246,8 +214,7 @@ public record ConTexCompactSpriteSupplier(
                     // Bottom-right corner
                     copyRect(srcXRight, srcYBottom, offXRight, offYBottom, right, bottom, mirrorPar, mirrorPar);
                 }
-                case SpriteType spriteType when spriteType == SpriteType.VERTICAL ->
-                {
+                case SpriteType spriteType when spriteType == SpriteType.VERTICAL -> {
                     int srcVertX = synthCorners ? 0 : left;
                     int srcVertWidth = synthCorners ? srcWidth : vertWidth;
 
@@ -258,8 +225,7 @@ public record ConTexCompactSpriteSupplier(
                     // Bottom edge
                     copyRect(srcVertX, srcYBottom, 0, offYBottom, srcVertWidth, bottom, mirrorPerp, mirrorPar);
                 }
-                case SpriteType spriteType when spriteType == SpriteType.HORIZONTAL ->
-                {
+                case SpriteType spriteType when spriteType == SpriteType.HORIZONTAL -> {
                     int srcHorY = synthCorners ? 0 : top;
                     int srcHorHeight = synthCorners ? srcHeight : horHeight;
 
@@ -270,8 +236,7 @@ public record ConTexCompactSpriteSupplier(
                     // Right edge
                     copyRect(srcXRight, srcHorY, offXRight, 0, right, srcHorHeight, mirrorPar, mirrorPerp);
                 }
-                case SpriteType spriteType when spriteType == SpriteType.CROSS ->
-                {
+                case SpriteType spriteType when spriteType == SpriteType.CROSS -> {
                     // Horizontally and vertically connected (bottom right)
                     srcImage.copyRect(destImage, srcX, srcY, destX, destY, srcWidth, srcHeight, false, false);
                     // Top edge
@@ -282,8 +247,7 @@ public record ConTexCompactSpriteSupplier(
                     copyRect(srcXLeft, top, offXLeft, 0, left, horHeight, mirrorPar, mirrorPerp);
                     // Right edge
                     copyRect(srcXRight, top, offXRight, 0, right, horHeight, mirrorPar, mirrorPerp);
-                    if (synthCorners)
-                    {
+                    if (synthCorners) {
                         // Top-left corner
                         buildInnerCorner(0, srcYTop, srcXRight, 0, 0, 0, left, top, false, false);
                         // Top-right corner
@@ -298,35 +262,26 @@ public record ConTexCompactSpriteSupplier(
             }
         }
 
-        void copyRect(int srcX, int srcY, int offX, int offY, int width, int height, boolean mirrorX, boolean mirrorY)
-        {
+        void copyRect(int srcX, int srcY, int offX, int offY, int width, int height, boolean mirrorX, boolean mirrorY) {
             int destX = this.destX + srcX + offX;
             int destY = this.destY + srcY + offY;
             srcImage.copyRect(destImage, this.srcX + srcX, this.srcY + srcY, destX, destY, width, height, mirrorX, mirrorY);
         }
 
-        void buildInnerCorner(int srcXVert, int srcYVert, int srcXHor, int srcYHor, int destX, int destY, int width, int height, boolean invX, boolean invY)
-        {
-            for (int y = 0; y < height; y++)
-            {
+        void buildInnerCorner(int srcXVert, int srcYVert, int srcXHor, int srcYHor, int destX, int destY, int width, int height, boolean invX, boolean invY) {
+            for (int y = 0; y < height; y++) {
                 int checkY = invY ? (width - y - 1) : y;
-                for (int x = 0; x < width; x++)
-                {
+                for (int x = 0; x < width; x++) {
                     int checkX = invX ? (width - x - 1) : x;
-                    if (checkX == checkY)
-                    {
+                    if (checkX == checkY) {
                         int colVert = srcImage.getPixel(srcXVert + x, srcYVert + y);
                         int colHor = srcImage.getPixel(srcXHor + x, srcYHor + y);
                         int colOut = ARGB.average(colVert, colHor);
                         destImage.setPixel(destX + x, destY + y, colOut);
-                    }
-                    else if (checkX > checkY)
-                    {
+                    } else if (checkX > checkY) {
                         int colOut = srcImage.getPixel(srcXVert + x, srcYVert + y);
                         destImage.setPixel(destX + x, destY + y, colOut);
-                    }
-                    else
-                    {
+                    } else {
                         int colOut = srcImage.getPixel(srcXHor + x, srcYHor + y);
                         destImage.setPixel(destX + x, destY + y, colOut);
                     }
@@ -336,17 +291,14 @@ public record ConTexCompactSpriteSupplier(
     }
 
     @Override
-    public void discard()
-    {
+    public void discard() {
         image.release();
     }
 
-    record FrameInfo(int idx, int xIdx, int yIdx)
-    {
+    record FrameInfo(int idx, int xIdx, int yIdx) {
         private static final FrameInfo ZERO = new FrameInfo(0, 0, 0);
 
-        private static FrameInfo of(int idx, int rowCount)
-        {
+        private static FrameInfo of(int idx, int rowCount) {
             int frameX = idx % rowCount;
             int frameY = idx / rowCount;
             return new FrameInfo(idx, frameX, frameY);

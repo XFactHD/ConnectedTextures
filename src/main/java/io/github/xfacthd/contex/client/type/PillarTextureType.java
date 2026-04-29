@@ -13,8 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.EnumSet;
 import java.util.Set;
 
-public sealed class PillarTextureType extends TextureType permits RotatingPillarTextureType
-{
+public sealed class PillarTextureType extends TextureType permits RotatingPillarTextureType {
     public static final PillarTextureType X = new PillarTextureType(Direction.Axis.X);
     public static final PillarTextureType Y = new PillarTextureType(Direction.Axis.Y);
     public static final PillarTextureType Z = new PillarTextureType(Direction.Axis.Z);
@@ -25,8 +24,7 @@ public sealed class PillarTextureType extends TextureType permits RotatingPillar
     private final Direction dirTwo;
     private final EnumSet<Direction> affectedFaces;
 
-    protected PillarTextureType(Direction.Axis axis)
-    {
+    protected PillarTextureType(Direction.Axis axis) {
         this.axis = axis;
         this.dirOne = axis.getNegative();
         this.dirTwo = axis.getPositive();
@@ -34,8 +32,7 @@ public sealed class PillarTextureType extends TextureType permits RotatingPillar
     }
 
     @Override
-    public EnumSet<Direction> getAffectedFaces()
-    {
+    public EnumSet<Direction> getAffectedFaces() {
         return affectedFaces;
     }
 
@@ -47,10 +44,8 @@ public sealed class PillarTextureType extends TextureType permits RotatingPillar
             Direction side,
             ConnectionPredicate predicate,
             OcclusionMode occlusionMode
-    )
-    {
-        if (side.getAxis() == axis)
-        {
+    ) {
+        if (side.getAxis() == axis) {
             return 0;
         }
 
@@ -60,26 +55,22 @@ public sealed class PillarTextureType extends TextureType permits RotatingPillar
         BlockPos posTwo = pos.relative(dirTwo);
 
         byte connections = 0;
-        if (predicate.test(level, pos, posOne, state, side, side) && isConnectionVisible(level, posOne, side, predicate, occlusionMode))
-        {
+        if (predicate.test(level, pos, posOne, state, side, side) && isConnectionVisible(level, posOne, side, predicate, occlusionMode)) {
             connections = conDirOne.set(connections);
         }
-        if (predicate.test(level, pos, posTwo, state, side, side) && isConnectionVisible(level, posTwo, side, predicate, occlusionMode))
-        {
+        if (predicate.test(level, pos, posTwo, state, side, side) && isConnectionVisible(level, posTwo, side, predicate, occlusionMode)) {
             connections = conDirTwo.set(connections);
         }
         return connections;
     }
 
     @Override
-    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
-    {
+    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side) {
         return xCon || yCon ? SpriteType.VERTICAL : SpriteType.NONE;
     }
 
     @Override
-    public Set<SpriteType> getSpriteTypes()
-    {
+    public Set<SpriteType> getSpriteTypes() {
         return SPRITE_TYPES;
     }
 }

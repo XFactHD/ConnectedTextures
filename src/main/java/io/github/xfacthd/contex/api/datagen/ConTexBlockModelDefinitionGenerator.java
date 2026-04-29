@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
-public final class ConTexBlockModelDefinitionGenerator implements BlockModelDefinitionGenerator
-{
+public final class ConTexBlockModelDefinitionGenerator implements BlockModelDefinitionGenerator {
     private final Block block;
     private final TextureStrategy strategy;
     private final List<MetaEntry> metadata = new ArrayList<>();
@@ -28,46 +27,39 @@ public final class ConTexBlockModelDefinitionGenerator implements BlockModelDefi
     @Nullable
     private MultiPartGenerator multiPart = null;
 
-    public ConTexBlockModelDefinitionGenerator(Block block)
-    {
+    public ConTexBlockModelDefinitionGenerator(Block block) {
         this(block, CompactTextureStrategy.INSTANCE);
     }
 
-    public ConTexBlockModelDefinitionGenerator(Block block, TextureStrategy strategy)
-    {
+    public ConTexBlockModelDefinitionGenerator(Block block, TextureStrategy strategy) {
         this.block = block;
         this.strategy = strategy;
     }
 
-    public ConTexBlockModelDefinitionGenerator variant(MultiVariantGenerator variant)
-    {
+    public ConTexBlockModelDefinitionGenerator variant(MultiVariantGenerator variant) {
         Preconditions.checkState(this.variant == null, "MultiVariantGenerator already set");
         this.variant = variant;
         return this;
     }
 
-    public ConTexBlockModelDefinitionGenerator multiPart(MultiPartGenerator multiPart)
-    {
+    public ConTexBlockModelDefinitionGenerator multiPart(MultiPartGenerator multiPart) {
         Preconditions.checkState(this.variant == null, "MultiPartGenerator already set");
         this.multiPart = multiPart;
         return this;
     }
 
-    public ConTexBlockModelDefinitionGenerator metadata(TextureType type, UnaryOperator<MetaEntryBuilder> consumer)
-    {
+    public ConTexBlockModelDefinitionGenerator metadata(TextureType type, UnaryOperator<MetaEntryBuilder> consumer) {
         this.metadata.add(consumer.apply(new MetaEntryBuilder(type, strategy)).build());
         return this;
     }
 
     @Override
-    public Block block()
-    {
+    public Block block() {
         return block;
     }
 
     @Override
-    public BlockStateModelDispatcher create()
-    {
+    public BlockStateModelDispatcher create() {
         return new BlockStateModelDispatcher(new ConTexBlockModelDefinition(
                 new BlockStateModelDispatcher(
                         Optional.ofNullable(variant).map(MultiVariantGenerator::create).flatMap(BlockStateModelDispatcher::simpleModels),

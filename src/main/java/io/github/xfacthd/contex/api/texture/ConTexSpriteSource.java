@@ -17,52 +17,46 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import java.util.Optional;
 import java.util.Set;
 
-public record ConTexSpriteSource(Identifier texture, Border border, boolean compact) implements SpriteSource
-{
+public record ConTexSpriteSource(Identifier texture, Border border, boolean compact) implements SpriteSource {
     public static final MapCodec<ConTexSpriteSource> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Identifier.CODEC.fieldOf("texture").forGetter(ConTexSpriteSource::texture),
             Border.CODEC.fieldOf("border").forGetter(ConTexSpriteSource::border),
             Codec.BOOL.optionalFieldOf("compact", true).forGetter(ConTexSpriteSource::compact)
     ).apply(inst, ConTexSpriteSource::new));
 
-    public ConTexSpriteSource(Identifier texture, Border border)
-    {
+    public ConTexSpriteSource(Identifier texture, Border border) {
         this(texture, border, true);
     }
 
     @Override
-    public void run(ResourceManager resourceManager, Output output)
-    {
+    public void run(ResourceManager resourceManager, Output output) {
         run(resourceManager, output, Set.of());
     }
 
     @Override
-    public void run(ResourceManager resourceManager, Output output, Set<MetadataSectionType<?>> additionalMetadata)
-    {
+    public void run(ResourceManager resourceManager, Output output, Set<MetadataSectionType<?>> additionalMetadata) {
         Identifier texLoc = TEXTURE_ID_CONVERTER.idToFile(texture);
         Optional<Resource> resource = resourceManager.getResource(texLoc);
-        if (resource.isEmpty())
-        {
+        if (resource.isEmpty()) {
             LogUtils.getLogger().warn("Missing sprite: {}", texture);
             return;
         }
 
-        if (compact)
-        {
-            for (SpriteType type : SpriteType.BASE_TYPES)
-            {
-                if (type == SpriteType.NONE) continue;
+        if (compact) {
+            for (SpriteType type : SpriteType.BASE_TYPES) {
+                if (type == SpriteType.NONE) {
+                    continue;
+                }
 
                 Identifier outLoc = texture.withSuffix("_" + type.suffix());
                 output.add(outLoc, new ConTexCompactSpriteSupplier(texture, outLoc, type, resource.get(), border, additionalMetadata));
             }
-        }
-        else
-        {
+        } else {
             ConTexFullSpriteSupplier.CompactImageCache imageCache = new ConTexFullSpriteSupplier.CompactImageCache(FullTextureStrategy.TYPES.size() - 1);
-            for (SpriteType type : FullTextureStrategy.TYPES)
-            {
-                if (type == SpriteType.NONE) continue;
+            for (SpriteType type : FullTextureStrategy.TYPES) {
+                if (type == SpriteType.NONE) {
+                    continue;
+                }
 
                 Identifier outLoc = texture.withSuffix("_" + type.suffix());
                 output.add(outLoc, new ConTexFullSpriteSupplier(texture, outLoc, type, resource.get(), border, imageCache, additionalMetadata));
@@ -71,8 +65,7 @@ public record ConTexSpriteSource(Identifier texture, Border border, boolean comp
     }
 
     @Override
-    public MapCodec<? extends SpriteSource> codec()
-    {
+    public MapCodec<? extends SpriteSource> codec() {
         return CODEC;
     }
 }

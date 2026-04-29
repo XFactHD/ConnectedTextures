@@ -10,8 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.EnumSet;
 
-public final class SimpleCarpetTextureType extends SimpleTextureType
-{
+public final class SimpleCarpetTextureType extends SimpleTextureType {
     public static final SimpleCarpetTextureType[] TYPES = Utils.fillArray(
             new SimpleCarpetTextureType[6], idx -> new SimpleCarpetTextureType(Direction.from3DDataValue(idx))
     );
@@ -20,8 +19,7 @@ public final class SimpleCarpetTextureType extends SimpleTextureType
     private final Direction dir;
     private final EnumSet<Direction> affectedFaces;
 
-    private SimpleCarpetTextureType(Direction dir)
-    {
+    private SimpleCarpetTextureType(Direction dir) {
         this.axis = dir.getAxis();
         this.dir = dir;
         this.affectedFaces = EnumSet.of(dir, dir.getOpposite());
@@ -35,10 +33,8 @@ public final class SimpleCarpetTextureType extends SimpleTextureType
             Direction side,
             ConnectionPredicate predicate,
             OcclusionMode occlusionMode
-    )
-    {
-        if (side.getAxis() == axis)
-        {
+    ) {
+        if (side.getAxis() == axis) {
             OcclusionMode realOcclusionMode = side == dir ? occlusionMode.except(OcclusionMode.SELF) : OcclusionMode.NONE;
             return super.getConnectionState(level, pos, state, side, predicate, realOcclusionMode);
         }
@@ -46,8 +42,7 @@ public final class SimpleCarpetTextureType extends SimpleTextureType
     }
 
     @Override
-    public EnumSet<Direction> getAffectedFaces()
-    {
+    public EnumSet<Direction> getAffectedFaces() {
         return affectedFaces;
     }
 }

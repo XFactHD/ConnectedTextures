@@ -4,22 +4,19 @@ import com.mojang.serialization.MapCodec;
 import io.github.xfacthd.contex.api.type.SimpleConnectionPredicate;
 import net.minecraft.world.level.block.state.BlockState;
 
-public final class SameBlockPredicate extends SimpleConnectionPredicate
-{
+public final class SameBlockPredicate extends SimpleConnectionPredicate {
     public static final SameBlockPredicate INSTANCE = new SameBlockPredicate();
     public static final MapCodec<SameBlockPredicate> CODEC = MapCodec.unit(INSTANCE);
 
     private SameBlockPredicate() { }
 
     @Override
-    protected boolean compare(BlockState state, BlockState adjState)
-    {
+    protected boolean compare(BlockState state, BlockState adjState) {
         return state.getBlock() == adjState.getBlock();
     }
 
     @Override
-    public MapCodec<SameBlockPredicate> codec()
-    {
+    public MapCodec<SameBlockPredicate> codec() {
         return CODEC;
     }
 }

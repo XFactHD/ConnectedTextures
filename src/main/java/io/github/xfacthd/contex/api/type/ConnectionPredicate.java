@@ -6,8 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 
-public interface ConnectionPredicate
-{
+public interface ConnectionPredicate {
     /**
      * Test whether the block at the given position matches the neighboring block at the given neighbor position.
      *

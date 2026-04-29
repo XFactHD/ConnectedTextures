@@ -13,13 +13,11 @@ import net.minecraft.core.Direction;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public final class CompactTextureStrategy implements TextureStrategy
-{
+public final class CompactTextureStrategy implements TextureStrategy {
     public static final CompactTextureStrategy INSTANCE = new CompactTextureStrategy();
 
     @Override
-    public void makeConnectionQuads(TextureType type, BakedQuad srcQuad, Direction side, byte state, SpriteLookup sprites, Consumer<BakedQuad> output)
-    {
+    public void makeConnectionQuads(TextureType type, BakedQuad srcQuad, Direction side, byte state, SpriteLookup sprites, Consumer<BakedQuad> output) {
         makeConnectionQuad(type, srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.UP, sprites, output);
         makeConnectionQuad(type, srcQuad, side, state, ConnectionDirection.RIGHT, ConnectionDirection.UP, sprites, output);
         makeConnectionQuad(type, srcQuad, side, state, ConnectionDirection.LEFT, ConnectionDirection.DOWN, sprites, output);
@@ -35,14 +33,12 @@ public final class CompactTextureStrategy implements TextureStrategy
             ConnectionDirection vDir,
             SpriteLookup sprites,
             Consumer<BakedQuad> output
-    )
-    {
+    ) {
         boolean xCon = uDir.isSet(state);
         boolean yCon = vDir.isSet(state);
 
         TextureAtlasSprite targetSprite = null;
-        if (xCon || yCon)
-        {
+        if (xCon || yCon) {
             boolean diagCon = ConnectionDirection.diagonal(uDir, vDir).isSet(state);
             targetSprite = sprites.get(type.getConnectedSprite(xCon, yCon, diagCon, side));
         }
@@ -50,8 +46,7 @@ public final class CompactTextureStrategy implements TextureStrategy
     }
 
     @Override
-    public void makeNonCtQuads(BakedQuad srcQuad, Consumer<BakedQuad> output)
-    {
+    public void makeNonCtQuads(BakedQuad srcQuad, Consumer<BakedQuad> output) {
         QuadRebaker.process(srcQuad, ConnectionDirection.RIGHT, ConnectionDirection.UP, null, output);
         QuadRebaker.process(srcQuad, ConnectionDirection.RIGHT, ConnectionDirection.DOWN, null, output);
         QuadRebaker.process(srcQuad, ConnectionDirection.LEFT, ConnectionDirection.UP, null, output);
@@ -59,8 +54,7 @@ public final class CompactTextureStrategy implements TextureStrategy
     }
 
     @Override
-    public Set<SpriteType> computePermittedTypes(Set<SpriteType> spriteTypes)
-    {
+    public Set<SpriteType> computePermittedTypes(Set<SpriteType> spriteTypes) {
         return spriteTypes;
     }
 }

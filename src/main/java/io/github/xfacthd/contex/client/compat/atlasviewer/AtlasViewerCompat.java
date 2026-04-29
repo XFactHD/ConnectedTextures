@@ -12,8 +12,7 @@ import net.neoforged.fml.ModList;
 import org.slf4j.Logger;
 import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
 
-public final class AtlasViewerCompat
-{
+public final class AtlasViewerCompat {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component LABEL_TEXTURE = Component.translatable("label.contex.source_tooltip.ctm.texture");
     private static final Component LABEL_BORDER = Component.translatable("label.contex.source_tooltip.ctm.border");
@@ -21,35 +20,26 @@ public final class AtlasViewerCompat
     private static final Component LABEL_MIRROR_PERPENDICULAR = Component.translatable("label.contex.source_tooltip.ctm.mirror_perpendicular");
     private static final String VALUE_BORDER = "value.contex.source_tooltip.ctm.border";
 
-    public static void init(IEventBus modBus)
-    {
-        if (ModList.get().isLoaded("atlasviewer"))
-        {
-            try
-            {
+    public static void init(IEventBus modBus) {
+        if (ModList.get().isLoaded("atlasviewer")) {
+            try {
                 GuardedClientAccess.init(modBus);
-            }
-            catch (Throwable e)
-            {
+            } catch (Throwable e) {
                 LOGGER.error("Failed to initialize AtlasViewer compat", e);
             }
         }
     }
 
-    private static final class GuardedClientAccess
-    {
-        public static void init(IEventBus modBus)
-        {
+    private static final class GuardedClientAccess {
+        public static void init(IEventBus modBus) {
             modBus.addListener(GuardedClientAccess::onRegisterSpriteSourceDetails);
         }
 
-        private static void onRegisterSpriteSourceDetails(final RegisterSpriteSourceDetailsEvent event)
-        {
+        private static void onRegisterSpriteSourceDetails(final RegisterSpriteSourceDetailsEvent event) {
             event.registerPrimaryResourceGetter(ConTexCompactSpriteSupplier.class, ConTexCompactSpriteSupplier::imgResource);
             event.registerPrimaryResourceGetter(ConTexFullSpriteSupplier.class, ConTexFullSpriteSupplier::imgResource);
 
-            event.registerSourceTooltipAppender(ConTexSpriteSource.class, (src, consumer) ->
-            {
+            event.registerSourceTooltipAppender(ConTexSpriteSource.class, (src, consumer) -> {
                 Identifier resource = src.texture();
                 Border border = src.border();
 

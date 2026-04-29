@@ -7,8 +7,7 @@ import net.minecraft.core.Direction;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public interface TextureStrategy
-{
+public interface TextureStrategy {
     /// Create the [BakedQuad]s making up the given {@linkplain Direction side} of the block with the given connection state.
     /// Must only be called for sides contained in the set returned by [TextureType#getAffectedFaces()].
     ///

@@ -22,8 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public final class ConTexBlockModelDefinition implements CustomBlockModelDefinition
-{
+public final class ConTexBlockModelDefinition implements CustomBlockModelDefinition {
     public static final MapCodec<ConTexBlockModelDefinition> CODEC = RecordCodecBuilder.<ConTexBlockModelDefinition>mapCodec(inst -> inst.group(
             BlockStateModelDispatcher.VANILLA_CODEC.forGetter(def -> def.baseDefinition),
             MetadataRegistry.STRATEGY_CODEC.optionalFieldOf("strategy", CompactTextureStrategy.INSTANCE).forGetter(def -> def.strategy),
@@ -35,8 +34,7 @@ public final class ConTexBlockModelDefinition implements CustomBlockModelDefinit
     private final List<MetaEntry> metadata;
     private final boolean metaNeedsFiltering;
 
-    public ConTexBlockModelDefinition(BlockStateModelDispatcher baseDefinition, TextureStrategy strategy, List<MetaEntry> metadata)
-    {
+    public ConTexBlockModelDefinition(BlockStateModelDispatcher baseDefinition, TextureStrategy strategy, List<MetaEntry> metadata) {
         this.baseDefinition = baseDefinition;
         this.strategy = strategy;
         this.metadata = metadata;
@@ -44,15 +42,15 @@ public final class ConTexBlockModelDefinition implements CustomBlockModelDefinit
     }
 
     @Override
-    public Map<BlockState, BlockStateModel.UnbakedRoot> instantiate(StateDefinition<Block, BlockState> states, Supplier<String> sourceSupplier)
-    {
+    public Map<BlockState, BlockStateModel.UnbakedRoot> instantiate(StateDefinition<Block, BlockState> states, Supplier<String> sourceSupplier) {
         Map<BlockState, BlockStateModel.UnbakedRoot> models = baseDefinition.instantiateVanilla(states, sourceSupplier);
-        if (metadata.isEmpty()) return models;
+        if (metadata.isEmpty()) {
+            return models;
+        }
 
         Map<BlockState, BlockStateModel.UnbakedRoot> newModels = new IdentityHashMap<>(models.size());
         Map<BlockStateModel.UnbakedRoot, BlockStateModel.UnbakedRoot> wrappedModels = new IdentityHashMap<>(models.size());
-        for (Map.Entry<BlockState, BlockStateModel.UnbakedRoot> entry : models.entrySet())
-        {
+        for (Map.Entry<BlockState, BlockStateModel.UnbakedRoot> entry : models.entrySet()) {
             newModels.put(entry.getKey(), wrappedModels.computeIfAbsent(
                     entry.getValue(),
                     model -> new UnbakedConTexModel(entry.getKey(), model, strategy, getFilteredMetadata(entry.getKey()))
@@ -61,16 +59,12 @@ public final class ConTexBlockModelDefinition implements CustomBlockModelDefinit
         return newModels;
     }
 
-    private List<MetaEntry> getFilteredMetadata(BlockState state)
-    {
-        if (metaNeedsFiltering)
-        {
+    private List<MetaEntry> getFilteredMetadata(BlockState state) {
+        if (metaNeedsFiltering) {
             List<MetaEntry> newMetadata = new ArrayList<>(metadata.size());
-            for (MetaEntry entry : metadata)
-            {
+            for (MetaEntry entry : metadata) {
                 Optional<StatePredicate> predicate = entry.statePredicate();
-                if (predicate.isEmpty() || predicate.get().matches(state))
-                {
+                if (predicate.isEmpty() || predicate.get().matches(state)) {
                     newMetadata.add(entry);
                 }
             }
@@ -80,13 +74,11 @@ public final class ConTexBlockModelDefinition implements CustomBlockModelDefinit
     }
 
     @Override
-    public MapCodec<ConTexBlockModelDefinition> codec()
-    {
+    public MapCodec<ConTexBlockModelDefinition> codec() {
         return CODEC;
     }
 
-    private static DataResult<ConTexBlockModelDefinition> validate(ConTexBlockModelDefinition definition)
-    {
+    private static DataResult<ConTexBlockModelDefinition> validate(ConTexBlockModelDefinition definition) {
         DataResult<List<MetaEntry>> result = MetaEntry.validate(definition.metadata, definition.strategy);
         return result.isError() ? result.map(_ -> definition) : DataResult.success(definition);
     }

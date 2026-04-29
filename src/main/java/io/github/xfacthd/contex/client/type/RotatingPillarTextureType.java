@@ -6,8 +6,7 @@ import net.minecraft.core.Direction;
 
 import java.util.Set;
 
-public final class RotatingPillarTextureType extends PillarTextureType
-{
+public final class RotatingPillarTextureType extends PillarTextureType {
     public static final RotatingPillarTextureType X = new RotatingPillarTextureType(Direction.Axis.X);
     public static final RotatingPillarTextureType Y = new RotatingPillarTextureType(Direction.Axis.Y);
     public static final RotatingPillarTextureType Z = new RotatingPillarTextureType(Direction.Axis.Z);
@@ -16,15 +15,12 @@ public final class RotatingPillarTextureType extends PillarTextureType
     private final SpriteType spriteHor;
     private final SpriteType spriteVert;
 
-    private RotatingPillarTextureType(Direction.Axis axis)
-    {
+    private RotatingPillarTextureType(Direction.Axis axis) {
         super(axis);
-        switch (axis)
-        {
+        switch (axis) {
             case X -> spriteHor = spriteVert = SpriteType.HORIZONTAL;
             case Y -> spriteHor = spriteVert = SpriteType.VERTICAL;
-            case Z ->
-            {
+            case Z -> {
                 spriteHor = SpriteType.HORIZONTAL;
                 spriteVert = SpriteType.VERTICAL;
             }
@@ -33,18 +29,15 @@ public final class RotatingPillarTextureType extends PillarTextureType
     }
 
     @Override
-    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
-    {
-        if (xCon || yCon)
-        {
+    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side) {
+        if (xCon || yCon) {
             return Utils.isY(side) ? spriteVert : spriteHor;
         }
         return SpriteType.NONE;
     }
 
     @Override
-    public Set<SpriteType> getSpriteTypes()
-    {
+    public Set<SpriteType> getSpriteTypes() {
         return SPRITE_TYPES;
     }
 }

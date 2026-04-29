@@ -12,8 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Set;
 
-public final class OmniPillarTextureType extends TextureType
-{
+public final class OmniPillarTextureType extends TextureType {
     private static final ConnectionDirection[] DIRECTIONS = ConnectionDirection.values();
     private static final Direction[] DIR_AXIS_Y = new Direction[] { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
     private static final Direction[] DIR_AXIS_X = new Direction[] { Direction.UP, Direction.NORTH, Direction.DOWN, Direction.SOUTH };
@@ -40,49 +39,38 @@ public final class OmniPillarTextureType extends TextureType
             Direction side,
             ConnectionPredicate predicate,
             OcclusionMode occlusionMode
-    )
-    {
+    ) {
         byte connections = 0;
-        for (ConnectionDirection dir : DIRECTIONS)
-        {
+        for (ConnectionDirection dir : DIRECTIONS) {
             connections = testDirection(dir, connections, level, pos, state, side, predicate, occlusionMode);
         }
         return connections;
     }
 
     @Override
-    public void postProcessConnections(byte[] stateMap)
-    {
-        for (Direction side : DIR_AXIS_Y)
-        {
+    public void postProcessConnections(byte[] stateMap) {
+        for (Direction side : DIR_AXIS_Y) {
             byte state = stateMap[side.ordinal()];
-            if (ConnectionDirection.UP.isSet(state) || ConnectionDirection.DOWN.isSet(state))
-            {
+            if (ConnectionDirection.UP.isSet(state) || ConnectionDirection.DOWN.isSet(state)) {
                 cleanConnections(stateMap, DIR_AXIS_Y, Direction.UP, Direction.DOWN, CON_MASK_AXIS_Y);
                 return;
             }
         }
-        for (Direction side : DIAG_DIR_AXIS_X)
-        {
-            if ((stateMap[side.ordinal()] & DIAG_CHECK_MASK) != 0)
-            {
+        for (Direction side : DIAG_DIR_AXIS_X) {
+            if ((stateMap[side.ordinal()] & DIAG_CHECK_MASK) != 0) {
                 cleanConnections(stateMap, DIR_AXIS_X, Direction.EAST, Direction.WEST, CON_MASK_DIAG_AXIS_X);
                 return;
             }
         }
-        for (Direction side : DIR_AXIS_X)
-        {
+        for (Direction side : DIR_AXIS_X) {
             byte state = stateMap[side.ordinal()];
-            if (ConnectionDirection.LEFT.isSet(state) || ConnectionDirection.RIGHT.isSet(state))
-            {
+            if (ConnectionDirection.LEFT.isSet(state) || ConnectionDirection.RIGHT.isSet(state)) {
                 cleanConnections(stateMap, DIR_AXIS_X, Direction.EAST, Direction.WEST, CON_MASK_AXIS_X);
                 return;
             }
         }
-        for (Direction side : DIAG_DIR_AXIS_Z)
-        {
-            if ((stateMap[side.ordinal()] & DIAG_CHECK_MASK) != 0)
-            {
+        for (Direction side : DIAG_DIR_AXIS_Z) {
+            if ((stateMap[side.ordinal()] & DIAG_CHECK_MASK) != 0) {
                 cleanConnections(stateMap, DIR_AXIS_Z, Direction.NORTH, Direction.SOUTH, CON_MASK_DIAG_AXIS_Z);
                 return;
             }
@@ -90,13 +78,11 @@ public final class OmniPillarTextureType extends TextureType
         // If X and Y have no connections and Z is not blocked by adjacent X or Y pillars, it can only be Z or none, so no need to check or clean anything up
     }
 
-    private static void cleanConnections(byte[] stateMap, Direction[] allowedDirs, Direction remOne, Direction remTwo, int conMask)
-    {
+    private static void cleanConnections(byte[] stateMap, Direction[] allowedDirs, Direction remOne, Direction remTwo, int conMask) {
         stateMap[remOne.ordinal()] = 0;
         stateMap[remTwo.ordinal()] = 0;
 
-        for (int i = 0; i < 4; i++)
-        {
+        for (int i = 0; i < 4; i++) {
             Direction side = allowedDirs[i];
             byte state = stateMap[side.ordinal()];
             stateMap[side.ordinal()] = (byte) (state & conMask);
@@ -104,16 +90,18 @@ public final class OmniPillarTextureType extends TextureType
     }
 
     @Override
-    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side)
-    {
-        if (xCon) return SpriteType.HORIZONTAL;
-        if (yCon) return SpriteType.VERTICAL;
+    public SpriteType getConnectedSprite(boolean xCon, boolean yCon, boolean diagCon, Direction side) {
+        if (xCon) {
+            return SpriteType.HORIZONTAL;
+        }
+        if (yCon) {
+            return SpriteType.VERTICAL;
+        }
         return SpriteType.NONE;
     }
 
     @Override
-    public Set<SpriteType> getSpriteTypes()
-    {
+    public Set<SpriteType> getSpriteTypes() {
         return SPRITE_TYPES;
     }
 }

@@ -12,8 +12,7 @@ import net.neoforged.fml.ModLoader;
 
 import java.util.function.Function;
 
-public final class MetadataRegistry
-{
+public final class MetadataRegistry {
     private static final ExtraCodecs.LateBoundIdMapper<Identifier, TextureType> TYPES = new ExtraCodecs.LateBoundIdMapper<>();
     private static final ExtraCodecs.LateBoundIdMapper<Identifier, MapCodec<? extends ConnectionPredicate>> PREDICATES = new ExtraCodecs.LateBoundIdMapper<>();
     private static final ExtraCodecs.LateBoundIdMapper<Identifier, TextureStrategy> STRATEGIES = new ExtraCodecs.LateBoundIdMapper<>();
@@ -21,8 +20,7 @@ public final class MetadataRegistry
     public static final Codec<ConnectionPredicate> PREDICATE_CODEC = PREDICATES.codec(Identifier.CODEC).dispatch(ConnectionPredicate::codec, Function.identity());
     public static final Codec<TextureStrategy> STRATEGY_CODEC = STRATEGIES.codec(Identifier.CODEC);
 
-    public static void init()
-    {
+    public static void init() {
         ModLoader.postEvent(new RegisterTextureMetaEvent(TYPES::put, PREDICATES::put, STRATEGIES::put));
     }
 

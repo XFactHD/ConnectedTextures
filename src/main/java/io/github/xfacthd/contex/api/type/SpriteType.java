@@ -7,8 +7,7 @@ import net.minecraft.util.StringRepresentable;
 
 import java.util.Set;
 
-public final class SpriteType implements StringRepresentable
-{
+public final class SpriteType implements StringRepresentable {
     private static final Set<SpriteType> TYPES = new ReferenceOpenHashSet<>();
     public static final Codec<SpriteType> CODEC = Codec.lazyInitialized(() -> StringRepresentable.fromValues(() -> TYPES.toArray(SpriteType[]::new)));
 
@@ -27,13 +26,11 @@ public final class SpriteType implements StringRepresentable
     private final boolean baseType;
     private final int baseIndex;
 
-    public SpriteType(String group, String suffix)
-    {
+    public SpriteType(String group, String suffix) {
         this(group, suffix, false, false, -1);
     }
 
-    private SpriteType(String group, String suffix, boolean connectsHorizontal, boolean connectsVertical, int baseIndex)
-    {
+    private SpriteType(String group, String suffix, boolean connectsHorizontal, boolean connectsVertical, int baseIndex) {
         this.name = group + "/" + suffix;
         this.suffix = suffix;
         this.connectsHorizontal = connectsHorizontal;
@@ -43,38 +40,32 @@ public final class SpriteType implements StringRepresentable
         TYPES.add(this);
     }
 
-    public String suffix()
-    {
+    public String suffix() {
         return suffix;
     }
 
-    public boolean connectsHorizontal()
-    {
+    public boolean connectsHorizontal() {
         Preconditions.checkState(baseType);
         return connectsHorizontal;
     }
 
-    public boolean connectsVertical()
-    {
+    public boolean connectsVertical() {
         Preconditions.checkState(baseType);
         return connectsVertical;
     }
 
-    public int getBaseIndex()
-    {
+    public int getBaseIndex() {
         Preconditions.checkState(baseType);
         return baseIndex;
     }
 
     @Override
-    public String getSerializedName()
-    {
+    public String getSerializedName() {
         return name;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 }

@@ -7,26 +7,20 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-public final class ExtendedQuadCollectionBuilder extends QuadCollection.Builder implements Consumer<BakedQuad>
-{
+public final class ExtendedQuadCollectionBuilder extends QuadCollection.Builder implements Consumer<BakedQuad> {
     @Nullable
     private Direction currCullFace = null;
 
     @Override
-    public void accept(BakedQuad quad)
-    {
-        if (currCullFace != null)
-        {
+    public void accept(BakedQuad quad) {
+        if (currCullFace != null) {
             addCulledFace(currCullFace, quad);
-        }
-        else
-        {
+        } else {
             addUnculledFace(quad);
         }
     }
 
-    public void setCullFace(@Nullable Direction currCullFace)
-    {
+    public void setCullFace(@Nullable Direction currCullFace) {
         this.currCullFace = currCullFace;
     }
 }

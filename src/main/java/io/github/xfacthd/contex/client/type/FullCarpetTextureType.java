@@ -10,8 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.EnumSet;
 
-public final class FullCarpetTextureType extends FullTextureType
-{
+public final class FullCarpetTextureType extends FullTextureType {
     public static final FullCarpetTextureType[] TYPES = Utils.fillArray(
             new FullCarpetTextureType[6], idx -> new FullCarpetTextureType(Direction.from3DDataValue(idx))
     );
@@ -20,8 +19,7 @@ public final class FullCarpetTextureType extends FullTextureType
     private final Direction dir;
     private final EnumSet<Direction> affectedFaces;
 
-    private FullCarpetTextureType(Direction dir)
-    {
+    private FullCarpetTextureType(Direction dir) {
         this.axis = dir.getAxis();
         this.dir = dir;
         this.affectedFaces = EnumSet.of(dir, dir.getOpposite());
@@ -35,10 +33,8 @@ public final class FullCarpetTextureType extends FullTextureType
             Direction side,
             ConnectionPredicate predicate,
             OcclusionMode occlusionMode
-    )
-    {
-        if (side.getAxis() == axis)
-        {
+    ) {
+        if (side.getAxis() == axis) {
             OcclusionMode realOcclusionMode = side == dir ? occlusionMode.except(OcclusionMode.SELF) : OcclusionMode.NONE;
             return super.getConnectionState(level, pos, state, side, predicate, realOcclusionMode);
         }
@@ -46,8 +42,7 @@ public final class FullCarpetTextureType extends FullTextureType
     }
 
     @Override
-    public EnumSet<Direction> getAffectedFaces()
-    {
+    public EnumSet<Direction> getAffectedFaces() {
         return affectedFaces;
     }
 }

@@ -41,13 +41,11 @@ import net.neoforged.neoforge.event.AddPackFindersEvent;
 
 @Mod(value = Constants.MOD_ID, dist = Dist.CLIENT)
 @SuppressWarnings("UtilityClassWithPublicConstructor")
-public final class ConnectedTextures
-{
+public final class ConnectedTextures {
     public static final Identifier BUILTIN_RP_ID = Utils.id("builtin_glass_ct");
     public static final Component BUILTIN_RP_DESC = Component.literal("ConTex Built-In Connected Glass");
 
-    public ConnectedTextures(IEventBus modBus)
-    {
+    public ConnectedTextures(IEventBus modBus) {
         modBus.addListener(ConnectedTextures::onRegisterBlockStateModels);
         modBus.addListener(ConnectedTextures::onRegisterSpriteSources);
         modBus.addListener(ConnectedTextures::onInitClientRegistries);
@@ -59,23 +57,19 @@ public final class ConnectedTextures
         CompatHandler.init(modBus);
     }
 
-    private static void onRegisterBlockStateModels(RegisterBlockStateModels event)
-    {
+    private static void onRegisterBlockStateModels(RegisterBlockStateModels event) {
         event.registerDefinition(Utils.id("definition"), ConTexBlockModelDefinition.CODEC);
     }
 
-    private static void onRegisterSpriteSources(RegisterSpriteSourcesEvent event)
-    {
+    private static void onRegisterSpriteSources(RegisterSpriteSourcesEvent event) {
         event.register(Utils.id("ctm"), ConTexSpriteSource.CODEC);
     }
 
-    private static void onInitClientRegistries(InitializeClientRegistriesEvent event)
-    {
+    private static void onInitClientRegistries(InitializeClientRegistriesEvent event) {
         MetadataRegistry.init();
     }
 
-    private static void onRegisterMetadata(RegisterTextureMetaEvent event)
-    {
+    private static void onRegisterMetadata(RegisterTextureMetaEvent event) {
         event.registerType(Utils.id("simple"), SimpleTextureType.INSTANCE);
         event.registerType(Utils.id("full"), FullTextureType.INSTANCE);
         event.registerType(Utils.id("pillar_x"), PillarTextureType.X);
@@ -108,8 +102,7 @@ public final class ConnectedTextures
         event.registerStrategy(Utils.id("full"), FullTextureStrategy.INSTANCE);
     }
 
-    private static void onAddPackFinders(AddPackFindersEvent event)
-    {
+    private static void onAddPackFinders(AddPackFindersEvent event) {
         boolean forceEnable = !FMLLoader.getCurrent().isProduction() && Boolean.getBoolean("contex.force_builtin");
         event.addPackFinders(
                 BUILTIN_RP_ID,
@@ -121,8 +114,7 @@ public final class ConnectedTextures
         );
     }
 
-    private static void onRegisterClientCommands(RegisterClientCommandsEvent event)
-    {
+    private static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
         ConTexCommand.register(event.getDispatcher());
     }
 }
