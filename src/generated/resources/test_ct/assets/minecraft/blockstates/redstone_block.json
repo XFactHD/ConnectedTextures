@@ -4,9 +4,7 @@
     {
       "type": "contex:pillar_omni",
       "textures": [
-        {
-          "main_texture": "minecraft:block/redstone_block"
-        }
+        "minecraft:block/redstone_block"
       ]
     }
   ],

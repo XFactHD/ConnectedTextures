@@ -1,6 +1,7 @@
 package io.github.xfacthd.contex.client.data;
 
 import com.google.common.collect.Sets;
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.xfacthd.contex.api.model.SpriteLookup;
@@ -19,15 +20,25 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
+import java.util.function.Function;
 
 public record TextureEntry(Identifier baseTexture, Reference2ObjectMap<SpriteType, Identifier> textures)
 {
-    public static final Codec<TextureEntry> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    private static final Codec<TextureEntry> FULL_CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Identifier.CODEC.fieldOf("main_texture").forGetter(TextureEntry::baseTexture),
             Utils.ref2ObjMapCodec(SpriteType.CODEC, Identifier.CODEC)
                     .optionalFieldOf("ct_textures", Reference2ObjectMaps.emptyMap())
                     .forGetter(TextureEntry::textures)
     ).apply(inst, TextureEntry::new));
+    public static final Codec<TextureEntry> CODEC = Codec.either(Identifier.CODEC, FULL_CODEC).xmap(
+            either -> either.map(TextureEntry::new, Function.identity()),
+            entry -> entry.textures.isEmpty() ? Either.left(entry.baseTexture) : Either.right(entry)
+    );
+
+    private TextureEntry(Identifier baseTexture)
+    {
+        this(baseTexture, Reference2ObjectMaps.emptyMap());
+    }
 
     public Baked bake(MaterialBaker baker, TextureType type, TextureStrategy strategy)
     {

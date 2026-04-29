@@ -4,9 +4,7 @@
     {
       "type": "contex:full",
       "textures": [
-        {
-          "main_texture": "minecraft:block/polished_diorite"
-        }
+        "minecraft:block/polished_diorite"
       ]
     }
   ],

@@ -10,9 +10,7 @@
         "axis": "x"
       },
       "textures": [
-        {
-          "main_texture": "minecraft:block/oak_log"
-        }
+        "minecraft:block/oak_log"
       ]
     },
     {
@@ -24,9 +22,7 @@
         "axis": "y"
       },
       "textures": [
-        {
-          "main_texture": "minecraft:block/oak_log"
-        }
+        "minecraft:block/oak_log"
       ]
     },
     {
@@ -38,9 +34,7 @@
         "axis": "z"
       },
       "textures": [
-        {
-          "main_texture": "minecraft:block/oak_log"
-        }
+        "minecraft:block/oak_log"
       ]
     }
   ],

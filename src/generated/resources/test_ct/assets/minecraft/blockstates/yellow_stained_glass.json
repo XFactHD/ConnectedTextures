@@ -5,9 +5,7 @@
       "type": "contex:full",
       "occlusion_mode": "solid_or_self",
       "textures": [
-        {
-          "main_texture": "minecraft:block/yellow_stained_glass"
-        }
+        "minecraft:block/yellow_stained_glass"
       ]
     }
   ],

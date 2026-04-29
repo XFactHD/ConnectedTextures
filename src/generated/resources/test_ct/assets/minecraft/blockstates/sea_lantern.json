@@ -4,9 +4,7 @@
     {
       "type": "contex:full",
       "textures": [
-        {
-          "main_texture": "minecraft:block/sea_lantern"
-        }
+        "minecraft:block/sea_lantern"
       ]
     }
   ],

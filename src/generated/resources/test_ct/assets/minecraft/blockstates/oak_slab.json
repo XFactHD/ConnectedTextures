@@ -7,9 +7,7 @@
         "type": "contex:same_state"
       },
       "textures": [
-        {
-          "main_texture": "minecraft:block/polished_diorite"
-        }
+        "minecraft:block/polished_diorite"
       ]
     }
   ],
