@@ -100,7 +100,7 @@ repositories {
 // The dependency is so local that the used classpath must be from the
 // sourceset specified in the run config and not a parent thereof
 configurations {
-    testRuntimeClasspath.extendsFrom localRuntime
+    testdataRuntimeClasspath.extendsFrom localRuntime
 }
 
 dependencies {

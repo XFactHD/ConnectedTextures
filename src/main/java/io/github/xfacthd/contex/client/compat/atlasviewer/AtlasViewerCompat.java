@@ -1,6 +1,7 @@
 package io.github.xfacthd.contex.client.compat.atlasviewer;
 
 import com.mojang.logging.LogUtils;
+import io.github.xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
 import io.github.xfacthd.contex.api.texture.Border;
 import io.github.xfacthd.contex.api.texture.ConTexSpriteSource;
 import io.github.xfacthd.contex.client.texture.ConTexCompactSpriteSupplier;
@@ -10,7 +11,6 @@ import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import org.slf4j.Logger;
-import xfacthd.atlasviewer.client.api.RegisterSpriteSourceDetailsEvent;
 
 public final class AtlasViewerCompat {
     private static final Logger LOGGER = LogUtils.getLogger();

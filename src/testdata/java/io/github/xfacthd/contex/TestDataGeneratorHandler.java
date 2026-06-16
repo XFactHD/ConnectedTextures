@@ -129,7 +129,7 @@ public final class TestDataGeneratorHandler {
             variant(blockModels, Blocks.POLISHED_GRANITE, FullTextureType.INSTANCE,             builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_GRANITE));
             variant(blockModels, Blocks.REDSTONE_BLOCK, OmniPillarTextureType.INSTANCE,               builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_REDSTONE));
             variant(blockModels, Blocks.SEA_LANTERN, FullTextureType.INSTANCE,                  builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_SEA_LANTERN));
-            variant(blockModels, Blocks.YELLOW_STAINED_GLASS, FullTextureType.INSTANCE, FullTextureStrategy.INSTANCE, builder -> builder.predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.SOLID_OR_SELF).addTexture(TEX_YELLOW_GLASS));
+            variant(blockModels, Blocks.STAINED_GLASS.yellow(), FullTextureType.INSTANCE, FullTextureStrategy.INSTANCE, builder -> builder.predicate(SameBlockPredicate.INSTANCE).occlusionMode(OcclusionMode.SOLID_OR_SELF).addTexture(TEX_YELLOW_GLASS));
 
             TextureMapping mapping = new TextureMapping()
                     .put(SLOT_REDSTONE, new Material(TEX_REDSTONE))
@@ -156,8 +156,8 @@ public final class TestDataGeneratorHandler {
             slabGenerator.metadata(FullTextureType.INSTANCE, builder -> builder.predicate(SameStatePredicate.INSTANCE).addTexture(TEX_DIORITE));
             blockModels.blockStateOutput.accept(slabGenerator);
 
-            TexturedModel.CARPET.get(Blocks.RED_WOOL).create(Blocks.RED_CARPET, blockModels.modelOutput);
-            variant(blockModels, Blocks.RED_CARPET, FullCarpetTextureType.TYPES[Direction.DOWN.ordinal()], builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_RED_WOOL));
+            TexturedModel.CARPET.get(Blocks.WOOL.red()).create(Blocks.CARPET.red(), blockModels.modelOutput);
+            variant(blockModels, Blocks.CARPET.red(), FullCarpetTextureType.TYPES[Direction.DOWN.ordinal()], builder -> builder.predicate(SameBlockPredicate.INSTANCE).addTexture(TEX_RED_WOOL));
 
             ConTexBlockModelDefinitionGenerator logGenerator = new ConTexBlockModelDefinitionGenerator(Blocks.OAK_LOG);
             MultiVariant logVariant = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(Blocks.OAK_LOG));
