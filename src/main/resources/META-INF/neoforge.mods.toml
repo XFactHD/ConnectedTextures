@@ -5,8 +5,8 @@ issueTrackerURL="https://github.com/XFactHD/ConnectedTextures"
 	modId="contex"
 	version="${mod_version}"
 	displayName="ConTex"
-	#displayURL="https://www.curseforge.com/minecraft/mc-mods/contex"
-	logoFile="logo.png"
+	displayURL="https://www.curseforge.com/minecraft/mc-mods/contex"
+	iconFile="icon.png"
 	authors="XFactHD"
 	description='''Yet another connected textures mod'''
 
