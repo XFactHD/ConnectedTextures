@@ -40,7 +40,7 @@ public final class DataGeneratorHandler {
     private static void onGatherData(final GatherDataEvent.Client event) {
         DataGenerator generator = event.getGenerator();
         DataGenerator.PackGenerator packGen = generator.getPackGenerator(true, "builtin_glass_ct", ConnectedTextures.BUILTIN_RP_ID.getPath());
-        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getReloadableLookupProvider();
 
         packGen.addProvider(output -> new PackMetadataGenerator(output).add(
                 PackMetadataSection.CLIENT_TYPE,

@@ -113,7 +113,7 @@ public final class QuadRebaker {
             quad.setUv(i, targetSprite.getU(uRel), targetSprite.getV(vRel));
         }
 
-        quad.setSprite(targetSprite, quad.requiredChunkLayer(), quad.requiredItemRenderType());
+        quad.setSprite(targetSprite, quad.requiredChunkLayer(), quad.requiredItemRenderType(), quad.requiredItemGlintRenderType(), quad.requiredItemGlintSpecialRenderType());
     }
 
     private static float getRelUV(MutableQuad quad, TextureAtlasSprite sprite, int vertex, int uvIdx) {

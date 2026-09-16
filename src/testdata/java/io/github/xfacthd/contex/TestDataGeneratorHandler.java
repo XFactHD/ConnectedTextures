@@ -85,7 +85,7 @@ public final class TestDataGeneratorHandler {
     private static void onGatherData(final GatherDataEvent.Client event) {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput(TEST_PACK_ID);
-        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getReloadableLookupProvider();
 
         generator.addProvider(true, new PackMetadataGenerator(output).add(
                 PackMetadataSection.CLIENT_TYPE,
