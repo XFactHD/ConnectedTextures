@@ -1,0 +1,17 @@
+{
+  "neoforge:definition_type": "contex:definition",
+  "contex_meta": [
+    {
+      "type": "contex:full",
+      "occlusion_mode": "solid_or_self",
+      "textures": [
+        "minecraft:block/pink_stained_glass"
+      ]
+    }
+  ],
+  "variants": {
+    "": {
+      "model": "minecraft:block/pink_stained_glass"
+    }
+  }
+}

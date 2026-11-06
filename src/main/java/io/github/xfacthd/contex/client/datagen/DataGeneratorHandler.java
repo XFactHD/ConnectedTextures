@@ -19,10 +19,14 @@ import net.minecraft.data.AtlasIds;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.metadata.PackMetadataGenerator;
+import net.minecraft.references.BlockItemId;
+import net.minecraft.references.BlockItemIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ColorCollection;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -54,25 +58,30 @@ public final class DataGeneratorHandler {
     }
 
     private static final class BuiltinCtBlockModelProvider extends ModelProvider {
-        private final Identifier TEX_GLASS = mcLocation("block/glass");
-
         public BuiltinCtBlockModelProvider(PackOutput output) {
             super(output, Constants.MOD_ID);
         }
 
         @Override
         protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-            ConTexBlockModelDefinitionGenerator generator = new ConTexBlockModelDefinitionGenerator(Blocks.GLASS)
+            generateGlassBlock(blockModels, Blocks.GLASS, mcLocation("block/glass"));
+            ColorCollection.zipApply(BlockItemIds.STAINED_GLASS.map(BlockItemId::block), Blocks.STAINED_GLASS, (key, block) ->
+                    generateGlassBlock(blockModels, block, key.identifier().withPrefix("block/"))
+            );
+        }
+
+        private static void generateGlassBlock(BlockModelGenerators blockModels, Block block, Identifier texture) {
+            ConTexBlockModelDefinitionGenerator generator = new ConTexBlockModelDefinitionGenerator(block)
                     .variant(MultiVariantGenerator.dispatch(
-                            Blocks.GLASS,
+                            block,
                             BlockModelGenerators.plainVariant(
-                                    ModelLocationUtils.getModelLocation(Blocks.GLASS)
+                                    ModelLocationUtils.getModelLocation(block)
                             )
                     ))
                     .metadata(FullTextureType.INSTANCE, builder ->
                             builder.predicate(SameBlockPredicate.INSTANCE)
                                     .occlusionMode(OcclusionMode.SOLID_OR_SELF)
-                                    .addTexture(TEX_GLASS)
+                                    .addTexture(texture)
                     );
             blockModels.blockStateOutput.accept(generator);
         }
@@ -85,11 +94,17 @@ public final class DataGeneratorHandler {
 
         @Override
         protected void gather() {
-            atlas(AtlasIds.BLOCKS)
-                    .addSource(new ConTexSpriteSource(
+            SourceList blockAtlas = atlas(AtlasIds.BLOCKS);
+            blockAtlas.addSource(new ConTexSpriteSource(
                             Identifier.withDefaultNamespace("block/glass"),
                             new Border(1)
                     ));
+            BlockItemIds.STAINED_GLASS.forEach(id ->
+                    blockAtlas.addSource(new ConTexSpriteSource(
+                            id.block().identifier().withPrefix("block/"),
+                            new Border(1)
+                    ))
+            );
         }
     }
 }

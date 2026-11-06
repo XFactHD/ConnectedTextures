@@ -9,6 +9,166 @@
         "top": 1
       },
       "texture": "minecraft:block/glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/white_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/orange_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/magenta_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/light_blue_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/yellow_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/lime_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/pink_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/gray_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/light_gray_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/cyan_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/purple_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/blue_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/brown_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/green_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/red_stained_glass"
+    },
+    {
+      "type": "contex:ctm",
+      "border": {
+        "bottom": 1,
+        "left": 1,
+        "right": 1,
+        "top": 1
+      },
+      "texture": "minecraft:block/black_stained_glass"
     }
   ]
 }
